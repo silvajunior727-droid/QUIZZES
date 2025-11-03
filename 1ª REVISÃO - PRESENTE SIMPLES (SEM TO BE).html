@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVISÃO - PRESENTE SIMPLES!!!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #dc3545; /* Alterado para vermelho */
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #d1e7dd;
+        }
+
+        .option-item.correct {
+            background-color: #28a745;
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+        }
+
+        .option-item.incorrect {
+            background-color: #dc3545;
+            color: white;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #007bff;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feedback.correct-text {
+            color: #28a745;
+        }
+
+        .feedback.incorrect-text {
+            color: #dc3545;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+        }
+
+        .skip-btn {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .hint-btn {
+            background-color: #6a0dad; /* Cor roxa para o botão Dica */
+            display: inline-block;
+            float: none;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid #6c757d;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap; /* Permite que os itens quebrem linha */
+        }
+        
+        .start-btn, .restart-btn, .send-report-btn, .print-btn, .share-btn, .save-report-btn, .continue-btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            animation: pulse 2s infinite;
+        }
+
+        .restart-btn {
+            background-color: #dc3545;
+        }
+
+        .send-report-btn {
+            background-color: #6c757d;
+        }
+
+        .print-btn {
+            background-color: #007bff;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            background-color: #25d366;
+        }
+
+        .share-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        .save-report-btn {
+            background-color: #007bff;
+        }
+
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .full-report-list {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ccc;
+        }
+
+        .incorrect-questions-list h3, .full-report-list h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .full-report-list h3 {
+            color: #007bff;
+        }
+
+        .incorrect-question-item, .report-question-item {
+            background-color: #fff3f3;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .report-question-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+
+        .incorrect-question-item p, .report-question-item p {
+            margin: 5px 0;
+        }
+
+        .incorrect-question-item p strong, .report-question-item p strong {
+            color: #333;
+        }
+
+        .incorrect-question-item .justification, .report-question-item .justification {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+
+        .report-question-item .option-item-report {
+            background-color: #e9ecef;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+
+        .report-question-item .option-item-report.correct {
+            background-color: #d4edda;
+        }
+
+        .report-question-item .option-item-report.incorrect {
+            background-color: #f8d7da;
+        }
+
+        .classification-red {
+            color: red;
+        }
+
+        .classification-blue {
+            color: #007bff;
+        }
+
+        .classification-orange {
+            color: #FFA500;
+            font-weight: bold;
+            animation: blink-text 1s linear infinite;
+        }
+
+        .performance-btn {
+            background-color: #FFA500; /* Laranja */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            margin-left: 0; /* Ajustado para alinhar corretamente com flexbox */
+            margin-right: auto; /* Empurra os outros botões para a direita */
+        }
+
+        .performance-display {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #856404;
+            text-align: left;
+        }
+
+        @keyframes blink-text {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Estilos específicos para impressão */
+        @media print {
+            body {
+                background-color: #fff;
+                padding-top: 0;
+                display: block;
+            }
+
+            .container {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                max-width: none;
+                min-height: auto;
+            }
+
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter {
+                display: none !important;
+            }
+
+            #results-card {
+                display: block !important;
+            }
+
+            .incorrect-questions-list, .full-report-list {
+                display: block !important;
+                border-top: 1px solid #ccc;
+                padding-top: 10px;
+            }
+
+            .incorrect-question-item, .report-question-item {
+                margin-bottom: 10px;
+                border: 1px solid #ddd;
+                background-color: #f9f9f9;
+            }
+
+            .report-question-item .justification {
+                display: block !important;
+                padding: 10px;
+                margin-top: 5px;
+                border-left: 3px solid #eee;
+                background-color: #eee;
+                font-size: 0.9em;
+            }
+
+            .report-question-item .option-item-report {
+                margin: 3px 0;
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>English Grammar Quiz</h1>
+            <h2>REVISÃO PRESENTE SIMPLES</h2>
+            <p id="personalized-welcome" style="font-size: 1.2rem; font-weight: bold; margin-top: 10px; display: none;">Seja bem-vindo(a) e boa sorte!</p>
+            <p id="quiz-description">Por favor, insira seu código de acesso para iniciar o teste. Ele tem 30 questões. Você tem tentativas <span id="intro-attempts-left">ilimitadas</span> para fazer este teste.</p>
+            <input type="text" id="student-code" placeholder="Your Access Code!">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 30</div>
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+                <div id="summary-text" class="hint-text" style="border-left-color: #28a745;"></div>
+            </div>
+            <div class="question-actions">
+                <button id="performance-btn" class="performance-btn">DESEMPENHO</button>
+                <button id="summary-button" class="start-btn" onclick="quizApp.showSummary()" style="background-color: #28a745; display: none;">Resumo</button>
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+                <div id="performance-display" class="performance-display" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório Final</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display"></span></p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            <p><strong>Classificação:</strong> <span id="classification-display"></span></p>
+            <div class="results-actions">
+                <a id="send-report-link" class="send-report-btn" href="#" target="_blank">Enviar Relatório ao Professor</a>
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <a id="share-whatsapp" class="start-btn share-btn" href="#" target="_blank">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"> Compartilhar
+                </a>
+                <button class="start-btn save-report-btn" onclick="quizApp.saveReport()">Salvar Relatório</button>
+                <button class="start-btn print-btn" onclick="quizApp.printReport()">Imprimir Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+            <div id="full-report-container" class="full-report-list" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        const quizApp = {
+            // SUBSTITUA A URL ABAIXO PELA URL DO SEU PRÓPRIO GOOGLE SCRIPT.
+            APP_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwtDAlCCBcc3cN3pHX5YTvCZBsYTH--UJbeaczv64av_vIkybVIaEs-nTLKM2ssHND2/exec',
+            
+            currentQuestionIndex: 0,
+            score: 0,
+            userAnswers: {},
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            totalAttempts: "Ilimitadas",
+            skippedQuestions: [], // Nova propriedade para armazenar questões puladas
+            currentSkippedIndex: 0, // Nova propriedade para rastrear o índice das questões puladas
+            
+            // Elementos DOM
+            elements: {
+                studentCodeInput: document.getElementById('student-code'),
+                introCard: document.getElementById('intro-card'),
+                quizCard: document.getElementById('quiz-card'),
+                resultsCard: document.getElementById('results-card'),
+                questionText: document.getElementById('question-text'),
+                optionsList: document.getElementById('options-list'),
+                nextButton: document.getElementById('next-button'),
+                skipButton: document.getElementById('skip-button'), // Novo elemento
+                hintButton: document.getElementById('hint-button'),
+                hintText: document.getElementById('hint-text'),
+                attemptsLeftSpan: document.getElementById('attempts-left'),
+                currentQuestionNumSpan: document.getElementById('current-question-num'),
+                scoreDisplay: document.getElementById('score-display'),
+                percentageDisplay: document.getElementById('percentage-display'),
+                classificationDisplay: document.getElementById('classification-display'),
+                reportStudentName: document.getElementById('report-student-name'),
+                reportStudentCode: document.getElementById('report-student-code'),
+                sendReportLink: document.getElementById('send-report-link'),
+                introAttemptsLeftSpan: document.getElementById('intro-attempts-left'),
+                incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                fullReportContainer: document.getElementById('full-report-container'),
+                shareWhatsappLink: document.getElementById('share-whatsapp'),
+                personalizedWelcome: document.getElementById('personalized-welcome'),
+                startActionsDiv: document.getElementById('start-actions'),
+                quizDescription: document.getElementById('quiz-description'),
+                summaryButton: document.getElementById('summary-button'),
+                summaryText: document.getElementById('summary-text'),
+                performanceButton: document.getElementById('performance-btn'),
+                performanceDisplay: document.getElementById('performance-display')
+            },
+
+            studentData: {
+                "001AB": "ELMA", "002CD": "GUSTAVO", "003EF": "PIETRA", "004GH": "GEOVANNA", "005IJ": "LEOZINHO",
+                "006KL": "MARIANA", "007MN": "NICOLAS", "008OP": "YAGO", "009QR": "CAIO", "010ST": "GIH",
+                "011UV": "LUCAS RESENDE", "012WX": "BRUNA", "013YZ": "DIMI", "014AB": "FABRÍCIO", "015CD": "MIGUEL",
+                "016EF": "YAGO", "017GH": "ANDRÉIA", "018IJ": "KAUÃ", "019KL": "PABLO", "020MN": "SURY",
+                "021OP": "TAINÁ", "022QR": "YASMIN", "023ST": "MÁRCIA", "024UV": "RICK", "025WX": "ROSA",
+                "026YZ": "FÁTIMA", "027AB": "LUCA", "028CD": "ALEX", "029EF": "DÉBORA", "030GH": "GIOVANNA",
+                "031IJ": "PÂMELA", "032KL": "YASMIN", "033MN": "ADRIANO", "034OP": "ARTHUR", "035QR": "YASMIN",
+                "036ST": "DAVI", "037UV": "DEREK", "038WX": "PEDRINHO", "039YZ": "DENILSON", "040AB": "EDSON",
+                "041CD": "ALÍCIA", "042EF": "CAROLINA", "043GH": "ELSON", "044IJ": "LETÍCIA", "045KL": "DIEGO",
+                "046MN": "GABI", "047OP": "KIM", "048QR": "LANA", "049ST": "MANU", "050UV": "SABRINA",
+                "051WX": "BRUNA", "052YZ": "DIMI", "053AB": "FABRÍCIO", "054CD": "MIGUEL", "055EF": "YAGO",
+                "056GH": "ANDRÉIA", "057IJ": "KAUÃ", "058KL": "PABLO", "059MN": "SURY", "060OP": "TAINÁ",
+                "061QR": "YASMIN", "062ST": "MÁRCIA", "063UV": "RICK", "064WX": "ROSA", "065YZ": "FÁTIMA",
+                "066AB": "LUCA", "067CD": "ALEX", "JR123": "JÚNIOR", "068EF": "DÉBORA", "069GH": "GIOVANNA", "070IJ": "PÂMELA",
+                "071KL": "YASMIN", "072MN": "ADRIANO", "073OP": "ARTHUR", "074QR": "YASMIN", "075ST": "DAVI",
+                "076UV": "DEREK", "077WX": "PEDRINHO", "078YZ": "DENILSON", "079AB": "EDSON", "080CD": "ALÍCIA",
+                "081EF": "CAROLINA", "082GH": "ELSON", "083IJ": "LETÍCIA", "084KL": "DIEGO", "085MN": "GABI",
+                "086OP": "KIM", "087QR": "LANA", "088ST": "MANU", "089UV": "SABRINA", "090WX": "DIMI", "101QR": "ANA CLARA", "102ST": "JOAQUIM",
+                "091YZ": "FABRÍCIO", "092AB": "MIGUEL", "093CD": "YAGO", "094EF": "ANDRÉIA", "095GH": "KAUÃ",
+                "096IJ": "PABLO", "097KL": "SURY", "098MN": "TAINÁ", "099OP": "YASMIN", "100QR": "MÁRCIA", "101ST": "MONIQUE", "102UV": "VICTOR"
+            },
+            
+            summaries: {
+        "General Use": "O Presente Simples é usado para descrever hábitos, rotinas, fatos gerais e verdades universais.",
+        "Third Person Singular (He, She, It)": "Na forma afirmativa, verbos na terceira pessoa do singular (He, She, It) recebem -s, -es, ou -ies no final.",
+        "Spelling Rule '-es'": "Verbos terminados em O, CH, SH, SS, X, Z recebem '-es' na terceira pessoa do singular. Ex: go -> goes, watch -> watches.",
+        "Spelling Rule '-ies'": "Verbos terminados em consoante + Y, o Y é trocado por '-ies'. Ex: study -> studies, cry -> cries.",
+        "Auxiliary DO": "O auxiliar 'DO' é usado com I, You, We, e They para formar frases negativas (don't) e interrogativas.",
+        "Auxiliary DOES": "O auxiliar 'DOES' é usado com He, She, e It para formar frases negativas (doesn't) e interrogativas.",
+        "Negative Form": "A estrutura para frases negativas é: Sujeito + do/does + not + verbo principal na forma base. Ex: She doesn't work here.",
+        "Interrogative Form": "A estrutura para perguntas é: Do/Does + Sujeito + verbo principal na forma base + complemento? Ex: Do you speak English?",
+        "Schedules and Timetables": "O Presente Simples também é usado para falar sobre horários e programações fixas, como horários de transportes ou aulas."
+    },
+// --- INÍCIO DO CÓDIGO DE BALANCEAMENTO DE ALTERNATIVAS ---
+
+            // Função utilitária para embaralhar um array (Algoritmo Fisher-Yates)
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            },
+
+            // Função principal para forçar a distribuição uniforme das respostas corretas
+            balanceCorrectAnswers() {
+                const totalQuestions = this.questions.length;
+                if (totalQuestions === 0) return;
+
+                const numPositions = 4; // A, B, C, D
+                
+                // 1. Embaralha a ordem desejada para as posições [0, 1, 2, 3] entre as 40 questões.
+                let desiredPositions = [];
+                for (let i = 0; i < totalQuestions; i++) {
+                    desiredPositions.push(i % numPositions);
+                }
+                this.shuffleArray(desiredPositions);
+                
+                // 2. Itera sobre cada questão para garantir o rebalanceamento.
+                this.questions.forEach((q, index) => {
+                    // Primeiro, embaralha as opções da questão para que a alternativa correta não
+                    // fique sempre na mesma posição do código original.
+                    this.shuffleArray(q.options);
+                    
+                    // Encontra a opção correta e a posição alvo
+                    const correctOption = q.options.find(opt => opt.isCorrect);
+                    if (!correctOption) return; // Segurança caso não haja resposta correta
+                    
+                    const targetIndex = desiredPositions[index]; // Posição alvo (0, 1, 2 ou 3)
+
+                    // Se a resposta correta já estiver na posição alvo, não faz nada.
+                    if (q.options[targetIndex] === correctOption) {
+                        return;
+                    }
+
+                    // Remove a resposta correta da sua posição atual
+                    const currentIndex = q.options.indexOf(correctOption);
+                    q.options.splice(currentIndex, 1);
+                    
+                    // Insere a resposta correta na posição alvo (forçando o balanceamento)
+                    q.options.splice(targetIndex, 0, correctOption);
+                });
+
+                console.log("Alternativas corretas rebalanceadas para 10 em cada posição (0, 1, 2, 3).");
+            },
+
+// --- FIM DO CÓDIGO DE BALANCEAMENTO DE ALTERNATIVAS ---
+  "questions": [
+    {
+            "question": "1. She ______ to the gym three times a week.",
+            "topic": "Third Person Singular (He, She, It)",
+            "hint": "O sujeito é 'She' (terceira pessoa do singular) e o verbo termina em 'o'.",
+            "options": [
+                { "text": "goes", "isCorrect": true, "rationale": "Correto. Para 'She', o verbo 'go' termina em 'o', então adicionamos -es." },
+                { "text": "go", "isCorrect": false, "rationale": "Incorreto. 'Go' é usado para I, You, We, They. Para 'She', o verbo precisa da terminação de terceira pessoa." },
+                { "text": "going", "isCorrect": false, "rationale": "Incorreto. 'Going' é a forma do gerúndio (Present Continuous), não do Simple Present." },
+                { "text": "does go", "isCorrect": false, "rationale": "Incorreto. 'Does' é usado em perguntas e negativas. Em frases afirmativas, o '-es' vai direto no verbo principal." }
+            ]
+        },
+        {
+            "question": "2. ______ you like pizza?",
+            "topic": "Auxiliary DO",
+            "hint": "Esta é uma pergunta com o sujeito 'You'. Qual auxiliar usamos?",
+            "options": [
+                { "text": "Do", "isCorrect": true, "rationale": "Correto. Usamos o auxiliar 'Do' para fazer perguntas com o sujeito 'You'." },
+                { "text": "Does", "isCorrect": false, "rationale": "Incorreto. 'Does' é usado para He, She, It." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. 'Are' é o verbo 'to be', que não é usado como auxiliar para o verbo 'like'." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. 'Is' é o verbo 'to be' para a terceira pessoa do singular." }
+            ]
+        },
+        {
+            "question": "3. The Earth ______ around the Sun.",
+            "topic": "General Use",
+            "hint": "Isso é uma verdade universal. 'The Earth' é equivalente a 'It'.",
+            "options": [
+                { "text": "revolves", "isCorrect": true, "rationale": "Correto. Como 'The Earth' é 'It' (terceira pessoa), adicionamos -s ao verbo para indicar um fato universal." },
+                { "text": "revolve", "isCorrect": false, "rationale": "Incorreto. Esta forma verbal é usada para I, You, We, They, mas não para 'It'." },
+                { "text": "is revolving", "isCorrect": false, "rationale": "Incorreto. O Present Continuous descreve uma ação em progresso, não uma verdade universal e permanente." },
+                { "text": "does revolve", "isCorrect": false, "rationale": "Incorreto. 'Does' não é usado em frases afirmativas." }
+            ]
+        },
+        {
+            "question": "4. He ______ his homework every day.",
+            "topic": "Spelling Rule '-es'",
+            "hint": "O sujeito é 'He' e o verbo é 'do'.",
+            "options": [
+                { "text": "does", "isCorrect": true, "rationale": "Correto. O verbo 'do' terminado em 'o' recebe '-es' na terceira pessoa do singular (He)." },
+                { "text": "do", "isCorrect": false, "rationale": "Incorreto. 'Do' é usado para I, You, We, They." },
+                { "text": "is doing", "isCorrect": false, "rationale": "Incorreto. A frase descreve um hábito ('every day'), que pede o Simple Present." },
+                { "text": "study", "isCorrect": false, "rationale": "Incorreto. O verbo da frase é 'fazer' (do), não 'estudar' (study)." }
+            ]
+        },
+        {
+            "question": "5. We ______ watch TV very often.",
+            "topic": "Negative Form",
+            "hint": "Esta é uma frase negativa com o sujeito 'We'.",
+            "options": [
+                { "text": "don't", "isCorrect": true, "rationale": "Correto. Para formar a negativa com 'We', usamos 'do not' ou a contração 'don't'." },
+                { "text": "doesn't", "isCorrect": false, "rationale": "Incorreto. 'Doesn't' é usado para He, She, It." },
+                { "text": "not", "isCorrect": false, "rationale": "Incorreto. O Simple Present precisa do auxiliar 'do' ou 'does' antes do 'not'." },
+                { "text": "aren't", "isCorrect": false, "rationale": "Incorreto. 'Aren't' é a negativa do verbo 'to be', não um auxiliar para o verbo 'watch'." }
+            ]
+        },
+        {
+            "question": "6. The baby ______ when he is hungry.",
+            "topic": "Spelling Rule '-ies'",
+            "hint": "'The baby' pode ser 'he' ou 'she'. O verbo 'cry' termina em consoante + y.",
+            "options": [
+                { "text": "cries", "isCorrect": true, "rationale": "Correto. Para a terceira pessoa, o verbo 'cry' (consoante + y) muda o 'y' para 'ies'." },
+                { "text": "crys", "isCorrect": false, "rationale": "Incorreto. A regra para verbos terminados em consoante + y é trocar o 'y' por 'ies'." },
+                { "text": "cry", "isCorrect": false, "rationale": "Incorreto. Esta forma é usada para sujeitos que não são da terceira pessoa do singular." },
+                { "text": "crying", "isCorrect": false, "rationale": "Incorreto. Esta é a forma do gerúndio, não o Simple Present." }
+            ]
+        },
+        {
+            "question": "7. The train ______ at 7 PM.",
+            "topic": "Schedules and Timetables",
+            "hint": "A frase descreve um horário fixo. 'The train' é 'It'.",
+            "options": [
+                { "text": "leaves", "isCorrect": true, "rationale": "Correto. Usamos o Simple Present para horários fixos. 'The train' é 'It', então o verbo recebe -s." },
+                { "text": "leave", "isCorrect": false, "rationale": "Incorreto. O sujeito 'The train' é terceira pessoa do singular, então o verbo precisa do -s." },
+                { "text": "is leaving", "isCorrect": false, "rationale": "Incorreto. Embora o Present Continuous possa ser usado para o futuro, o Simple Present é o mais comum para horários oficiais." },
+                { "text": "does leave", "isCorrect": false, "rationale": "Incorreto. 'Does' não é usado em frases afirmativas." }
+            ]
+        },
+        {
+            "question": "8. What time ______ the store open tomorrow?",
+            "topic": "Interrogative Form",
+            "hint": "É uma pergunta sobre um horário ('the store' = 'It').",
+            "options": [
+                { "text": "does", "isCorrect": true, "rationale": "Correto. Em perguntas na terceira pessoa do singular ('the store'), usamos o auxiliar 'Does'." },
+                { "text": "do", "isCorrect": false, "rationale": "Incorreto. 'Do' é usado para I, You, We, They." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Is' é o verbo 'to be' e não é o auxiliar correto para o verbo 'open'." },
+                { "text": "opens", "isCorrect": false, "rationale": "Incorreto. Em perguntas com 'Does', o verbo principal fica na forma base, sem o -s." }
+            ]
+        },
+        {
+            "question": "9. My brother ______ video games every night.",
+            "topic": "Spelling Rule '-ies'",
+            "hint": "Atenção à regra para verbos terminados em VOGAL + y, como 'play'.",
+            "options": [
+                { "text": "plays", "isCorrect": true, "rationale": "Correto. 'My brother' é 'He'. O verbo 'play' termina em vogal + y, então apenas adicionamos -s." },
+                { "text": "play", "isCorrect": false, "rationale": "Incorreto. O sujeito 'My brother' é terceira pessoa do singular e exige a adição do -s." },
+                { "text": "plaies", "isCorrect": false, "rationale": "Incorreto. A regra do '-ies' se aplica a verbos terminados em consoante + y, como 'study'." },
+                { "text": "is playing", "isCorrect": false, "rationale": "Incorreto. A expressão 'every night' indica um hábito, o que requer o Simple Present." }
+            ]
+        },
+        {
+            "question": "10. I ______ that hard work pays off.",
+            "topic": "General Use",
+            "hint": "Esta frase expressa uma opinião ou crença permanente, com o sujeito 'I'.",
+            "options": [
+                { "text": "believe", "isCorrect": true, "rationale": "Correto. Para o sujeito 'I', o verbo é usado em sua forma base para expressar uma crença." },
+                { "text": "believes", "isCorrect": false, "rationale": "Incorreto. A terminação -s é para a terceira pessoa do singular (He, She, It)." },
+                { "text": "am believing", "isCorrect": false, "rationale": "Incorreto. Verbos de estado como 'believe' geralmente não são usados na forma contínua." },
+                { "text": "don't believe", "isCorrect": false, "rationale": "Incorreto. Esta seria a forma negativa, mas o sentido da frase original é afirmativo." }
+            ]
+        },
+        {
+            "question": "11. She ______ have a car.",
+            "topic": "Negative Form",
+            "hint": "Como formamos a negativa para 'She'?",
+            "options": [
+                { "text": "doesn't", "isCorrect": true, "rationale": "Correto. A negativa para 'She' é formada com 'does not' ou 'doesn't'." },
+                { "text": "don't", "isCorrect": false, "rationale": "Incorreto. 'Don't' é usado para I, You, We, They." },
+                { "text": "not", "isCorrect": false, "rationale": "Incorreto. É preciso o auxiliar 'does' antes de 'not'." },
+                { "text": "hasn't", "isCorrect": false, "rationale": "Incorreto. 'Hasn't' é usado no Present Perfect. No Simple Present, usamos o auxiliar 'doesn't' e o verbo 'have'." }
+            ]
+        },
+        {
+            "question": "12. ______ they live in Brazil?",
+            "topic": "Interrogative Form",
+            "hint": "Esta é uma pergunta com o sujeito 'They'.",
+            "options": [
+                { "text": "Do", "isCorrect": true, "rationale": "Correto. Usamos 'Do' para iniciar perguntas com o sujeito 'They'." },
+                { "text": "Does", "isCorrect": false, "rationale": "Incorreto. 'Does' é para He, She, It." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. 'Are' é o verbo 'to be', não o auxiliar para o verbo 'live'." },
+                { "text": "Where", "isCorrect": false, "rationale": "Incorreto. 'Where' é uma Wh-word, mas a pergunta ainda precisa do auxiliar 'Do' antes do sujeito." }
+            ]
+        },
+        {
+            "question": "13. He ______ the car on weekends.",
+            "topic": "Spelling Rule '-es'",
+            "hint": "O sujeito é 'He' e o verbo 'wash' termina em 'sh'.",
+            "options": [
+                { "text": "washes", "isCorrect": true, "rationale": "Correto. Verbos terminados em 'sh' recebem '-es' na terceira pessoa do singular." },
+                { "text": "washs", "isCorrect": false, "rationale": "Incorreto. A pronúncia e a ortografia exigem '-es' após o som de 'sh'." },
+                { "text": "wash", "isCorrect": false, "rationale": "Incorreto. Esta é a forma base, usada para sujeitos que não são da terceira pessoa do singular." },
+                { "text": "washing", "isCorrect": false, "rationale": "Incorreto. Esta é a forma do gerúndio." }
+            ]
+        },
+        {
+            "question": "14. I always ______ coffee in the morning.",
+            "topic": "General Use",
+            "hint": "O sujeito é 'I'. O verbo permanece na sua forma base.",
+            "options": [
+                { "text": "drink", "isCorrect": true, "rationale": "Correto. Para o sujeito 'I', o verbo fica na forma base, mesmo com um advérbio de frequência." },
+                { "text": "drinks", "isCorrect": false, "rationale": "Incorreto. A terminação '-s' é para He, She, It." },
+                { "text": "am drinking", "isCorrect": false, "rationale": "Incorreto. 'Always' indica um hábito, que é expresso com o Simple Present." },
+                { "text": "drank", "isCorrect": false, "rationale": "Incorreto. 'Drank' é o passado simples." }
+            ]
+        },
+        {
+            "question": "15. Where ______ he work?",
+            "topic": "Interrogative Form",
+            "hint": "É uma pergunta com 'Where' e o sujeito 'He'.",
+            "options": [
+                { "text": "does", "isCorrect": true, "rationale": "Correto. Perguntas com Wh-words na terceira pessoa usam a estrutura: Wh-word + does + sujeito + verbo base." },
+                { "text": "do", "isCorrect": false, "rationale": "Incorreto. 'Do' é usado com I, You, We, They." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Is' não é o auxiliar para o verbo de ação 'work'." },
+                { "text": "works", "isCorrect": false, "rationale": "Incorreto. O verbo deve estar na forma base ('work') porque o auxiliar 'does' já indica a terceira pessoa." }
+            ]
+        },
+        {
+            "question": "16. It ______ matter now.",
+            "topic": "Negative Form",
+            "hint": "Frase negativa com o sujeito 'It'.",
+            "options": [
+                { "text": "doesn't", "isCorrect": true, "rationale": "Correto. Para negar com 'It', usa-se 'doesn't' seguido do verbo na forma base." },
+                { "text": "don't", "isCorrect": false, "rationale": "Incorreto. 'Don't' não é usado com 'It'." },
+                { "text": "isn't", "isCorrect": false, "rationale": "Incorreto. 'Isn't' é a negativa do verbo 'to be'. O verbo aqui é 'matter'." },
+                { "text": "matters", "isCorrect": false, "rationale": "Incorreto. Esta seria a forma afirmativa." }
+            ]
+        },
+        {
+            "question": "17. The plane ______ high in the sky.",
+            "topic": "Spelling Rule '-ies'",
+            "hint": "'The plane' é 'It'. O verbo 'fly' termina em consoante + y.",
+            "options": [
+                { "text": "flies", "isCorrect": true, "rationale": "Correto. Para 'It', o 'y' de 'fly' é trocado por '-ies'." },
+                { "text": "flys", "isCorrect": false, "rationale": "Incorreto. A grafia está errada. Consoante + y vira -ies." },
+                { "text": "fly", "isCorrect": false, "rationale": "Incorreto. O sujeito 'The plane' requer a forma da terceira pessoa do singular." },
+                { "text": "is flying", "isCorrect": false, "rationale": "Incorreto. A frase descreve uma característica ou fato geral sobre o avião, não necessariamente uma ação em progresso." }
+            ]
+        },
+        {
+            "question": "18. They ______ together on Fridays.",
+            "topic": "General Use",
+            "hint": "O sujeito é 'They'. Qual a forma do verbo 'work'?",
+            "options": [
+                { "text": "work", "isCorrect": true, "rationale": "Correto. Com o sujeito 'They', o verbo é usado em sua forma base." },
+                { "text": "works", "isCorrect": false, "rationale": "Incorreto. '-s' é para He, She, It." },
+                { "text": "are working", "isCorrect": false, "rationale": "Incorreto. A expressão 'on Fridays' indica uma rotina, pedindo o Simple Present." },
+                { "text": "do work", "isCorrect": false, "rationale": "Incorreto. 'Do' não é usado em frases afirmativas (exceto para ênfase, o que não é o caso aqui)." }
+            ]
+        },
+        {
+            "question": "19. ______ she know the answer?",
+            "topic": "Interrogative Form",
+            "hint": "Uma pergunta sobre o conhecimento de alguém ('She').",
+            "options": [
+                { "text": "Does", "isCorrect": true, "rationale": "Correto. Usamos 'Does' para iniciar perguntas com 'She'." },
+                { "text": "Do", "isCorrect": false, "rationale": "Incorreto. 'Do' não é usado com 'She'." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. 'Is' não é o auxiliar para o verbo 'know'." },
+                { "text": "Knows", "isCorrect": false, "rationale": "Incorreto. Em uma pergunta, o verbo principal ('know') fica na forma base." }
+            ]
+        },
+        {
+            "question": "20. You ______ agree with him.",
+            "topic": "Negative Form",
+            "hint": "Frase negativa com o sujeito 'You'.",
+            "options": [
+                { "text": "don't", "isCorrect": true, "rationale": "Correto. A negativa para 'You' é formada com 'do not' ou 'don't'." },
+                { "text": "doesn't", "isCorrect": false, "rationale": "Incorreto. 'Doesn't' é para He, She, It." },
+                { "text": "aren't", "isCorrect": false, "rationale": "Incorreto. 'Aren't' é a negativa do verbo 'to be', não um auxiliar para o verbo 'agree'." },
+                { "text": "not", "isCorrect": false, "rationale": "Incorreto. É necessário usar o auxiliar 'do' antes de 'not'." }
+            ]
+        },
+        {
+            "question": "21. A good mechanic ______ cars quickly.",
+            "topic": "Spelling Rule '-es'",
+            "hint": "'A mechanic' é 'he' ou 'she'. O verbo 'fix' termina em 'x'.",
+            "options": [
+                { "text": "fixes", "isCorrect": true, "rationale": "Correto. Verbos terminados em 'x' recebem '-es' na terceira pessoa do singular." },
+                { "text": "fixs", "isCorrect": false, "rationale": "Incorreto. A grafia correta para verbos terminados em 'x' é com '-es'." },
+                { "text": "fix", "isCorrect": false, "rationale": "Incorreto. O sujeito é terceira pessoa do singular, então o verbo precisa ser modificado." },
+                { "text": "is fixing", "isCorrect": false, "rationale": "Incorreto. A frase descreve a habilidade geral de um mecânico, um fato." }
+            ]
+        },
+        {
+            "question": "22. Our classes ______ next Monday.",
+            "topic": "Schedules and Timetables",
+            "hint": "O sujeito é 'Our classes' (plural, 'they').",
+            "options": [
+                { "text": "start", "isCorrect": true, "rationale": "Correto. Para um sujeito no plural ('classes' = 'they'), o verbo fica na forma base, mesmo falando de um evento programado." },
+                { "text": "starts", "isCorrect": false, "rationale": "Incorreto. 'Starts' é para sujeitos no singular (He, She, It)." },
+                { "text": "are starting", "isCorrect": false, "rationale": "Incorreto. O Simple Present é o mais adequado para horários fixos e programações." },
+                { "text": "do start", "isCorrect": false, "rationale": "Incorreto. 'Do' não é usado em frases afirmativas." }
+            ]
+        },
+        {
+            "question": "23. What ______ you do on weekends?",
+            "topic": "Interrogative Form",
+            "hint": "É uma pergunta sobre rotina com 'What' e o sujeito 'You'.",
+            "options": [
+                { "text": "do", "isCorrect": true, "rationale": "Correto. A estrutura é: Wh-word + do + sujeito + verbo base. O primeiro 'do' é o auxiliar." },
+                { "text": "does", "isCorrect": false, "rationale": "Incorreto. 'Does' seria para He, She, It." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. 'Are' não é o auxiliar para o verbo de ação 'do'." },
+                { "text": "---", "isCorrect": false, "rationale": "Incorreto. A pergunta precisa de um verbo auxiliar antes do sujeito 'you'." }
+            ]
+        },
+        {
+            "question": "24. He ______ spicy food.",
+            "topic": "Third Person Singular (He, She, It)",
+            "hint": "Frase afirmativa com 'He' expressando uma preferência.",
+            "options": [
+                { "text": "likes", "isCorrect": true, "rationale": "Correto. Para 'He', adicionamos -s ao verbo 'like'." },
+                { "text": "like", "isCorrect": false, "rationale": "Incorreto. 'Like' é para I, You, We, They." },
+                { "text": "doesn't likes", "isCorrect": false, "rationale": "Incorreto. Em negativas, usamos 'doesn't' mas o verbo principal volta para a forma base ('like')." },
+                { "text": "is liking", "isCorrect": false, "rationale": "Incorreto. Verbos de preferência como 'like' não são comumente usados na forma contínua." }
+            ]
+        },
+        {
+            "question": "25. My parents ______ in a big city.",
+            "topic": "Negative Form",
+            "hint": "'My parents' é um sujeito plural ('they').",
+            "options": [
+                { "text": "don't live", "isCorrect": true, "rationale": "Correto. Para o sujeito plural 'parents' (they), a negativa é 'don't' + verbo base." },
+                { "text": "doesn't live", "isCorrect": false, "rationale": "Incorreto. 'Doesn't' é para sujeitos no singular." },
+                { "text": "don't lives", "isCorrect": false, "rationale": "Incorreto. Após 'don't', o verbo deve estar na sua forma base ('live'), sem o -s." },
+                { "text": "aren't live", "isCorrect": false, "rationale": "Incorreto. 'Aren't' é do verbo 'to be' e não pode ser usado como auxiliar para 'live'." }
+            ]
+        },
+        {
+            "question": "26. She ______ her family when she travels.",
+            "topic": "Spelling Rule '-es'",
+            "hint": "O sujeito é 'She' e o verbo 'miss' termina em 'ss'.",
+            "options": [
+                { "text": "misses", "isCorrect": true, "rationale": "Correto. Verbos terminados em 'ss' recebem '-es' na terceira pessoa do singular." },
+                { "text": "miss", "isCorrect": false, "rationale": "Incorreto. O sujeito 'She' exige a forma da terceira pessoa." },
+                { "text": "misss", "isCorrect": false, "rationale": "Incorreto. A grafia correta exige a adição de '-es', não apenas '-s'." },
+                { "text": "missing", "isCorrect": false, "rationale": "Incorreto. Esta é a forma do gerúndio." }
+            ]
+        },
+        {
+            "question": "27. Water ______ at 100 degrees Celsius.",
+            "topic": "General Use",
+            "hint": "Isso é um fato científico. 'Water' é 'It'.",
+            "options": [
+                { "text": "boils", "isCorrect": true, "rationale": "Correto. Para fatos científicos com sujeito na terceira pessoa ('Water' = 'It'), o verbo recebe -s." },
+                { "text": "boil", "isCorrect": false, "rationale": "Incorreto. O sujeito é singular, então o verbo precisa da terminação -s." },
+                { "text": "is boiling", "isCorrect": false, "rationale": "Incorreto. A frase expressa uma verdade universal, não uma ação que está acontecendo agora." },
+                { "text": "does boil", "isCorrect": false, "rationale": "Incorreto. 'Does' não é usado em frases afirmativas." }
+            ]
+        },
+        {
+            "question": "28. ______ your brother work here?",
+            "topic": "Interrogative Form",
+            "hint": "O sujeito é 'your brother' (ele, 'he').",
+            "options": [
+                { "text": "Does", "isCorrect": true, "rationale": "Correto. 'Your brother' é terceira pessoa do singular ('he'), então usamos 'Does' para a pergunta." },
+                { "text": "Do", "isCorrect": false, "rationale": "Incorreto. 'Do' não é usado para 'he'." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. 'Is' não é o auxiliar para o verbo 'work'." },
+                { "text": "Works", "isCorrect": false, "rationale": "Incorreto. A pergunta precisa do auxiliar 'Does' no início." }
+            ]
+        },
+        {
+            "question": "29. I ______ coffee in the evening.",
+            "topic": "Negative Form",
+            "hint": "Uma frase negativa sobre um hábito, com o sujeito 'I'.",
+            "options": [
+                { "text": "don't drink", "isCorrect": true, "rationale": "Correto. Para negar com 'I', usamos 'don't' seguido do verbo na forma base." },
+                { "text": "doesn't drink", "isCorrect": false, "rationale": "Incorreto. 'Doesn't' é para He, She, It." },
+                { "text": "am not drink", "isCorrect": false, "rationale": "Incorreto. A estrutura está errada. 'Am not' é do verbo 'to be'." },
+                { "text": "no drink", "isCorrect": false, "rationale": "Incorreto. A negação no Simple Present exige o auxiliar 'don't' ou 'doesn't'." }
+            ]
+        },
+        {
+            "question": "30. We usually ______ a movie on Saturdays.",
+            "topic": "General Use",
+            "hint": "O sujeito é 'We' e a frase descreve uma rotina.",
+            "options": [
+                { "text": "watch", "isCorrect": true, "rationale": "Correto. Com o sujeito 'We', o verbo fica na sua forma base." },
+                { "text": "watches", "isCorrect": false, "rationale": "Incorreto. 'Watches' é a forma para a terceira pessoa do singular." },
+                { "text": "are watching", "isCorrect": false, "rationale": "Incorreto. 'Usually' indica um hábito, que é melhor expresso pelo Simple Present." },
+                { "text": "do watch", "isCorrect": false, "rationale": "Incorreto. Não se usa o auxiliar 'do' em frases afirmativas de rotina." }
+                    ]
+                }
+            ],
+
+            startQuiz(continueFromSavedState) {
+                const studentCode = this.elements.studentCodeInput.value.trim().toUpperCase();
+                const correctName = this.studentData[studentCode];
+
+                if (!correctName) {
+                    alert("Código de acesso inválido. Por favor, verifique e tente novamente.");
+                    return;
+                }
+
+                this.validatedStudentCode = studentCode;
+                this.validatedStudentName = correctName;
+
+                if (continueFromSavedState) {
+                    this.loadQuizState(this.validatedStudentCode);
+                } else {
+                    this.currentQuestionIndex = 0;
+                    this.score = 0;
+                    this.userAnswers = {};
+                    this.skippedQuestions = [];
+                    this.currentSkippedIndex = 0;
+		    this.balanceCorrectAnswers();
+                    localStorage.removeItem(`quizState_${this.validatedStudentCode}`);
+
+                    this.shuffledQuestions = this.shuffleArray([...this.questions]);
+                }
+
+                const storageKey = `quiz_attempts_${this.validatedStudentCode}`;
+                let attempts = parseInt(localStorage.getItem(storageKey) || 0);
+                localStorage.setItem(storageKey, attempts + 1);
+
+                this.elements.studentCodeInput.style.display = 'none';
+                this.elements.startActionsDiv.style.display = 'none';
+                this.elements.quizDescription.style.display = 'none';
+
+                this.elements.personalizedWelcome.textContent = `Bem-vindo(a), ${this.validatedStudentName}! Boa sorte!`;
+                this.elements.personalizedWelcome.style.display = 'block';
+
+                setTimeout(() => {
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+                    this.displayQuestion();
+                }, 3000);
+            },
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            },
+
+            displayQuestion() {
+                this.elements.performanceDisplay.style.display = 'none';
+                let questionToDisplay;
+                let currentQuestionNumber;
+                this.elements.hintText.style.display = 'none';
+                this.elements.summaryText.style.display = 'none';
+                this.elements.summaryButton.style.display = 'none';
+
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length && this.skippedQuestions.length > 0) {
+                    const skippedIndex = this.skippedQuestions[this.currentSkippedIndex];
+                    questionToDisplay = this.questions[skippedIndex]; 
+                    currentQuestionNumber = `(Pulada) ${this.currentSkippedIndex + 1} de ${this.skippedQuestions.length}`;
+                    this.elements.skipButton.style.display = 'none';
+                    this.elements.nextButton.textContent = 'Próxima Questão';
+                } else if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    questionToDisplay = this.shuffledQuestions[this.currentQuestionIndex];
+                    currentQuestionNumber = this.currentQuestionIndex + 1;
+                    this.elements.skipButton.style.display = 'inline-block';
+                    this.elements.nextButton.textContent = 'Próxima Questão';
+                } else {
+                    this.showResults();
+                    return;
+                }
+
+                this.elements.currentQuestionNumSpan.textContent = currentQuestionNumber;
+                this.elements.nextButton.style.display = 'none';
+                this.elements.optionsList.innerHTML = '';
+                this.elements.questionText.textContent = questionToDisplay.question;
+
+                questionToDisplay.options.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = option.text;
+                    li.onclick = () => this.selectOption(li, option);
+                    this.elements.optionsList.appendChild(li);
+                });
+            },
+
+            selectOption(selectedElement, selectedOption) {
+                const options = document.querySelectorAll('.option-item');
+
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+
+                const justificationElement = document.createElement('div');
+                justificationElement.className = 'justification';
+
+                let currentQuestion;
+                let originalQuestionIndex;
+
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    originalQuestionIndex = this.skippedQuestions[this.currentSkippedIndex];
+                    currentQuestion = this.questions[originalQuestionIndex];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                    originalQuestionIndex = this.questions.findIndex(q => q.question === currentQuestion.question);
+                }
+
+                const correctOptions = currentQuestion.options.filter(opt => opt.isCorrect);
+                const correctOptionTexts = correctOptions.map(opt => opt.text);
+                const isCorrect = correctOptionTexts.includes(selectedOption.text);
+
+                if (isCorrect) {
+                    this.score++;
+                    selectedElement.classList.add('correct');
+                    justificationElement.textContent = selectedOption.rationale;
+                    justificationElement.style.borderColor = '#28a745';
+                    this.elements.summaryButton.style.display = 'none';
+                } else {
+                    selectedElement.classList.add('incorrect');
+                    const correctElements = Array.from(options).filter(el => correctOptionTexts.includes(el.textContent));
+                    correctElements.forEach(el => el.classList.add('correct'));
+                    justificationElement.textContent = selectedOption.rationale;
+                    justificationElement.style.borderColor = '#dc3545';
+                    this.elements.summaryButton.style.display = 'inline-block';
+                }
+
+                this.userAnswers[originalQuestionIndex] = {
+                    question: currentQuestion.question,
+                    userAnswer: selectedOption.text,
+                    isCorrect: isCorrect,
+                    correctAnswer: correctOptionTexts.join(' ou '),
+                    rationale: selectedOption.rationale
+                };
+
+                selectedElement.parentNode.insertBefore(justificationElement, selectedElement.nextSibling);
+                justificationElement.style.display = 'block';
+
+                this.elements.nextButton.style.display = 'block';
+                this.elements.skipButton.style.display = 'none'; 
+                this.saveQuizState();
+            },
+
+            showPerformance() {
+                const answeredCount = Object.keys(this.userAnswers).length;
+                const correctCount = this.score;
+                const incorrectCount = answeredCount - correctCount;
+
+                this.elements.performanceDisplay.innerHTML = `Até agora: <span style="color: #28a745;">${correctCount} acertos</span> e <span style="color: #dc3545;">${incorrectCount} erros</span>.`;
+                this.elements.performanceDisplay.style.display = 'block';
+            },
+            
+            showHint() {
+                let currentQuestion;
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    currentQuestion = this.questions[this.skippedQuestions[this.currentSkippedIndex]];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                }
+
+                if (currentQuestion && currentQuestion.hint) {
+                    this.elements.hintText.textContent = currentQuestion.hint;
+                    this.elements.hintText.style.display = 'block';
+                }
+            },
+
+            showSummary() {
+                let currentQuestion;
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    currentQuestion = this.questions[this.skippedQuestions[this.currentSkippedIndex]];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                }
+                
+                const questionTopic = currentQuestion.topic;
+
+                if (questionTopic && this.summaries[questionTopic]) {
+                    this.elements.summaryText.textContent = this.summaries[questionTopic];
+                    this.elements.summaryText.style.display = 'block';
+                }
+            },
+
+            nextQuestion() {
+                if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    this.currentQuestionIndex++;
+                } else {
+                    this.currentSkippedIndex++;
+                }
+                
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length && this.currentSkippedIndex >= this.skippedQuestions.length) {
+                    this.showResults();
+                } else {
+                    this.displayQuestion();
+                }
+            },
+
+            skipQuestion() {
+                if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    const originalIndex = this.questions.findIndex(q => q.question === this.shuffledQuestions[this.currentQuestionIndex].question);
+                    this.skippedQuestions.push(originalIndex);
+                }
+                this.currentQuestionIndex++;
+                this.displayQuestion();
+            },
+
+            getClassification(percentage) {
+                if (percentage >= 86) return "Excelente!!!";
+                if (percentage >= 71) return "Muito Bom!!";
+                if (percentage >= 51) return "Bom!";
+                if (percentage >= 0) return "Insatisfatório!";
+                return "Classificação não disponível";
+            },
+
+            launchConfetti() {
+                confetti({ particleCount: 600, spread: 70, origin: { y: 0.6 } });
+                setTimeout(() => confetti({ particleCount: 450, spread: 90, origin: { x: 0, y: 0.8 } }), 500);
+                setTimeout(() => confetti({ particleCount: 450, spread: 90, origin: { x: 1, y: 0.8 } }), 800);
+                setTimeout(() => confetti({ particleCount: 300, spread: 120, origin: { y: 0.2 } }), 1000);
+            },
+
+            showResults() {
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                this.elements.incorrectQuestionsContainer.innerHTML = '';
+                this.elements.fullReportContainer.innerHTML = '';
+                localStorage.removeItem(`quizState_${this.validatedStudentCode}`);
+
+                const percentage = Math.round((this.score / this.questions.length) * 100);
+                const classificationText = this.getClassification(percentage);
+
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = `${this.score} de ${this.questions.length}`;
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.classificationDisplay.textContent = classificationText;
+                this.elements.classificationDisplay.classList.remove('classification-red', 'classification-blue', 'classification-orange');
+                if (classificationText === "Insatisfatório!") {
+                    this.elements.classificationDisplay.classList.add('classification-red');
+                } else if (classificationText === "Excelente!!!") {
+                    this.launchConfetti();
+                    this.elements.classificationDisplay.classList.add('classification-orange');
+                    setTimeout(() => {
+                        this.elements.classificationDisplay.classList.remove('classification-orange');
+                        this.elements.classificationDisplay.style.color = '#FFA500';
+                        this.elements.classificationDisplay.style.fontWeight = 'bold';
+                        this.elements.classificationDisplay.style.animation = 'none';
+                    }, 5000);
+                } else if (classificationText === "Muito Bom!!" || classificationText === "Bom!") {
+                    this.elements.classificationDisplay.classList.add('classification-blue');
+                }
+
+                this.elements.fullReportContainer.innerHTML = this.generateFullReportHtml();
+                this.elements.fullReportContainer.style.display = 'block';
+
+                const shareMessage = this.generateShareMessage(percentage, classificationText);
+                const encodedMessage = encodeURIComponent(shareMessage);
+                this.elements.shareWhatsappLink.href = `https://wa.me/?text=${encodedMessage}`;
+
+                const data = {
+                    nome: this.validatedStudentName,
+                    codigo: this.validatedStudentCode,
+                    pontuacao: `${this.score} de ${this.questions.length}`,
+                    percentual: `${percentage}%`,
+                    classificacao: classificationText,
+                };
+
+                fetch(this.APP_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'no-cors'
+                })
+                .then(() => console.log('Dados enviados com sucesso para a planilha!'))
+                .catch(error => console.error('Erro ao enviar dados:', error));
+
+                this.elements.sendReportLink.textContent = 'Relatório Enviado!';
+                this.elements.sendReportLink.href = '#';
+                this.elements.sendReportLink.onclick = (e) => e.preventDefault();
+                this.elements.sendReportLink.style.cursor = 'default';
+                this.elements.sendReportLink.style.backgroundColor = '#ccc';
+            },
+
+            generateFullReportHtml() {
+                let html = '<h3>Relatório Completo de Respostas:</h3>';
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer;
+                    const isCorrect = userAnswerObj.isCorrect;
+                    
+                    html += `<div class="report-question-item">`;
+                    html += `<p><strong>Questão ${index + 1}:</strong> ${question.question}</p>`;
+                    html += `<ul style="list-style-type: none; padding-left: 0;">`;
+
+                    question.options.forEach(option => {
+                        const isUserAnswer = (option.text === userAnswerText);
+                        const isCorrectOption = option.isCorrect;
+
+                        let optionClass = '';
+                        if (isCorrectOption) {
+                            optionClass = 'correct';
+                        } else if (isUserAnswer) {
+                            optionClass = 'incorrect';
+                        }
+
+                        let textPrefix = '';
+                        if (isUserAnswer && isCorrectOption) {
+                            textPrefix = 'Sua Resposta Correta: ';
+                        } else if (isCorrectOption) {
+                            textPrefix = 'Resposta Correta: ';
+                        } else if (isUserAnswer) {
+                            textPrefix = 'Sua Resposta: ';
+                        }
+
+                        html += `<li class="option-item-report ${optionClass}">`;
+                        html += `<p><strong>${textPrefix}</strong>${option.text}</p>`;
+                        html += `<div class="justification" style="display: block;">${option.rationale}</div>`;
+                        html += `</li>`;
+                    });
+
+                    html += '</ul></div>';
+                });
+                return html;
+            },
+
+            generateShareMessage(percentage, classificationText) {
+                let message = `*Relatório Completo do Quiz de Inglês*\n\n`;
+                message += `*Aluno(a):* ${this.validatedStudentName}\n`;
+                message += `*Código de Acesso:* ${this.validatedStudentCode}\n`;
+                message += `*Pontuação:* ${this.score} de ${this.questions.length}\n`;
+                message += `*Percentual de Acerto:* ${percentage}%\n`;
+                message += `*Classificação:* ${classificationText}\n\n`;
+                message += `*--- Respostas ---*\n`;
+
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer || 'Não respondida';
+                    const isCorrect = userAnswerObj.isCorrect;
+                    const correctAnswer = question.options.find(opt => opt.isCorrect).text;
+                    const rationale = userAnswerObj.rationale || question.options.find(opt => opt.isCorrect).rationale;
+
+                    message += `\n*Questão ${index + 1}:* ${question.question}\n`;
+                    message += `_Sua resposta:_ ${isCorrect ? `😄` : `😢`} ${userAnswerText}\n`;
+                    message += `_Resposta correta:_ ${correctAnswer}\n`;
+                    message += `_Justificativa:_ ${rationale}\n`;
+                });
+                return message;
+            },
+
+            saveQuizState() {
+                const quizState = {
+                    questionIndex: this.currentQuestionIndex,
+                    userResponses: this.userAnswers,
+                    studentCode: this.validatedStudentCode,
+                    studentName: this.validatedStudentName,
+                    skippedQuestions: this.skippedQuestions,
+                    currentSkippedIndex: this.currentSkippedIndex,
+                    shuffledQuestions: this.shuffledQuestions // Salva a ordem embaralhada
+                };
+                localStorage.setItem(`quizState_${this.validatedStudentCode}`, JSON.stringify(quizState));
+            },
+
+            loadQuizState(studentCode) {
+                const savedState = localStorage.getItem(`quizState_${studentCode}`);
+                if (savedState) {
+                    const quizState = JSON.parse(savedState);
+                    if (quizState.studentCode === studentCode) {
+                        this.currentQuestionIndex = quizState.questionIndex;
+                        this.score = quizState.score || Object.values(quizState.userResponses).filter(a => a.isCorrect).length;
+                        this.userAnswers = quizState.userResponses || {};
+                        this.validatedStudentName = quizState.studentName;
+                        this.validatedStudentCode = quizState.studentCode;
+                        this.skippedQuestions = quizState.skippedQuestions || [];
+                        this.currentSkippedIndex = quizState.currentSkippedIndex || 0;
+                        this.shuffledQuestions = quizState.shuffledQuestions;
+                        return true;
+                    }
+                }
+                return false;
+            },
+
+            updateAttemptsDisplay(code) {
+                this.elements.attemptsLeftSpan.textContent = "Ilimitadas";
+                this.elements.introAttemptsLeftSpan.textContent = "ilimitadas";
+                this.elements.startActionsDiv.innerHTML = '';
+                
+                if (this.loadQuizState(code)) {
+                    const continueBtn = document.createElement('button');
+                    continueBtn.textContent = 'Continuar Quiz';
+                    continueBtn.className = 'start-btn continue-btn';
+                    continueBtn.onclick = () => this.startQuiz(true);
+                    this.elements.startActionsDiv.appendChild(continueBtn);
+
+                    const newBtn = document.createElement('button');
+                    newBtn.textContent = 'Iniciar Novo Quiz';
+                    newBtn.className = 'start-btn';
+                    newBtn.style.backgroundColor = '#dc3545';
+                    newBtn.onclick = () => {
+                        if (confirm("Você tem um progresso salvo. Deseja realmente começar um novo quiz e perder o progresso atual?")) {
+                            this.startQuiz(false);
+                        }
+                    };
+                    this.elements.startActionsDiv.appendChild(newBtn);
+                } else {
+                    const startBtn = document.createElement('button');
+                    startBtn.textContent = 'Start Quiz';
+                    startBtn.className = 'start-btn';
+                    startBtn.onclick = () => this.startQuiz(false);
+                    this.elements.startActionsDiv.appendChild(startBtn);
+                }
+            },
+
+            restartQuiz() {
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.userAnswers = {};
+                this.skippedQuestions = [];
+                this.currentSkippedIndex = 0;
+
+                const studentCode = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (studentCode) {
+                    localStorage.removeItem(`quizState_${studentCode}`);
+                }
+
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.quizCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                this.elements.studentCodeInput.style.display = 'block';
+                this.elements.personalizedWelcome.style.display = 'none';
+                this.elements.quizDescription.style.display = 'block';
+                this.elements.sendReportLink.textContent = 'Enviar Relatório ao Professor';
+                this.elements.sendReportLink.href = '#';
+                this.elements.sendReportLink.onclick = null;
+                this.elements.sendReportLink.style.cursor = 'pointer';
+                this.elements.sendReportLink.style.backgroundColor = '#6c757d';
+
+                this.elements.startActionsDiv.innerHTML = '<button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>';
+                this.elements.startActionsDiv.style.display = 'block';
+            },
+
+            saveReport() {
+                const scoreText = this.elements.scoreDisplay.textContent;
+                const percentage = Math.round((this.score / this.questions.length) * 100);
+                const classificationText = this.elements.classificationDisplay.textContent;
+
+                let reportContent = `Relatório Completo do Quiz de Inglês\n\n`;
+                reportContent += `Nome: ${this.validatedStudentName}\n`;
+                reportContent += `Código de Acesso: ${this.validatedStudentCode}\n`;
+                reportContent += `Pontuação: ${scoreText}\n`;
+                reportContent += `Percentual de Acerto: ${percentage}%\n`;
+                reportContent += `Classificação: ${classificationText}\n\n`;
+                reportContent += `--- Respostas ---\n`;
+
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer || 'Não respondida';
+                    const isCorrect = userAnswerObj.isCorrect;
+                    const correctAnswer = question.options.find(opt => opt.isCorrect).text;
+                    const rationale = userAnswerObj.rationale || question.options.find(opt => opt.isCorrect).rationale;
+
+                    reportContent += `\nQuestão ${index + 1}: ${question.question}\n`;
+                    reportContent += `Sua resposta: ${isCorrect ? `(CORRETA) ` : `(INCORRETA) `}${userAnswerText}\n`;
+                    reportContent += `Resposta correta: ${correctAnswer}\n`;
+                    reportContent += `Justificativa: ${rationale}\n`;
+                });
+
+                const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Relatorio-Quiz-${this.validatedStudentName.replace(/ /g, '-')}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+
+            printReport() {
+                window.print();
+            },
+
+            init() {
+                this.elements.studentCodeInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                    const code = e.target.value.trim().toUpperCase();
+                    if (this.studentData[code]) {
+                        this.updateAttemptsDisplay(code);
+                    } else {
+                        this.elements.startActionsDiv.innerHTML = '<button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>';
+                    }
+                });
+
+                this.elements.performanceButton.onclick = () => this.showPerformance();
+                this.elements.nextButton.onclick = () => this.nextQuestion();
+                this.elements.skipButton.onclick = () => this.skipQuestion(); // Nova função
+                //this.elements.restartBtn.onclick = () => this.restartQuiz();
+                //this.elements.saveReportBtn.onclick = () => this.saveReport();
+                //this.elements.printBtn.onclick = () => this.printReport();
+
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.updateAttemptsDisplay(code);
+                } else {
+                    this.restartQuiz();
+                }
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+
+    </script>
+</body>
+</html>
