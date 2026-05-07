@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>MASTERCLASS TEMPOS VERBAIS - QUIZ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: salmon;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #e0f7e0;
+        }
+
+        .option-item.correct {
+            background-color: lightgreen;
+            color: #000;
+            font-weight: bold;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(144, 238, 144, 0.5);
+        }
+
+        .option-item.incorrect {
+            background-color: salmon;
+            color: white;
+            font-weight: bold;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(250, 128, 114, 0.5);
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid lightgreen;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .skip-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .hint-btn {
+            background-color: salmon;
+            color: white;
+            display: inline-block;
+            float: none;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid salmon;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .start-btn, .restart-btn, .print-btn, .continue-btn {
+            display: inline-block;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .start-btn, .print-btn, .continue-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .restart-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: lightgreen;
+            text-shadow: 1px 1px 2px #000;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .incorrect-questions-list h3 {
+            color: salmon;
+            margin-bottom: 15px;
+        }
+
+        .incorrect-question-item {
+            background-color: #fff3f3;
+            border: 1px solid salmon;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media print {
+            body { background-color: #fff; padding-top: 0; display: block; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: none; min-height: auto; }
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter { display: none !important; }
+            #results-card { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>Masterclass de Tempos Verbais</h1>
+            <h2>AVALIAÇÃO COMPLETA</h2>
+            <p id="personalized-welcome" style="font-size: 1.4rem; font-weight: bold; margin-top: 10px; color: salmon;">Oi, Aluno - grato por sua visita!!!</p>
+            <p id="quiz-description">Por favor, insira seu código de acesso para iniciar a avaliação ou continuar de onde parou. Este teste possui 60 questões baseadas no Guia Masterclass.</p>
+            <input type="text" id="student-code" placeholder="Digite seu Código de Acesso">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz()">Iniciar / Continuar Quiz</button>
+                <button class="continue-btn" onclick="quizApp.jumpToReport()" style="background-color: #ffc107;">Já fiz o Quiz (Ver Relatório)</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 60</div>
+            
+            <div id="progress-bar-container" style="display: flex; height: 12px; background: #e9ecef; border-radius: 5px; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                <div id="progress-correct" style="width: 0%; background: lightgreen; transition: width 0.3s;"></div>
+                <div id="progress-incorrect" style="width: 0%; background: salmon; transition: width 0.3s;"></div>
+            </div>
+
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Mostrar Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+            </div>
+            <div id="justification-text" class="justification"></div>
+            <div class="question-actions">
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório de Desempenho</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display" class="score-display"></span> / 60</p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            
+            <div class="results-actions">
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <button class="print-btn" onclick="window.print()">Imprimir/Salvar Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const quizApp = {
+            currentQuestionIndex: 0,
+            score: 0,
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            incorrectAnswers: [],
+            
+            studentData: {
+                "001AB": "ELMA", "002CD": "VALDINEI", "003EF": "RENATA", "004GH": "GEOVANNA", "005IJ": "LEOZINHO",   
+                "006KL": "MARIANA", "007MN": "NICOLAS", "008OP": "YAGO", "009QR": "CAIO", "010ST": "GIH",
+                "011UV": "LUCAS RESENDE", "012WX": "BRUNA", "013YZ": "DIMI", "014AB": "FABRÍCIO", "015CD": "MIGUEL",
+                "016EF": "YAGO", "017GH": "ANDRÉIA", "018IJ": "KAUÃ", "019KL": "PABLO", "020MN": "SURY",
+                "021SP": "SOPHIA", "022QR": "YASMIN", "023ST": "MÁRCIA", "024UV": "RICK", "025WX": "ROSA",
+                "026YZ": "BRUNA", "027AB": "FERNANDO", "028CD": "ALEX", "029EF": "DÉBORA", "030GH": "GIOVANNA",
+                "031IJ": "PÂMELA", "032KL": "YASMIN", "033MN": "ADRIANO", "034OP": "ARTHUR", "035QR": "YASMIN",
+                "036ST": "DAVI", "037UV": "DEREK", "038WX": "PEDRINHO", "039YZ": "DENILSON", "040AB": "EDSON",
+                "041LS": "LUCAS", "042EF": "CAROLINA", "043GH": "ELSON", "044IJ": "LETÍCIA", "045KL": "DIEGO",
+                "046MN": "GABI", "047OP": "KIM", "048QR": "LANA", "049ST": "MANU", "050UV": "SABRINA",
+                "051WX": "BRUNA", "052YZ": "DIMI", "053AB": "FABRÍCIO", "054CD": "MIGUEL", "055EF": "YAGO",
+                "056GH": "ANDRÉIA", "057IJ": "KAUÃ", "058KL": "PABLO", "059MN": "SURY", "060OP": "TAINÁ",
+                "061QR": "YASMIN", "062ST": "MÁRCIA", "063UV": "RICK", "064WX": "ROSA", "065YZ": "FÁTIMA",
+                "066AB": "LUCA", "067CD": "ALEX", "JR123": "JÚNIOR", "068EF": "DÉBORA", "069GH": "GIOVANNA", "070IJ": "PÂMELA",
+                "071KL": "YASMIN", "072MN": "ADRIANO", "073OP": "ARTHUR", "074QR": "YASMIN", "075ST": "DAVI",
+                "076UV": "DEREK", "077WX": "PEDRINHO", "078YZ": "DENILSON", "079AB": "EDSON", "080CD": "ALÍCIA",
+                "081EF": "CAROLINA", "082GH": "ELSON", "083IJ": "LETÍCIA", "084KL": "DIEGO", "085MN": "GABI",
+                "086OP": "KIM", "087QR": "LANA", "088ST": "MANU", "089UV": "SABRINA", "090WX": "DIMI", "101QR": "ANA CLARA", "102ST": "JOAQUIM",
+                "091YZ": "FABRÍCIO", "092AB": "MIGUEL", "093CD": "YAGO", "094EF": "ANDRÉIA", "095GH": "KAUÃ",
+                "096IJ": "PABLO", "097KL": "SURY", "098MN": "LEILA", "099OP": "YASMIN", "100QR": "MÁRCIA", "101ST": "MONIQUE", "102EA": "ELIANA",
+                "JUNIOR": "PROFESSOR JÚNIOR"
+            },
+
+            questions: [
+                // SIMPLE PRESENT (1-15)
+                { q: "Na 3ª pessoa do singular (He, She, It) em frases afirmativas do Simple Present, o que geralmente acontece com o verbo?", o: ["Permanece na forma base", "Adiciona-se -ing", "Adiciona-se -s, -es ou -ies", "Adiciona-se -ed"], a: 2, h: "Lembre-se da regra geral do Simple Present para he/she/it.", j: "No Simple Present afirmativo, verbos na 3ª pessoa do singular recebem as terminações -s, -es ou -ies." },
+                { q: "Complete: 'She ___ at a hospital every morning.'", o: ["work", "works", "working", "worked"], a: 1, h: "O sujeito é 'She'.", j: "Verbo regular na 3ª pessoa do singular recebe '-s': works." },
+                { q: "Complete: 'They ___ English twice a week.'", o: ["study", "studies", "studys", "studying"], a: 0, h: "O sujeito é 'They'.", j: "Para I/You/We/They o verbo permanece na forma base: study." },
+                { q: "Qual a forma correta do verbo 'have' na 3ª pessoa do singular?", o: ["haves", "has", "having", "had"], a: 1, h: "É uma exceção irregular.", j: "O verbo 'have' transforma-se irregularmente em 'has'." },
+                { q: "Como fica o verbo 'watch' na 3ª pessoa do singular?", o: ["watchs", "watches", "watchies", "watching"], a: 1, h: "Verbos terminados em -ch...", j: "Adiciona-se -es em verbos terminados em -o, -s, -sh, -ch, -x, -z." },
+                { q: "Complete a frase negativa: 'He ___ speak French fluently.'", o: ["don't", "doesn't", "didn't", "isn't"], a: 1, h: "Auxiliar negativo para He/She/It no presente.", j: "Usa-se 'doesn't' para a 3ª pessoa do singular." },
+                { q: "Complete a frase negativa: 'We ___ like spicy food.'", o: ["doesn't", "don't", "aren't", "didn't"], a: 1, h: "Auxiliar negativo para We.", j: "Para I/You/We/They, usa-se 'don't'." },
+                { q: "Na forma negativa ou interrogativa, o que acontece com o verbo principal na 3ª pessoa do singular?", o: ["Mantém o -s", "Volta à forma base", "Vai para o passado", "Ganha -ing"], a: 1, h: "O auxiliar (does) já indica o tempo.", j: "O verbo volta à forma base porque o auxiliar 'does' já indica a 3ª pessoa." },
+                { q: "Complete a pergunta: '___ she know the answer?'", o: ["Do", "Does", "Is", "Are"], a: 1, h: "Auxiliar interrogativo para 'she'.", j: "Usa-se 'Does' para fazer perguntas no Simple Present com he/she/it." },
+                { q: "Complete a pergunta: '___ you live in this city?'", o: ["Does", "Do", "Are", "Did"], a: 1, h: "Auxiliar interrogativo para 'you'.", j: "Usa-se 'Do' para I/you/we/they." },
+                { q: "O verbo 'cry' (chorar) na 3ª pessoa do singular afirmativa fica:", o: ["crys", "cryes", "cries", "cried"], a: 2, h: "Consoante + Y.", j: "Remove-se o 'y' e adiciona-se -ies: cries." },
+                { q: "O verbo 'play' (jogar) na 3ª pessoa do singular afirmativa fica:", o: ["plaies", "plays", "playes", "played"], a: 1, h: "Vogal + Y.", j: "Se há vogal antes do 'y', apenas adicionamos '-s': plays." },
+                { q: "Qual a tradução correta para: 'The sun doesn't rise in the west'?", o: ["O sol não nasce no oeste.", "O sol nasce no leste.", "O sol nascia no oeste.", "O sol não nascerá no oeste."], a: 0, h: "Presente simples negativo.", j: "Doesn't rise = não nasce." },
+                { q: "Resposta curta para: 'Does the class start at 8 AM?' (Afirmativa)", o: ["Yes, she do.", "Yes, it does.", "Yes, it is.", "Yes, does it."], a: 1, h: "'The class' pode ser substituído por 'it'.", j: "The class = It. A resposta curta afirmativa é 'Yes, it does'." },
+                { q: "Complete: '___ they play soccer on weekends?'", o: ["Do", "Does", "Are", "Did"], a: 0, h: "Auxiliar para 'they'.", j: "Para 'they' no presente simples interrogativo, usa-se 'Do'." },
+
+                // SIMPLE PAST (16-30)
+                { q: "O Simple Past é usado para:", o: ["Ações que estão acontecendo agora.", "Ações concluídas em um momento específico do passado.", "Ações que ainda vão acontecer.", "Hábitos presentes."], a: 1, h: "Pense em 'ontem', 'ano passado'.", j: "Usado para ações já concluídas no passado." },
+                { q: "Qual o auxiliar usado para negações e perguntas no Simple Past?", o: ["Do / Does", "Will / Won't", "Did", "Have / Has"], a: 2, h: "Auxiliar único para o passado simples.", j: "Did é o auxiliar universal para o Simple Past." },
+                { q: "Qual a regra geral para transformar verbos regulares no Simple Past?", o: ["Adiciona-se -ing", "Adiciona-se -s", "Adiciona-se -ed", "Muda-se a vogal principal"], a: 2, h: "Exemplo: work -> worked.", j: "A regra geral é adicionar -ed ao final do verbo." },
+                { q: "O que acontece com verbos terminados em CVC com sílaba tônica FINAL (ex: stop)?", o: ["Apenas adiciona -ed", "Dobra-se a última consoante e adiciona -ed", "Remove-se a vogal", "Ganha -ied"], a: 1, h: "Veja o exemplo 'stop' -> 'stopped'.", j: "Dobra-se a consoante final antes de adicionar -ed." },
+                { q: "Complete: 'I ___ my parents last Sunday.' (visit)", o: ["visit", "visits", "visited", "visiting"], a: 2, h: "Ação no passado (last Sunday).", j: "Verbo regular no passado ganha -ed: visited." },
+                { q: "Complete: 'She ___ English for ten years.' (teach - irregular)", o: ["teached", "teach", "taught", "teaching"], a: 2, h: "Verbo irregular de ensinar.", j: "O passado irregular de 'teach' é 'taught'." },
+                { q: "Como fica o verbo 'study' no Simple Past afirmativo?", o: ["studyed", "studies", "studied", "studying"], a: 2, h: "Termina em consoante + Y.", j: "Remove o 'y' e adiciona '-ied': studied." },
+                { q: "Como fica o verbo 'play' no Simple Past afirmativo?", o: ["plaied", "played", "playes", "playing"], a: 1, h: "Vogal + Y.", j: "Apenas adiciona '-ed' se tiver vogal antes do 'y': played." },
+                { q: "Complete a negação: 'We ___ to the convention.' (not go)", o: ["don't go", "didn't went", "didn't go", "doesn't go"], a: 2, h: "Uso do auxiliar 'didn't'.", j: "Com 'didn't', o verbo principal volta à sua forma base: didn't go." },
+                { q: "Qual a forma correta: 'He ___ the report.'", o: ["didn't finished", "didn't finish", "doesn't finished", "don't finish"], a: 1, h: "Verbo na forma base após auxiliar.", j: "Após 'didn't', o verbo não recebe -ed: didn't finish." },
+                { q: "Complete a pergunta: '___ you see the email?'", o: ["Do", "Did", "Are", "Does"], a: 1, h: "Pergunta no passado.", j: "Usa-se 'Did' para fazer perguntas no Simple Past." },
+                { q: "Resposta curta negativa para: 'Did she call you?'", o: ["No, she don't.", "No, she didn't.", "No, she doesn't.", "No, didn't she."], a: 1, h: "O auxiliar da pergunta reflete na resposta.", j: "A resposta com auxiliar did no negativo é 'No, she didn't'." },
+                { q: "O verbo irregular 'go' no Simple Past afirmativo é:", o: ["goed", "goes", "went", "gone"], a: 2, h: "Totalmente irregular.", j: "O passado de 'go' é 'went'." },
+                { q: "Qual verbo NÃO dobra a consoante final no passado?", o: ["stop", "prefer", "snow", "plan"], a: 2, h: "Termina em w, x ou y.", j: "Letras w, x e y nunca dobram no final." },
+                { q: "Complete: 'It ___ rain last night.'", o: ["didn't", "doesn't", "don't", "isn't"], a: 0, h: "Tempo passado (last night).", j: "O auxiliar negativo para o passado é didn't." },
+
+                // USED TO (31-40)
+                { q: "O que a estrutura 'Used to' expressa?", o: ["Planos futuros", "Ações que estão acontecendo agora", "Hábitos ou estados no passado que não são mais verdadeiros", "Ordens diretas"], a: 2, h: "Significa 'costumava'.", j: "Expressa costumes ou fatos que eram verdadeiros no passado, mas não no presente." },
+                { q: "Complete a frase afirmativa: 'I ___ play soccer every day.'", o: ["use to", "used to", "using to", "uses to"], a: 1, h: "A forma afirmativa comporta-se como verbo regular no passado.", j: "Na afirmativa, usa-se 'used to'." },
+                { q: "Complete a frase negativa: 'He ___ like vegetables.'", o: ["didn't used to", "doesn't used to", "didn't use to", "don't use to"], a: 2, h: "Com o auxiliar 'didn't', o verbo perde o 'd'.", j: "O correto é 'didn't use to' (sem o 'd' no final de use)." },
+                { q: "Qual a forma correta para perguntas com 'used to'?", o: ["Did you used to smoke?", "Do you used to smoke?", "Did you use to smoke?", "Are you use to smoke?"], a: 2, h: "Did tira o 'd' do verbo principal.", j: "Nas perguntas usamos 'Did' + sujeito + 'use to' (sem 'd')." },
+                { q: "Traduza: 'We used to live downtown.'", o: ["Nós morávamos (costumávamos morar) no centro.", "Nós moramos no centro.", "Nós vamos morar no centro.", "Nós não moramos no centro."], a: 0, h: "Passado habitual.", j: "Used to live = costumava morar / morava." },
+                { q: "Complete: 'She ___ have long hair, but now it is short.'", o: ["uses to", "used to", "didn't use to", "is used to"], a: 1, h: "Fato no passado que mudou.", j: "Ela costumava ter (used to have)." },
+                { q: "Resposta curta para: 'Did they use to travel in summer?'", o: ["Yes, they used.", "Yes, they did.", "Yes, they do.", "Yes, did they."], a: 1, h: "O auxiliar da pergunta é Did.", j: "Respostas curtas usam o auxiliar: Yes, they did." },
+                { q: "Identifique o erro: 'I didn't used to wake up early.'", o: ["O uso de 'I'", "O uso de 'didn't'", "O uso de 'used' com 'd'", "A palavra 'early'"], a: 2, h: "Regra do auxiliar + verbo base.", j: "Com 'didn't', o correto é 'use to' sem 'd'." },
+                { q: "Como dizer 'Costumava haver um parque aqui'?", o: ["It used to have a park here.", "There used to be a park here.", "They used to park here.", "Here used to park."], a: 1, h: "Verbo 'haver' = there be.", j: "There used to be = Costumava haver." },
+                { q: "Complete a lacuna: 'Did she ___ work with you?'", o: ["used to", "use to", "uses to", "using to"], a: 1, h: "Pergunta com Did.", j: "Nas interrogativas, o verbo volta à forma base: use to." },
+
+                // SIMPLE FUTURE - WILL (41-50)
+                { q: "Para que usamos o Simple Future com 'Will'?", o: ["Rotinas passadas", "Ações concluídas", "Decisões feitas no momento da fala, promessas e previsões.", "Fatos universais"], a: 2, h: "Planos não definitivos.", j: "Will é usado para decisões espontâneas, promessas ou previsões." },
+                { q: "Como o verbo principal se comporta após 'Will'?", o: ["Ganha -s na 3ª pessoa", "Ganha -ed", "Fica no passado", "Permanece sempre na forma base (sem alterações)"], a: 3, h: "Will é um verbo modal.", j: "Após 'will', o verbo principal nunca sofre alterações, mesmo para he/she/it." },
+                { q: "Qual é a forma contraída de 'will not'?", o: ["willn't", "won't", "want", "wouldn't"], a: 1, h: "Forma bem específica para negação do futuro.", j: "Will + not = won't." },
+                { q: "Complete: 'I ___ help you with the project.'", o: ["will", "wills", "willing", "would"], a: 0, h: "Futuro simples (promessa).", j: "Usa-se 'will' para promessas e decisões momentâneas." },
+                { q: "Complete: 'It ___ rain tomorrow.'", o: ["wills", "will", "going to", "would"], a: 1, h: "Previsão futura.", j: "Usa-se 'will' (forma inalterada para It)." },
+                { q: "Traduza: 'I won't tell anyone your secret.'", o: ["Eu não contei a ninguém...", "Eu não contaria a ninguém...", "Eu não contarei a ninguém seu segredo.", "Eu costumava contar..."], a: 2, h: "Promessa negativa no futuro.", j: "Won't = não (futuro)." },
+                { q: "Complete a pergunta: '___ you marry me?'", o: ["Do", "Did", "Will", "Are"], a: 2, h: "Pedido/Promessa futura.", j: "Para pedidos e decisões futuras usa-se 'Will'." },
+                { q: "Resposta curta afirmativa para: 'Will she pass the exam?'", o: ["Yes, she do.", "Yes, she will.", "Yes, she won't.", "Yes, pass."], a: 1, h: "Auxiliar da pergunta.", j: "A resposta usa o mesmo modal: Yes, she will." },
+                { q: "Identifique o erro: 'He will goes to the party.'", o: ["He", "will", "goes", "party"], a: 2, h: "Regra do verbo após modal.", j: "Após 'will', o verbo não leva -s. O correto é 'He will go'." },
+                { q: "Complete: 'We ___ give up easily.'", o: ["won't", "don't", "didn't", "doesn't"], a: 0, h: "Negação no futuro.", j: "Para dizer 'não desistiremos', usamos won't." },
+
+                // CONDITIONAL - WOULD (51-60)
+                { q: "O Simple Conditional ('Would') equivale a qual tempo verbal em português?", o: ["Presente do Indicativo", "Pretérito Perfeito", "Futuro do Pretérito (-ria)", "Futuro do Presente"], a: 2, h: "Situações hipotéticas.", j: "Equivale ao futuro do pretérito, indicando ações como 'viajaria', 'faria'." },
+                { q: "Para que o 'Would' é usado?", o: ["Para falar de certezas absolutas", "Para situações imaginárias, hipotéticas ou pedidos educados", "Para hábitos passados", "Para ações rotineiras"], a: 1, h: "Pense em 'eu gostaria...'.", j: "Usado em hipóteses e condicionalidades." },
+                { q: "Assim como o 'Will', o que acontece com o verbo principal após 'Would'?", o: ["Ganha -s", "Vai para o passado", "Ganha -ing", "Permanece na forma base"], a: 3, h: "Também é um modal.", j: "O verbo não sofre alterações." },
+                { q: "Qual a forma negativa de 'Would'?", o: ["Wouldn't", "Won't", "Didn't", "Don't"], a: 0, h: "Would + not.", j: "A contração de would + not é wouldn't." },
+                { q: "Complete: 'I ___ travel the world if I were rich.'", o: ["will", "would", "do", "did"], a: 1, h: "Situação imaginária (se eu fosse rico).", j: "Usa-se would para descrever o que você 'faria'." },
+                { q: "Complete: 'She ___ love to meet you.'", o: ["would", "will", "does", "did"], a: 0, h: "Forma educada / hipotética.", j: "She would love = Ela adoraria." },
+                { q: "Traduza: 'He wouldn't do that to his friend.'", o: ["Ele não fez isso...", "Ele não fará isso...", "Ele não faria isso com o amigo dele.", "Ele não faz isso..."], a: 2, h: "Wouldn't indica o fim '-ria' na negação.", j: "Wouldn't do = não faria." },
+                { q: "Complete a pergunta educada: '___ you like a cup of coffee?'", o: ["Will", "Do", "Did", "Would"], a: 3, h: "Forma polida de oferecer algo.", j: "'Would you like...' é a estrutura padrão para ofertas educadas." },
+                { q: "Resposta curta negativa para: 'Would they prefer to stay home?'", o: ["No, they don't.", "No, they won't.", "No, they wouldn't.", "No, they didn't."], a: 2, h: "Acompanha o modal da pergunta.", j: "Resposta curta com would: No, they wouldn't." },
+                { q: "Identifique a frase correta:", o: ["I would buys a car.", "I would bought a car.", "I would buy a car.", "I would buying a car."], a: 2, h: "Verbo base sem conjugação.", j: "Após 'would', o verbo fica na forma original: 'buy'." }
+            ],
+
+            init() {
+                this.elements = {
+                    studentCodeInput: document.getElementById('student-code'),
+                    introCard: document.getElementById('intro-card'),
+                    quizCard: document.getElementById('quiz-card'),
+                    resultsCard: document.getElementById('results-card'),
+                    questionText: document.getElementById('question-text'),
+                    optionsList: document.getElementById('options-list'),
+                    nextButton: document.getElementById('next-button'),
+                    skipButton: document.getElementById('skip-button'),
+                    hintButton: document.getElementById('hint-button'),
+                    hintText: document.getElementById('hint-text'),
+                    justificationText: document.getElementById('justification-text'),
+                    currentQuestionNumSpan: document.getElementById('current-question-num'),
+                    scoreDisplay: document.getElementById('score-display'),
+                    percentageDisplay: document.getElementById('percentage-display'),
+                    reportStudentName: document.getElementById('report-student-name'),
+                    reportStudentCode: document.getElementById('report-student-code'),
+                    incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                    progressCorrect: document.getElementById('progress-correct'),
+                    progressIncorrect: document.getElementById('progress-incorrect')
+                };
+            },
+
+            // Ir direto para o relatório salvo
+            jumpToReport() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    const savedData = localStorage.getItem('masterclass_report_' + code);
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.validatedStudentCode = code;
+                        this.validatedStudentName = this.studentData[code];
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        this.elements.introCard.style.display = 'none';
+                        this.showResults();
+                    } else {
+                        alert('Nenhum relatório final salvo encontrado para este código. Por favor, inicie o quiz.');
+                    }
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            // Atualizar a barra de progresso visual
+            updateProgress() {
+                const total = this.questions.length;
+                const correctPerc = (this.score / total) * 100;
+                const incorrectPerc = (this.incorrectAnswers.length / total) * 100;
+                this.elements.progressCorrect.style.width = `${correctPerc}%`;
+                this.elements.progressIncorrect.style.width = `${incorrectPerc}%`;
+            },
+
+            // SALVAR PROGRESSO DA PROVA (Nova Função)
+            saveProgress() {
+                localStorage.setItem('masterclass_progress_' + this.validatedStudentCode, JSON.stringify({
+                    currentIndex: this.currentQuestionIndex,
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+            },
+
+            // LIMPAR PROGRESSO QUANDO TERMINAR (Nova Função)
+            clearProgress() {
+                localStorage.removeItem('masterclass_progress_' + this.validatedStudentCode);
+            },
+
+            startQuiz() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.validatedStudentCode = code;
+                    this.validatedStudentName = this.studentData[code];
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+
+                    // NOVIDADE: Verifica se tem progresso pendente e carrega!
+                    const savedProgress = localStorage.getItem('masterclass_progress_' + code);
+                    if (savedProgress) {
+                        const data = JSON.parse(savedProgress);
+                        this.currentQuestionIndex = data.currentIndex;
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        
+                        // Garante que não ultrapasse o limite caso haja algum bug
+                        if(this.currentQuestionIndex >= this.questions.length) {
+                            this.currentQuestionIndex = 0;
+                            this.score = 0;
+                            this.incorrectAnswers = [];
+                        }
+                    } else {
+                        // Se não tem progresso salvo, começa do zero.
+                        this.currentQuestionIndex = 0;
+                        this.score = 0;
+                        this.incorrectAnswers = [];
+                    }
+
+                    this.loadQuestion();
+                    this.updateProgress(); // Atualiza as barrinhas ao retomar
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            loadQuestion() {
+                this.elements.hintText.style.display = 'none';
+                this.elements.justificationText.style.display = 'none';
+                this.elements.nextButton.style.display = 'none';
+                this.elements.skipButton.style.display = 'inline-block';
+                this.elements.optionsList.innerHTML = '';
+
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.elements.currentQuestionNumSpan.textContent = this.currentQuestionIndex + 1;
+                this.elements.questionText.textContent = currentQ.q;
+                this.elements.hintText.textContent = currentQ.h;
+                this.elements.justificationText.innerHTML = `<strong>Justificativa:</strong> ${currentQ.j}`;
+
+                currentQ.o.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = option;
+                    li.onclick = () => this.checkAnswer(index, li);
+                    this.elements.optionsList.appendChild(li);
+                });
+            },
+
+            checkAnswer(selectedIndex, liElement) {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                const allOptions = this.elements.optionsList.querySelectorAll('.option-item');
+                
+                allOptions.forEach(opt => {
+                    opt.style.pointerEvents = 'none';
+                });
+
+                this.elements.skipButton.style.display = 'none';
+                this.elements.nextButton.style.display = 'inline-block';
+                this.elements.justificationText.style.display = 'block';
+
+                if (selectedIndex === currentQ.a) {
+                    liElement.classList.add('correct');
+                    this.score++;
+                } else {
+                    liElement.classList.add('incorrect');
+                    allOptions[currentQ.a].classList.add('correct');
+                    this.incorrectAnswers.push({
+                        q: currentQ.q,
+                        userAnswer: currentQ.o[selectedIndex],
+                        correctAnswer: currentQ.o[currentQ.a],
+                        justification: currentQ.j
+                    });
+                }
+                
+                this.updateProgress();
+            },
+
+            showHint() {
+                this.elements.hintText.style.display = 'block';
+            },
+
+            skipQuestion() {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.incorrectAnswers.push({
+                    q: currentQ.q,
+                    userAnswer: "Pulou a questão",
+                    correctAnswer: currentQ.o[currentQ.a],
+                    justification: currentQ.j
+                });
+                
+                this.updateProgress();
+                this.nextQuestion();
+            },
+
+            nextQuestion() {
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.saveProgress(); // SALVA O PROGRESSO AQUI (Ao ir para a próxima)
+                    this.loadQuestion();
+                } else {
+                    this.clearProgress(); // LIMPA O PROGRESSO AQUI (Ao terminar)
+                    this.showResults();
+                }
+            },
+
+            showResults() {
+                // Salvando no localStorage para o botão "Ir para Relatório" funcionar depois
+                localStorage.setItem('masterclass_report_' + this.validatedStudentCode, JSON.stringify({
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = this.score;
+                
+                const percentage = ((this.score / this.questions.length) * 100).toFixed(1);
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.incorrectQuestionsContainer.innerHTML = '<h3>Questões Incorretas / Puladas:</h3>';
+                if (this.incorrectAnswers.length === 0) {
+                    this.elements.incorrectQuestionsContainer.innerHTML += '<p>Parabéns! Você não errou nenhuma questão.</p>';
+                } else {
+                    this.incorrectAnswers.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'incorrect-question-item';
+                        div.innerHTML = `
+                            <p><strong>Questão:</strong> ${item.q}</p>
+                            <p><strong>Sua Resposta:</strong> <span style="color: salmon;">${item.userAnswer}</span></p>
+                            <p><strong>Resposta Correta:</strong> <span style="color: #2e8b57;">${item.correctAnswer}</span></p>
+                            <p style="margin-top: 10px; font-size: 0.9em; background: #fff; padding: 10px; border-left: 4px solid lightgreen;">
+                                ${item.justification}
+                            </p>
+                        `;
+                        this.elements.incorrectQuestionsContainer.appendChild(div);
+                    });
+                }
+            },
+
+            restartQuiz() {
+                this.clearProgress(); // Garante que zera o progresso pendente
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.incorrectAnswers = [];
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                
+                // Resetando a barra de progresso visual
+                if(this.elements.progressCorrect) this.elements.progressCorrect.style.width = '0%';
+                if(this.elements.progressIncorrect) this.elements.progressIncorrect.style.width = '0%';
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+    </script>
+</body>
+</html>
