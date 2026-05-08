@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>A BÍBLIA DOS PERFECT TENSES - QUIZ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: salmon;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #e0f7e0;
+        }
+
+        .option-item.correct {
+            background-color: lightgreen;
+            color: #000;
+            font-weight: bold;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(144, 238, 144, 0.5);
+        }
+
+        .option-item.incorrect {
+            background-color: salmon;
+            color: white;
+            font-weight: bold;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(250, 128, 114, 0.5);
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid lightgreen;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .next-btn { background-color: lightgreen; color: #000; }
+        .skip-btn { background-color: salmon; color: white; }
+        .hint-btn { background-color: salmon; color: white; display: inline-block; float: none; }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid salmon;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .start-btn, .restart-btn, .print-btn, .continue-btn {
+            display: inline-block;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .start-btn, .print-btn, .continue-btn { background-color: lightgreen; color: #000; }
+        .restart-btn { background-color: salmon; color: white; }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .results-card h2 { margin-bottom: 20px; }
+        .results-card p { font-size: 1.1rem; line-height: 1.5; }
+
+        .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: lightgreen;
+            text-shadow: 1px 1px 2px #000;
+            margin-top: 10px;
+        }
+
+        .attempts-counter { text-align: right; font-weight: bold; margin-bottom: 15px; color: #555; }
+        .question-counter { text-align: left; font-weight: bold; margin-bottom: 15px; color: #555; }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .incorrect-questions-list h3 { color: salmon; margin-bottom: 15px; }
+
+        .incorrect-question-item {
+            background-color: #fff3f3;
+            border: 1px solid salmon;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media print {
+            body { background-color: #fff; padding-top: 0; display: block; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: none; min-height: auto; }
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter { display: none !important; }
+            #results-card { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>A Bíblia dos Perfect Tenses</h1>
+            <h2>AVALIAÇÃO COMPLETA</h2>
+            <p id="personalized-welcome" style="font-size: 1.4rem; font-weight: bold; margin-top: 10px; color: salmon;">Oi, Aluno - grato por sua visita!!!</p>
+            <p id="quiz-description">Por favor, insira seu código de acesso para iniciar a avaliação ou continuar de onde parou. Este teste possui 60 questões baseadas no Guia Masterclass dos Tempos Perfeitos.</p>
+            <input type="text" id="student-code" placeholder="Digite seu Código de Acesso">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz()">Iniciar / Continuar Quiz</button>
+                <button class="continue-btn" onclick="quizApp.jumpToReport()" style="background-color: #ffc107;">Já fiz o Quiz (Ver Relatório)</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 60</div>
+            
+            <div id="progress-bar-container" style="display: flex; height: 12px; background: #e9ecef; border-radius: 5px; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                <div id="progress-correct" style="width: 0%; background: lightgreen; transition: width 0.3s;"></div>
+                <div id="progress-incorrect" style="width: 0%; background: salmon; transition: width 0.3s;"></div>
+            </div>
+
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Mostrar Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+            </div>
+            <div id="justification-text" class="justification"></div>
+            <div class="question-actions">
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório de Desempenho</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display" class="score-display"></span> / 60</p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            
+            <div class="results-actions">
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <button class="print-btn" onclick="window.print()">Imprimir/Salvar Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const quizApp = {
+            currentQuestionIndex: 0,
+            score: 0,
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            incorrectAnswers: [],
+            
+            studentData: {
+                "001AB": "ELMA", "002CD": "VALDINEI", "003EF": "RENATA", "004GH": "GEOVANNA", "005IJ": "LEOZINHO",   
+                "006KL": "MARIANA", "007MN": "NICOLAS", "008OP": "YAGO", "009QR": "CAIO", "010ST": "GIH",
+                "011UV": "LUCAS RESENDE", "012WX": "BRUNA", "013YZ": "DIMI", "014AB": "FABRÍCIO", "015CD": "MIGUEL",
+                "016EF": "YAGO", "017GH": "ANDRÉIA", "018IJ": "KAUÃ", "019KL": "PABLO", "020MN": "SURY",
+                "021SP": "SOPHIA", "022QR": "YASMIN", "023ST": "MÁRCIA", "024UV": "RICK", "025WX": "ROSA",
+                "026YZ": "BRUNA", "027AB": "FERNANDO", "028CD": "ALEX", "029EF": "DÉBORA", "030GH": "GIOVANNA",
+                "031IJ": "PÂMELA", "032KL": "YASMIN", "033MN": "ADRIANO", "034OP": "ARTHUR", "035QR": "YASMIN",
+                "036ST": "DAVI", "037UV": "DEREK", "038WX": "PEDRINHO", "039YZ": "DENILSON", "040AB": "EDSON",
+                "041LS": "LUCAS", "042EF": "CAROLINA", "043GH": "ELSON", "044IJ": "LETÍCIA", "045KL": "DIEGO",
+                "046MN": "GABI", "047OP": "KIM", "048QR": "LANA", "049ST": "MANU", "050UV": "SABRINA",
+                "051WX": "BRUNA", "052YZ": "DIMI", "053AB": "FABRÍCIO", "054CD": "MIGUEL", "055EF": "YAGO",
+                "056GH": "ANDRÉIA", "057IJ": "KAUÃ", "058KL": "PABLO", "059MN": "SURY", "060OP": "TAINÁ",
+                "061QR": "YASMIN", "062ST": "MÁRCIA", "063UV": "RICK", "064WX": "ROSA", "065YZ": "FÁTIMA",
+                "066AB": "LUCA", "067CD": "ALEX", "JR123": "JÚNIOR", "068EF": "DÉBORA", "069GH": "GIOVANNA", "070IJ": "PÂMELA",
+                "071KL": "YASMIN", "072MN": "ADRIANO", "073OP": "ARTHUR", "074QR": "YASMIN", "075ST": "DAVI",
+                "076UV": "DEREK", "077WX": "PEDRINHO", "078YZ": "DENILSON", "079AB": "EDSON", "080CD": "ALÍCIA",
+                "081EF": "CAROLINA", "082GH": "ELSON", "083IJ": "LETÍCIA", "084KL": "DIEGO", "085MN": "GABI",
+                "086OP": "KIM", "087QR": "LANA", "088ST": "MANU", "089UV": "SABRINA", "090WX": "DIMI", "101QR": "ANA CLARA", "102ST": "JOAQUIM",
+                "091YZ": "FABRÍCIO", "092AB": "MIGUEL", "093CD": "YAGO", "094EF": "ANDRÉIA", "095GH": "KAUÃ",
+                "096IJ": "PABLO", "097KL": "SURY", "098MN": "LEILA", "099OP": "YASMIN", "100QR": "MÁRCIA", "101ST": "MONIQUE", "102EA": "ELIANA",
+                "JUNIOR": "PROFESSOR JÚNIOR"
+            },
+
+            questions: [
+                // PRESENT PERFECT SIMPLE (1-10)
+                { q: "Qual a estrutura básica do Present Perfect Simple?", o: ["Have/Has + Verb-ING", "Had + Past Participle", "Have/Has + Past Participle", "Will have + Past Participle"], a: 2, h: "Atenção ao auxiliar e à forma do verbo principal.", j: "A estrutura exige Subject + Have/Has + Past Participle (ex: played, seen, gone)." },
+                { q: "Diferente do português, o Present Perfect exige que haja uma ponte entre:", o: ["Dois eventos no futuro", "O que aconteceu (passado) e o impacto atual (presente)", "Um plano futuro e uma ação passada", "Duas ações simultâneas no passado"], a: 1, h: "Lembre-se do 'elo' temporal.", j: "O Present Perfect inglês exige que haja uma conexão ou impacto da ação passada no momento presente." },
+                { q: "Quais palavras costumam acompanhar o Uso 1 (Experiências de Vida) do Present Perfect?", o: ["Just, recently, lately", "Since, for", "Ever, never, before", "Yesterday, in 2015"], a: 2, h: "Pense em perguntas sobre 'Você já...'.", j: "Sinais clássicos para experiências de vida são 'ever' (em perguntas), 'never' e 'before'." },
+                { q: "Complete: 'I _____ my keys. I can't open the door now.'", o: ["have lost", "had lost", "will lose", "have been losing"], a: 0, h: "Ação passada com resultado visível no presente.", j: "Usa-se 'have lost', pois a ação ocorreu no passado, mas a consequência é sentida agora (não poder abrir a porta)." },
+                { q: "Qual é o 'Erro Mortal' ao usar o Present Perfect?", o: ["Usá-lo em perguntas.", "Misturá-lo com marcadores de tempo finalizados (ex: yesterday).", "Usar o verbo na 3ª coluna.", "Misturar 'have' com 'has'."], a: 1, h: "Se o tempo acabou, o Perfect morre.", j: "Nunca misture Present Perfect com expressões de tempo concluído como 'yesterday' ou 'in 2015'. Nesses casos, DEVE-SE usar o Simple Past." },
+                { q: "Qual a diferença entre 'He has gone to London' e 'He has been to London'?", o: ["'Gone' significa que ele foi e voltou; 'Been' que ele ainda está lá.", "'Gone' significa que ele foi e ainda está lá; 'Been' que ele foi e já voltou.", "Não há diferença.", "Ambos indicam ações no passado simples."], a: 1, h: "Uma viagem com passagem só de ida vs. ida e volta.", j: "He has gone = foi e não voltou ainda. He has been = foi, viveu a experiência e retornou." },
+                { q: "O Uso 3 (Ações e Notícias Recentes) do Present Perfect é acompanhado por sinais como:", o: ["Always, sometimes", "By the time, when", "Just, recently, lately", "Ever, never"], a: 2, h: "Foco no que acabou de acontecer.", j: "Notícias recentes e ações finalizadas há pouco usam just, recently e lately." },
+                { q: "Complete a interrogativa: '_____ you ever taught advanced students?'", o: ["Do", "Did", "Had", "Have"], a: 3, h: "A pergunta é sobre uma experiência de vida até o momento atual.", j: "Auxiliar 'Have' é usado com 'you' no Present Perfect Simple." },
+                { q: "Traduza a ideia de 'Nós moramos em Osasco desde 2015' usando Present Perfect:", o: ["We live in Osasco since 2015.", "We have lived in Osasco since 2015.", "We lived in Osasco since 2015.", "We are living in Osasco since 2015."], a: 1, h: "Ação iniciada no passado e não finalizada (Unfinished Past).", j: "Usa-se Present Perfect (We have lived) com 'since' para indicar a continuidade de um estado que começou no passado." },
+                { q: "Complete: 'The CEO _____ just announced his resignation.'", o: ["have", "had", "has", "will"], a: 2, h: "Atenção ao sujeito da 3ª pessoa do singular.", j: "O CEO = He. O auxiliar correto do Present Perfect para He/She/It é 'has'." },
+
+                // PRESENT PERFECT CONTINUOUS (11-20)
+                { q: "Enquanto o Present Perfect Simple foca no 'troféu' (resultado), o Present Perfect Continuous foca no:", o: ["Momento exato da ação", "Futuro", "Fato universal", "Suor (processo)"], a: 3, h: "Qual a importância da duração?", j: "O Continuous foca no processo, duração ou esforço despendido em uma atividade." },
+                { q: "Qual é a estrutura do Present Perfect Continuous?", o: ["Have/Has + Past Participle", "Have/Has + been + Verb-ING", "Had + been + Verb-ING", "Will have + been + Verb-ING"], a: 1, h: "Atenção ao ING.", j: "Estrutura: Subject + Have / Has + been + Verb-ING." },
+                { q: "Por que alguém diria: 'Why are your hands dirty? Because I _____ fixing the car.'?", o: ["had been", "have been", "have", "am"], a: 1, h: "Ação acabou de parar, mas tem sinais físicos no presente.", j: "A estrutura correta é 'have been fixing', justificando o efeito colateral físico no presente (mãos sujas)." },
+                { q: "Qual a diferença entre 'I have read the book' e 'I have been reading the book'?", o: ["A 1ª indica que terminou; a 2ª indica que está no meio do livro.", "A 1ª indica que está no meio; a 2ª que terminou.", "Ambas indicam que terminou de ler.", "A 1ª é passado simples e a 2ª é futuro."], a: 0, h: "Resultado vs. Processo.", j: "'Have read' = finalizado (resultado). 'Have been reading' = ainda lendo (processo)." },
+                { q: "O que diz a Regra de Ouro sobre os 'Stative Verbs' (know, like, understand)?", o: ["Eles só podem ser usados com ING.", "NÃO aceitam a forma -ING, devendo usar o Present Perfect Simple.", "Podem ser usados em ambos sem alteração de sentido.", "Têm uma forma especial de ING."], a: 1, h: "Verbos de estado mental, posse ou emoção.", j: "Verbos como know, believe, own NÃO aceitam a forma -ING. Usa-se o Present Perfect Simple: 'I have known him...'." },
+                { q: "Identifique a frase INCORRETA baseada na Regra dos Stative Verbs:", o: ["I have known him for years.", "She has owned this car since 2020.", "I have been knowing him for years.", "We have understood the lesson."], a: 2, h: "O verbo 'know' aceita ING?", j: "'Knowing' está errado nesse contexto, pois 'know' é um stative verb." },
+                { q: "Como expressamos uma situação temporária recente, ex: 'Normalmente vou de carro, mas ultimamente estou indo a pé'?", o: ["I have walked to work.", "I had walked to work.", "I walk to work.", "I have been walking to work lately."], a: 3, h: "Processo rotineiro recente não permanente.", j: "O Present Perfect Continuous expressa rotinas temporárias recentes." },
+                { q: "Complete: 'She hasn't _____ feeling well this week.'", o: ["be", "being", "been", "was"], a: 2, h: "Complemento do Continuous.", j: "A estrutura da negação exige 'hasn't been + ING'." },
+                { q: "Complete a interrogativa: 'How long _____ they _____ arguing?'", o: ["have / been", "has / been", "had / be", "are / been"], a: 0, h: "Sujeito = They.", j: "Usa-se 'Have' para 'they' + 'been'." },
+                { q: "Traduza a ideia de 'Eu passei a tarde toda corrigindo provas':", o: ["I corrected papers all afternoon.", "I have been grading papers all afternoon.", "I had graded papers all afternoon.", "I will grade papers all afternoon."], a: 1, h: "Foco intenso no suor/processo contínuo até agora.", j: "A ênfase na atividade ininterrupta exige o Present Perfect Continuous." },
+
+                // PAST PERFECT SIMPLE (21-30)
+                { q: "Como o Past Perfect Simple é conhecido metaforicamente?", o: ["O Passado do Futuro", "O Elo Presente", "O Passado do Passado", "A Maratona"], a: 2, h: "Ocorre antes de outra coisa.", j: "Ele serve para organizar a linha do tempo e mostrar o que aconteceu PRIMEIRO no passado." },
+                { q: "Qual a estrutura do Past Perfect Simple?", o: ["Had + Verb-ING", "Have/Has + Past Participle", "Had + Past Participle", "Would have + Past Participle"], a: 2, h: "É a junção de 'had' e a terceira coluna.", j: "Estrutura: Subject + Had + Past Participle." },
+                { q: "O Past Perfect 'nunca anda sozinho na natureza'. De qual outro tempo verbal ele precisa como referencial?", o: ["Present Perfect", "Simple Past", "Future Simple", "Past Continuous"], a: 1, h: "O que ancora o Past Perfect na linha do tempo?", j: "Ele precisa do Simple Past para estabelecer qual foi a segunda ação na cronologia." },
+                { q: "Complete com o Past Perfect: 'By the time I woke up, she _____ already _____ breakfast.'", o: ["has / prepared", "had / prepared", "have / prepared", "was / preparing"], a: 1, h: "Uma ação finalizada antes de você acordar.", j: "Ação 1 (mais antiga): had prepared. Ação 2: woke up." },
+                { q: "No Reported Speech (Discurso Indireto), se alguém diz 'I lost my book', como reportamos isso?", o: ["He said that he has lost his book.", "He said that he loses his book.", "He said that he had lost his book.", "He said that he will lose his book."], a: 2, h: "A regra do 'backshift'.", j: "Simple Past (lost) sofre backshift para Past Perfect (had lost) no discurso indireto." },
+                { q: "Complete: 'I didn't recognize him because he _____ his hair.'", o: ["has cut", "had cut", "cutting", "have cut"], a: 1, h: "Causa anterior a um estado passado.", j: "O corte ocorreu antes do não reconhecimento. Usa-se 'had cut'." },
+                { q: "Qual o auxiliar usado nas frases interrogativas do Past Perfect Simple?", o: ["Did", "Have", "Had", "Does"], a: 2, h: "Inverte-se o auxiliar com o sujeito.", j: "O 'Had' é passado para o início da frase: 'Had you finished...?'." },
+                { q: "Traduza: 'Eles não tinham estudado, então reprovaram na prova.'", o: ["They hadn't studied, so they failed the test.", "They didn't study, so they had failed.", "They haven't studied, so they failed.", "They won't study, so they failed."], a: 0, h: "O não-estudo vem antes da reprovação.", j: "Ação causal mais antiga vai para o Past Perfect (hadn't studied)." },
+                { q: "Complete a pergunta: '_____ they left before the party ended?'", o: ["Have", "Had", "Did", "Were"], a: 1, h: "Eles saíram antes do término?", j: "Usa-se 'Had' interrogativo." },
+                { q: "Por que o Past Perfect é muito comum em livros de ficção?", o: ["Para contar o futuro do personagem.", "Para criar 'flashbacks' na narrativa que já está no passado.", "Para descrever o que está acontecendo agora.", "Para ações em andamento contínuo."], a: 1, h: "A narrativa pula um passo para trás.", j: "Como a narrativa principal ocorre no Simple Past, voltar ainda mais no tempo exige o Past Perfect." },
+
+                // PAST PERFECT CONTINUOUS (31-40)
+                { q: "O Past Perfect Continuous combina as ideias de:", o: ["Futuro e Duração", "Anterioridade e Suor/Duração", "Presente e Anterioridade", "Metas e Prazos"], a: 1, h: "Past Perfect + Continuous.", j: "Combina a anterioridade (Past Perfect) com a duração/processo (Continuous)." },
+                { q: "Qual a estrutura do Past Perfect Continuous?", o: ["Have been + Verb-ING", "Had + Past Participle", "Will have been + Verb-ING", "Had been + Verb-ING"], a: 3, h: "Auxiliar do passado + Particípio do BE + Gerúndio.", j: "Estrutura: Subject + Had been + Verb-ING." },
+                { q: "Para mostrar quanto tempo algo estava em progresso antes de ser interrompido por outra ação passada, usamos:", o: ["Past Perfect Simple", "Past Perfect Continuous", "Present Perfect", "Simple Past"], a: 1, h: "Foco na longa duração interrompida.", j: "Ex: We had been driving for 6 hours when the tire flat." },
+                { q: "Complete: 'His eyes were red because he _____ crying.'", o: ["has been", "had been", "have been", "was being"], a: 1, h: "Causa visível de um estado no PASSADO.", j: "Se o estado estava no passado (were red), a causa anterior é Past Perfect Continuous (had been crying)." },
+                { q: "Quais palavras costumam aparecer fortemente acopladas com o Past Perfect Continuous?", o: ["Ever e Never", "Just e Lately", "For e Since com When ou By the time", "Tomorrow e Next week"], a: 2, h: "Marcadores de duração atrelados a marcos temporais.", j: "For e Since marcam a duração, enquanto When ou By the time marcam a interrupção no Simple Past." },
+                { q: "Complete a frase: 'I _____ coding for five hours when the power went out.'", o: ["have been", "had been", "was", "will have been"], a: 1, h: "Ação longa anterior a uma quebra de energia.", j: "Usa-se 'had been' para a ação longa finalizada por outra no passado." },
+                { q: "Complete a negação: 'We _____ paying attention when the teacher explained.'", o: ["haven't been", "didn't been", "hadn't been", "weren't been"], a: 2, h: "O que ocorria ANTES e DURANTE a explicação.", j: "Negação no Past Perfect Continuous usa 'hadn't been'." },
+                { q: "Traduza: 'Ela estava exausta porque esteve trabalhando a noite toda.'", o: ["She is exhausted because she has been working...", "She was exhausted because she had been working...", "She was exhausted because she worked...", "She had been exhausted because she was working..."], a: 1, h: "Causa e efeito no passado.", j: "Was exhausted (efeito passado) <- had been working (suor/causa mais no passado)." },
+                { q: "Complete a interrogativa: '_____ it been raining heavily before the flood?'", o: ["Has", "Did", "Had", "Was"], a: 2, h: "A chuva intensa ocorreu antes da enchente.", j: "Usa-se 'Had' para questionar uma ação contínua anterior a um evento passado." },
+                { q: "Na frase 'They had been dating for years before they finally got married', qual o papel de 'had been dating'?", o: ["Cenário / Duração", "Clímax / Interrupção", "Fato futuro", "Situação temporária no presente"], a: 0, h: "O Continuous cria o pano de fundo.", j: "O Continuous cria o cenário de duração longa, antes de o Simple Past (got married) atuar como clímax." },
+
+                // FUTURE PERFECT SIMPLE (41-50)
+                { q: "Como o Future Perfect Simple é descrito metaforicamente no guia?", o: ["O Suor", "O Elo", "A Máquina do Tempo / A Linha de Chegada", "O Passado do Passado"], a: 2, h: "Você avança até um ponto e olha para trás.", j: "Ele é a máquina do tempo mental: projeta-se no futuro e afirma que algo já estará concluído." },
+                { q: "Qual a estrutura do Future Perfect Simple?", o: ["Will + Verb base", "Will have been + Verb-ING", "Had + Past Participle", "Will have + Past Participle"], a: 3, h: "Lembre da ausência do 'has'.", j: "Estrutura: Subject + Will have + Past Participle." },
+                { q: "No Future Perfect, independentemente do sujeito (he, she, it), o auxiliar será:", o: ["Will has", "Will had", "Will have", "Would have"], a: 2, h: "A regra dos modais destrói o 'has'.", j: "O modal 'will' exige que o verbo seguinte fique na forma base. Portanto, sempre 'will have'." },
+                { q: "Qual preposição costuma acompanhar os prazos (deadlines) neste tempo verbal?", o: ["For", "Since", "By", "At"], a: 2, h: "Significa 'até' determinado prazo.", j: "Expressões de limite temporal comumente usam 'By' (ex: By 2030, By tomorrow)." },
+                { q: "Complete: 'By 2030, humans _____ astronauts to Mars.'", o: ["will send", "will have sent", "had sent", "have sent"], a: 1, h: "Metas e prazos concluídos no futuro.", j: "Ação já estará 100% concluída até o prazo, logo, usa-se 'will have sent'." },
+                { q: "O que significa 'He will have left the office' dito no meio da tarde?", o: ["Ele vai sair em breve.", "Ele costumava sair cedo.", "Ele já deve ter saído do escritório (convicção sobre o passado).", "Ele está saindo agora."], a: 2, h: "Uso avançado do Future Perfect.", j: "Nativos usam o Future Perfect para expressar certeza forte sobre algo que provavelmente já ocorreu no presente/passado recente." },
+                { q: "Complete a negação: 'We _____ launched the app by December.'", o: ["will haven't", "won't have", "won't has", "haven't will"], a: 1, h: "A contração de 'will not'.", j: "Usa-se 'won't have' + Past Participle." },
+                { q: "Complete a interrogativa: '_____ you have graduated by 2026?'", o: ["Will", "Have", "Had", "Do"], a: 0, h: "Pergunta sobre um prazo futuro.", j: "A interrogativa se inicia com 'Will'." },
+                { q: "Traduza: 'Ela já terá esquecido disso até a semana que vem.'", o: ["She has forgotten about this next week.", "She will have forgotten about this by next week.", "She will forget about this next week.", "She had forgotten about this by next week."], a: 1, h: "Linha de chegada futura.", j: "Ação que estará finalizada em um prazo futuro exige Future Perfect Simple." },
+                { q: "Identifique a frase INCORRETA:", o: ["He will have saved enough money.", "By Monday, they will have repaired it.", "She will has finished the book by 9 PM.", "I will have taught twenty classes."], a: 2, h: "Preste atenção no 'has'.", j: "Não existe 'will has'. O correto é sempre 'will have', mesmo para 'She'." },
+
+                // FUTURE PERFECT CONTINUOUS & CONDITIONAL PERFECT (51-60)
+                { q: "O Future Perfect Continuous é conhecido como a:", o: ["Linha de chegada", "Maratona do Futuro", "Máquina do tempo", "Realidade alternativa"], a: 1, h: "É o tempo mais longo de todos.", j: "É a 'Maratona do Futuro', focando em celebrar 'aniversários' de ações contínuas." },
+                { q: "Qual a estrutura do Future Perfect Continuous?", o: ["Will have + Past Participle", "Will have been + Verb-ING", "Would have + Verb-ING", "Had been + Verb-ING"], a: 1, h: "Acumula 3 verbos auxiliares.", j: "Estrutura: Subject + Will have been + Verb-ING." },
+                { q: "Quantos marcadores de tempo este tempo verbal (F. P. Cont.) costuma exigir na frase?", o: ["Nenhum.", "Um (ex: Yesterday).", "Dois (Um marco futuro + a duração da ação).", "Apenas a duração."], a: 2, h: "Um diz o 'quando' futuro e outro diz o 'quanto tempo'.", j: "Requer dois marcadores: um para o marco futuro (ex: By December) e outro para a duração (ex: for 10 years)." },
+                { q: "Complete: 'Next month, I _____ working here for 5 years.'", o: ["will be", "will have been", "have been", "had been"], a: 1, h: "Comemorando aniversário de tempo de casa.", j: "Ação que acumula duração até o marco futuro usa 'will have been'." },
+                { q: "O Conditional Perfect Simple é a base gramatical do que chamamos de:", o: ["First Conditional", "Zero Conditional", "Third Conditional", "Second Conditional"], a: 2, h: "Condicional das situações não reais no passado.", j: "Ele baseia o Third Conditional (passado irreal/arrependimentos)." },
+                { q: "O Conditional Perfect lida com:", o: ["Rotinas e fatos", "Planos para as férias", "Realidades alternativas no passado, coisas que teriam acontecido, mas não aconteceram.", "Avisos de perigo"], a: 2, h: "O Tempo do Arrependimento.", j: "Usado para alívios, possibilidades perdidas e arrependimentos (ex: Eu teria viajado...)." },
+                { q: "Qual a estrutura do Conditional Perfect Simple?", o: ["Would have + Past Participle", "Will have + Past Participle", "Would be + Verb-ING", "Had + Past Participle"], a: 0, h: "O modal de condicional + estrutura perfeita.", j: "Estrutura: Subject + Would have + Past Participle." },
+                { q: "Complete: 'I _____ to Europe, but I didn't have the money.'", o: ["will have traveled", "would have traveled", "had traveled", "have traveled"], a: 1, h: "Algo que 'teria' acontecido, mas não ocorreu.", j: "Indica uma possibilidade perdida no passado: 'would have traveled' (teria viajado)." },
+                { q: "Como ocorre a contração de 'Would have' e 'Would not have' no inglês falado rápido?", o: ["Will've / Won't have", "Would've / Wouldn't have", "Had've / Hadn't have", "W'have / W'not have"], a: 1, h: "Fundamental para o Listening.", j: "Would have -> Would've (wud-uv) | Would not have -> Wouldn't have." },
+                { q: "No contexto de críticas/julgamentos, o que significa: 'I would have said no.'?", o: ["Eu direi não.", "Eu não tinha dito.", "Eu estava dizendo não.", "Eu teria dito não (no lugar dele)."], a: 3, h: "Postura hipotética da própria pessoa no passado.", j: "Indica a postura ou decisão hipotética que a pessoa teria tomado na situação passada relatada." }
+            ],
+
+            init() {
+                this.elements = {
+                    studentCodeInput: document.getElementById('student-code'),
+                    introCard: document.getElementById('intro-card'),
+                    quizCard: document.getElementById('quiz-card'),
+                    resultsCard: document.getElementById('results-card'),
+                    questionText: document.getElementById('question-text'),
+                    optionsList: document.getElementById('options-list'),
+                    nextButton: document.getElementById('next-button'),
+                    skipButton: document.getElementById('skip-button'),
+                    hintButton: document.getElementById('hint-button'),
+                    hintText: document.getElementById('hint-text'),
+                    justificationText: document.getElementById('justification-text'),
+                    currentQuestionNumSpan: document.getElementById('current-question-num'),
+                    scoreDisplay: document.getElementById('score-display'),
+                    percentageDisplay: document.getElementById('percentage-display'),
+                    reportStudentName: document.getElementById('report-student-name'),
+                    reportStudentCode: document.getElementById('report-student-code'),
+                    incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                    progressCorrect: document.getElementById('progress-correct'),
+                    progressIncorrect: document.getElementById('progress-incorrect')
+                };
+            },
+
+            jumpToReport() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    const savedData = localStorage.getItem('perfecttenses_report_' + code);
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.validatedStudentCode = code;
+                        this.validatedStudentName = this.studentData[code];
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        this.elements.introCard.style.display = 'none';
+                        this.showResults();
+                    } else {
+                        alert('Nenhum relatório final salvo encontrado para este código. Por favor, inicie o quiz.');
+                    }
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            updateProgress() {
+                const total = this.questions.length;
+                const correctPerc = (this.score / total) * 100;
+                const incorrectPerc = (this.incorrectAnswers.length / total) * 100;
+                this.elements.progressCorrect.style.width = `${correctPerc}%`;
+                this.elements.progressIncorrect.style.width = `${incorrectPerc}%`;
+            },
+
+            saveProgress() {
+                localStorage.setItem('perfecttenses_progress_' + this.validatedStudentCode, JSON.stringify({
+                    currentIndex: this.currentQuestionIndex,
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+            },
+
+            clearProgress() {
+                localStorage.removeItem('perfecttenses_progress_' + this.validatedStudentCode);
+            },
+
+            startQuiz() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.validatedStudentCode = code;
+                    this.validatedStudentName = this.studentData[code];
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+
+                    const savedProgress = localStorage.getItem('perfecttenses_progress_' + code);
+                    if (savedProgress) {
+                        const data = JSON.parse(savedProgress);
+                        this.currentQuestionIndex = data.currentIndex;
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        
+                        if(this.currentQuestionIndex >= this.questions.length) {
+                            this.currentQuestionIndex = 0;
+                            this.score = 0;
+                            this.incorrectAnswers = [];
+                        }
+                    } else {
+                        this.currentQuestionIndex = 0;
+                        this.score = 0;
+                        this.incorrectAnswers = [];
+                    }
+
+                    this.loadQuestion();
+                    this.updateProgress(); 
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            loadQuestion() {
+                this.elements.hintText.style.display = 'none';
+                this.elements.justificationText.style.display = 'none';
+                this.elements.nextButton.style.display = 'none';
+                this.elements.skipButton.style.display = 'inline-block';
+                this.elements.optionsList.innerHTML = '';
+
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.elements.currentQuestionNumSpan.textContent = this.currentQuestionIndex + 1;
+                this.elements.questionText.textContent = currentQ.q;
+                this.elements.hintText.textContent = currentQ.h;
+                this.elements.justificationText.innerHTML = `<strong>Justificativa:</strong> ${currentQ.j}`;
+
+                currentQ.o.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = option;
+                    li.onclick = () => this.checkAnswer(index, li);
+                    this.elements.optionsList.appendChild(li);
+                });
+            },
+
+            checkAnswer(selectedIndex, liElement) {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                const allOptions = this.elements.optionsList.querySelectorAll('.option-item');
+                
+                allOptions.forEach(opt => {
+                    opt.style.pointerEvents = 'none';
+                });
+
+                this.elements.skipButton.style.display = 'none';
+                this.elements.nextButton.style.display = 'inline-block';
+                this.elements.justificationText.style.display = 'block';
+
+                if (selectedIndex === currentQ.a) {
+                    liElement.classList.add('correct');
+                    this.score++;
+                } else {
+                    liElement.classList.add('incorrect');
+                    allOptions[currentQ.a].classList.add('correct');
+                    this.incorrectAnswers.push({
+                        q: currentQ.q,
+                        userAnswer: currentQ.o[selectedIndex],
+                        correctAnswer: currentQ.o[currentQ.a],
+                        justification: currentQ.j
+                    });
+                }
+                
+                this.updateProgress();
+            },
+
+            showHint() {
+                this.elements.hintText.style.display = 'block';
+            },
+
+            skipQuestion() {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.incorrectAnswers.push({
+                    q: currentQ.q,
+                    userAnswer: "Pulou a questão",
+                    correctAnswer: currentQ.o[currentQ.a],
+                    justification: currentQ.j
+                });
+                
+                this.updateProgress();
+                this.nextQuestion();
+            },
+
+            nextQuestion() {
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.saveProgress();
+                    this.loadQuestion();
+                } else {
+                    this.clearProgress();
+                    this.showResults();
+                }
+            },
+
+            showResults() {
+                localStorage.setItem('perfecttenses_report_' + this.validatedStudentCode, JSON.stringify({
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = this.score;
+                
+                const percentage = ((this.score / this.questions.length) * 100).toFixed(1);
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.incorrectQuestionsContainer.innerHTML = '<h3>Questões Incorretas / Puladas:</h3>';
+                if (this.incorrectAnswers.length === 0) {
+                    this.elements.incorrectQuestionsContainer.innerHTML += '<p>Parabéns! Você não errou nenhuma questão.</p>';
+                } else {
+                    this.incorrectAnswers.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'incorrect-question-item';
+                        div.innerHTML = `
+                            <p><strong>Questão:</strong> ${item.q}</p>
+                            <p><strong>Sua Resposta:</strong> <span style="color: salmon;">${item.userAnswer}</span></p>
+                            <p><strong>Resposta Correta:</strong> <span style="color: #2e8b57;">${item.correctAnswer}</span></p>
+                            <p style="margin-top: 10px; font-size: 0.9em; background: #fff; padding: 10px; border-left: 4px solid lightgreen;">
+                                ${item.justification}
+                            </p>
+                        `;
+                        this.elements.incorrectQuestionsContainer.appendChild(div);
+                    });
+                }
+            },
+
+            restartQuiz() {
+                this.clearProgress();
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.incorrectAnswers = [];
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                
+                if(this.elements.progressCorrect) this.elements.progressCorrect.style.width = '0%';
+                if(this.elements.progressIncorrect) this.elements.progressIncorrect.style.width = '0%';
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+    </script>
+</body>
+</html>
