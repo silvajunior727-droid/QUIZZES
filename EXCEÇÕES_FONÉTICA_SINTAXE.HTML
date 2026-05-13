@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>EXCEÇÕES E SINTAXE - QUIZ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: salmon;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #e0f7e0;
+        }
+
+        .option-item.correct {
+            background-color: lightgreen;
+            color: #000;
+            font-weight: bold;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(144, 238, 144, 0.5);
+        }
+
+        .option-item.incorrect {
+            background-color: salmon;
+            color: white;
+            font-weight: bold;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(250, 128, 114, 0.5);
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid lightgreen;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .skip-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .hint-btn {
+            background-color: salmon;
+            color: white;
+            display: inline-block;
+            float: none;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid salmon;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .start-btn, .restart-btn, .print-btn, .continue-btn {
+            display: inline-block;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .start-btn, .print-btn, .continue-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .restart-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: lightgreen;
+            text-shadow: 1px 1px 2px #000;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .incorrect-questions-list h3 {
+            color: salmon;
+            margin-bottom: 15px;
+        }
+
+        .incorrect-question-item {
+            background-color: #fff3f3;
+            border: 1px solid salmon;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media print {
+            body { background-color: #fff; padding-top: 0; display: block; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: none; min-height: auto; }
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter { display: none !important; }
+            #results-card { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>Masterclass Titanium: Inglês Avançado</h1>
+            <h2>EXCEÇÕES, FONÉTICA E SINTAXE</h2>
+            <p id="personalized-welcome" style="font-size: 1.4rem; font-weight: bold; margin-top: 10px; color: salmon;">Oi, Alunos - grato por sua visita!!!</p>
+            <p id="quiz-description">Por favor, insira seu código de acesso para iniciar a avaliação ou continuar de onde parou. Este teste possui 60 questões de nível avançado (C1/C2).</p>
+            <input type="text" id="student-code" placeholder="Digite seu Código de Acesso">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz()">Iniciar / Continuar Quiz</button>
+                <button class="continue-btn" onclick="quizApp.jumpToReport()" style="background-color: #ffc107;">Já fiz o Quiz (Ver Relatório)</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 60</div>
+            
+            <div id="progress-bar-container" style="display: flex; height: 12px; background: #e9ecef; border-radius: 5px; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                <div id="progress-correct" style="width: 0%; background: lightgreen; transition: width 0.3s;"></div>
+                <div id="progress-incorrect" style="width: 0%; background: salmon; transition: width 0.3s;"></div>
+            </div>
+
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Mostrar Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+            </div>
+            <div id="justification-text" class="justification"></div>
+            <div class="question-actions">
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório de Desempenho</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display" class="score-display"></span> / 60</p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            
+            <div class="results-actions">
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <button class="print-btn" onclick="window.print()">Imprimir/Salvar Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const quizApp = {
+            currentQuestionIndex: 0,
+            score: 0,
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            incorrectAnswers: [],
+            
+            studentData: {
+                "001AB": "ELMA", "002CD": "VALDINEI", "003EF": "RENATA", "004GH": "GEOVANNA", "005IJ": "LEOZINHO",   
+                "006KL": "MARIANA", "007MN": "NICOLAS", "008OP": "YAGO", "009QR": "CAIO", "010ST": "GIH",
+                "011UV": "LUCAS RESENDE", "012WX": "BRUNA", "013YZ": "DIMI", "014AB": "FABRÍCIO", "015CD": "MIGUEL",
+                "016EF": "YAGO", "017GH": "ANDRÉIA", "018IJ": "KAUÃ", "019KL": "PABLO", "020MN": "SURY",
+                "021SP": "SOPHIA", "022QR": "YASMIN", "023ST": "MÁRCIA", "024UV": "RICK", "025WX": "ROSA",
+                "026YZ": "BRUNA", "027AB": "FERNANDO", "028CD": "ALEX", "029EF": "DÉBORA", "030GH": "GIOVANNA",
+                "031IJ": "PÂMELA", "032KL": "YASMIN", "033MN": "ADRIANO", "034OP": "ARTHUR", "035QR": "YASMIN",
+                "036ST": "DAVI", "037UV": "DEREK", "038WX": "PEDRINHO", "039YZ": "DENILSON", "040AB": "EDSON",
+                "041LS": "LUCAS", "042EF": "CAROLINA", "043GH": "ELSON", "044IJ": "LETÍCIA", "045KL": "DIEGO",
+                "046MN": "GABI", "047OP": "KIM", "048QR": "LANA", "049ST": "MANU", "050UV": "SABRINA",
+                "051WX": "BRUNA", "052YZ": "DIMI", "053AB": "FABRÍCIO", "054CD": "MIGUEL", "055EF": "YAGO",
+                "056GH": "ANDRÉIA", "057IJ": "KAUÃ", "058KL": "PABLO", "059MN": "SURY", "060OP": "TAINÁ",
+                "061QR": "YASMIN", "062ST": "MÁRCIA", "063UV": "RICK", "064WX": "ROSA", "065YZ": "FÁTIMA",
+                "066AB": "LUCA", "067CD": "ALEX", "JR123": "JÚNIOR", "068EF": "DÉBORA", "069GH": "GIOVANNA", "070IJ": "PÂMELA",
+                "071KL": "YASMIN", "072MN": "ADRIANO", "073OP": "ARTHUR", "074QR": "YASMIN", "075ST": "DAVI",
+                "076UV": "DEREK", "077WX": "PEDRINHO", "078YZ": "DENILSON", "079AB": "EDSON", "080CD": "ALÍCIA",
+                "081EF": "JÉSSICA", "082GH": "ELSON", "083IJ": "LETÍCIA", "084KL": "DIEGO", "085MN": "GABI",
+                "086OP": "KIM", "087QR": "LANA", "088ST": "MANU", "089UV": "SABRINA", "090WX": "DIMI", "101QR": "ANA CLARA", "102ST": "JOAQUIM",
+                "091YZ": "FABRÍCIO", "092AB": "MIGUEL", "093CD": "YAGO", "094EF": "ANDRÉIA", "095GH": "KAUÃ",
+                "096IJ": "PABLO", "097KL": "SURY", "098MN": "LEILA", "099OP": "YASMIN", "100QR": "MÁRCIA", "101ST": "MONIQUE", "102EA": "ELIANA",
+                "JUNIOR": "PROFESSOR JÚNIOR", "ALUNOS": "TURMA GERAL"
+            },
+
+            questions: [
+                // SECTION 1: ARTIGOS (8 questions)
+                { q: "Qual o artigo correto para a palavra 'university'?", o: ["An university", "A university", "The university (sempre)", "University (zero article)"], a: 1, h: "Atenção ao som inicial, não à letra.", j: "Palavras que iniciam com vogais gráficas, mas possuem som de semivogal 'Y' (/j/), exigem o artigo 'A'." },
+                { q: "Complete corretamente: 'He is going on ___ European tour.'", o: ["an", "the", "a", "zero article"], a: 2, h: "O 'E' é mudo.", j: "O 'E' é mudo e o som inicia no 'u' com som de 'Y' (/j/). Logo, usa-se 'A European tour'." },
+                { q: "Qual é a forma correta ao se referir a uma rua de mão única?", o: ["An one-way street", "A one-way street", "One-way street (sem artigo)", "The one-ways street"], a: 1, h: "O 'O' tem som de consoante aqui.", j: "O 'O' em 'one' soa como 'W' (wan), uma semivogal. Portanto, exige o artigo 'A'." },
+                { q: "Qual o artigo correto para a sigla 'MBA'?", o: ["A MBA", "An MBA", "The MBA", "Zero article"], a: 1, h: "Como você pronuncia a letra 'M' isoladamente?", j: "Em acrônimos, o artigo depende da pronúncia da primeira letra. 'M' (em) começa com som de vogal, exigindo 'An'." },
+                { q: "Como devemos nos referir a um cientista da NASA usando artigos indefinidos?", o: ["An NASA scientist", "A NASA scientist", "The NASA scientist", "NASA scientist"], a: 1, h: "A sigla é lida como uma palavra (Nasa).", j: "'Nasa' começa com som de consoante (N), logo, usamos 'A NASA scientist'." },
+                { q: "Complete a frase indicando que ele foi preso (detento): 'He went to ___ prison.'", o: ["the", "a", "an", "zero article (nada)"], a: 3, h: "Refere-se ao propósito da instituição.", j: "Omitimos o 'THE' (Zero Article) ao falarmos do propósito da instituição. Ele foi para a prisão como detento." },
+                { q: "Se um mecânico vai ao hospital apenas para consertar um equipamento, como dizemos em inglês?", o: ["The mechanic is in hospital.", "The mechanic is at the hospital.", "The mechanic is at hospital.", "The mechanic is in a hospital."], a: 1, h: "Ele não é paciente, está indo ao prédio físico.", j: "Usamos o 'THE' quando nos referimos ao prédio físico, e não ao propósito médico da instituição." },
+                { q: "No inglês americano moderno, qual é a forma mais comum e correta para 'um evento histórico'?", o: ["An historic event", "A historic event", "The historic event", "Historic event"], a: 1, h: "O 'H' é pronunciado (aspirado).", j: "Como o 'H' é pronunciado e aspirado no inglês americano, o padrão correto é 'A historic event'." },
+
+                // SECTION 2: SOME & ANY (6 questions)
+                { q: "Em uma frase afirmativa, qual o sentido da palavra 'Any' em 'Any child could solve this'?", o: ["Alguma criança", "Nenhuma criança", "Qualquer criança", "Muitas crianças"], a: 2, h: "Indica que não importa qual.", j: "Em frases afirmativas, 'Any' assume o sentido de 'qualquer um' ou 'não importa qual'." },
+                { q: "Qual a tradução mais precisa para 'You can choose any color you like'?", o: ["Você não pode escolher cor alguma.", "Você pode escolher algumas cores.", "Você pode escolher qualquer cor que gostar.", "Você deve escolher todas as cores."], a: 2, h: "Liberdade total de escolha.", j: "'Any' em afirmações significa 'qualquer', dando liberdade irrestrita de escolha." },
+                { q: "Como traduzimos 'Some guy left this for you'?", o: ["Alguns caras deixaram isso...", "Um cara qualquer/Um fulano deixou isso...", "Aquele cara deixou isso...", "Nenhum cara deixou isso..."], a: 1, h: "Usado com singular para indicar pessoa desconhecida.", j: "O 'Some' usado com substantivos no singular indica uma pessoa ou coisa desconhecida ('um cara qualquer')." },
+                { q: "Se você leu um artigo, mas não lembra o nome da revista, como diria em inglês?", o: ["I read about it in any magazine.", "I read about it in some magazine.", "I read about it in the magazine.", "I read about it in magazines."], a: 1, h: "Indica 'uma revista qualquer'.", j: "'Some magazine' é usado para especificar uma revista desconhecida ou cujo nome não importa no momento." },
+                { q: "Na frase 'We waited for some thirty minutes', qual a função do 'some'?", o: ["Indicar exatidão matemática.", "Dizer que esperou 'alguns trinta minutos' (plural).", "Expressar uma quantidade absurda ou aproximada de forma enfática.", "Transformar a frase em negativa."], a: 2, h: "Dá ênfase ao tempo que demorou.", j: "Aqui o 'Some' é usado para dar ênfase a uma quantidade que pareceu impressionante ou longa ('uns bons 30 minutos')." },
+                { q: "Complete: 'That project took ___ five years to complete.' (Enfatizando o longo tempo)", o: ["any", "a", "some", "the"], a: 2, h: "Indica 'uns bons cinco anos'.", j: "Usamos 'Some' antes de numerais para expressar uma quantidade impressionante de forma enfática." },
+
+                // SECTION 3: INCONTÁVEIS & DUPLA PERSONALIDADE (14 questions)
+                { q: "Qual é a forma correta de dizer 'um conselho' em inglês?", o: ["An advice", "One advice", "A piece of advice", "An advices"], a: 2, h: "Advice é incontável.", j: "'Advice' é sempre incontável. Para quantificar, usamos a estrutura 'A piece of advice'." },
+                { q: "Como pedir 'algumas informações' corretamente?", o: ["Some informations", "Some information", "An information", "Many informations"], a: 1, h: "A palavra não aceita 'S' no final.", j: "'Information' é incontável e nunca vai para o plural. O correto é 'Some information'." },
+                { q: "Se você comprou vários móveis, como deve dizer?", o: ["I bought many furnitures.", "I bought several furnitures.", "I bought items of furniture.", "I bought a furniture."], a: 2, h: "Furniture representa a categoria, não os objetos individuais.", j: "'Furniture' é incontável. Para pluralizar a ideia, dizemos 'items of furniture' ou 'pieces of furniture'." },
+                { q: "Como traduzimos 'dois pães' para o inglês?", o: ["Two breads", "Two loafs of bread", "Two loaves of bread", "Two pieces of breads"], a: 2, h: "Atenção ao plural de 'loaf'.", j: "'Bread' é incontável. A unidade é 'loaf' (fatia/filão), cujo plural irregular é 'loaves'." },
+                { q: "Para contar uma novidade ou notícia, dizemos:", o: ["I have a news!", "I have a piece of news!", "I have one news!", "I have many news!"], a: 1, h: "News termina em S, mas é singular e incontável.", j: "Para singularizar uma notícia, dizemos 'A piece of news' ou 'Some news'." },
+                { q: "Qual frase está gramaticalmente correta em relação ao progresso?", o: ["She made a good progress.", "She made good progresses.", "She made good progress.", "She made an progress."], a: 2, h: "Não leva artigo indefinido.", j: "'Progress' é incontável, portanto não pode ser precedido por 'a/an' ou ir para o plural." },
+                { q: "A palavra 'Knowledge' (conhecimento) pode ir para o plural em inglês?", o: ["Sim, 'knowledges'.", "Sim, mas apenas em textos acadêmicos.", "Não, é sempre singular (incontável).", "Não, mas aceita o artigo 'an'."], a: 2, h: "É uma massa de informação intocável.", j: "'Knowledge' é estritamente incontável e permanece sempre no singular." },
+                { q: "Complete a frase clássica de Pluralia Tantum: 'The police ___ investigating.'", o: ["is", "are", "was", "has"], a: 1, h: "A instituição age no plural.", j: "'Police' é um substantivo coletivo que exige obrigatoriamente o verbo no plural ('are')." },
+                { q: "Como conjugamos o verbo para 'The cattle' (O gado)?", o: ["The cattle is grazing.", "The cattle are grazing.", "The cattle grazes.", "The cattles are grazing."], a: 1, h: "O gado como grupo de animais leva o plural.", j: "'Cattle' é um Pluralia Tantum; embora não tenha 'S', o verbo vai para o plural." },
+                { q: "Qual é o sentido de 'Glass' quando usado de forma incontável (sem artigo)?", o: ["Um copo", "Óculos", "Vidro (Material)", "Lupa"], a: 2, h: "A substância bruta.", j: "Como incontável, 'Glass' refere-se ao material (vidro). Como contável ('A glass'), é um copo." },
+                { q: "O que a pessoa quer dizer com 'I bought a paper today'?", o: ["Comprei uma folha de papel.", "Comprei um jornal.", "Comprei um material reciclável.", "Comprei papelão."], a: 1, h: "O artigo 'A' muda o sentido do material.", j: "'Paper' (incontável) é papel. 'A paper' (contável) significa um jornal ou um artigo acadêmico." },
+                { q: "A diferença entre 'Iron' e 'An iron' é:", o: ["Ferro (metal) VS Um ferro de passar roupa.", "Um ferro de passar VS Ferro (metal).", "Forte VS Mais forte.", "Ferro (metal) VS Uma barra de ferro."], a: 0, h: "Material vs Utensílio.", j: "Sem artigo, 'Iron' é o metal. Com artigo, 'An iron' é o eletrodoméstico usado para passar roupas." },
+                { q: "Se digo 'There is no room in this car', a palavra 'room' significa:", o: ["Quarto", "Sala", "Espaço livre", "Teto"], a: 2, h: "O carro não é uma casa.", j: "'Room' incontável significa espaço livre. Como contável ('a room'), significa um cômodo/quarto." },
+                { q: "Como o conceito de 'Time' se torna contável em inglês?", o: ["Quando significa 'o tempo' (conceito).", "Nunca se torna contável.", "Quando significa 'vezes' (Times).", "Quando usamos um relógio."], a: 2, h: "I've been there three...", j: "Como incontável, é a passagem das horas. No plural ('Times'), significa a quantidade de 'vezes' que algo ocorreu." },
+
+                // SECTION 4: FONÉTICA (8 questions)
+                { q: "O fenômeno do 'Flap T/D' ocorre quando:", o: ["O T/D está no final da frase.", "O T/D está entre consoantes.", "O T/D está entre vogais, soando como um 'R' brando.", "O T/D é totalmente engolido."], a: 2, h: "Pense na palavra 'better'.", j: "No inglês americano, o T ou D entre vogais assume o som de um 'R' brando (ex: be-rer)." },
+                { q: "Como a frase 'Put it on' é comumente pronunciada no Connected Speech americano?", o: ["Pút - ít - ón", "Pú-ri-rón", "Pú-ti-tón", "Pú-di-dón"], a: 1, h: "Os 'T's estão entre vogais ligando as palavras.", j: "Devido ao Flap T, os sons se ligam suavemente: 'Pú-ri-rón'." },
+                { q: "O que acontece com o 'T' em palavras como 'Twenty' ou 'Internet' no sotaque americano?", o: ["Ele é pronunciado com muita força.", "Ele desaparece após o som de 'N' em sílabas átonas (Dropped T).", "Ele soa como 'CH'.", "Ele vira 'R'."], a: 1, h: "Twennny...", j: "A regra do Dropped T faz com que o 'T' seja engolido após o 'N' em sílabas fracas." },
+                { q: "A pronúncia 'innerview' refere-se a qual palavra original?", o: ["Inner view", "Interview", "In review", "Into view"], a: 1, h: "O T caiu após o N.", j: "Pela regra do Dropped T, 'Interview' soa como 'innerview' na fala rápida." },
+                { q: "O que é o 'Glottal Stop' (T Mudo) em palavras como 'Mountain' e 'Button'?", o: ["O T explode como um 'D'.", "O T soa como 'R'.", "O T não explode; é engolido na garganta antes do N silábico.", "O T soa como 'S'."], a: 2, h: "A respiração para na garganta.", j: "Antes de sons de 'N' que formam sílaba, o T é retido na glote (ex: moun-'n)." },
+                { q: "Em qual palavra o 'Glottal Stop' é tipicamente aplicado no inglês americano?", o: ["Water", "Important", "City", "Computer"], a: 1, h: "Procure a terminação parecida com 'nt'.", j: "'Important' frequentemente é pronunciado com o T mudo na garganta (impor-'nt)." },
+                { q: "No fenômeno 'Yod Coalescence', o que acontece quando 'T' ou 'D' se encontram com 'Y'?", o: ["O 'Y' desaparece.", "Eles se fundem em sons de 'CH' ou 'DJ'.", "O som pausa e recomeça.", "Cria-se um som de 'R'."], a: 1, h: "Don't you -> Dontcha.", j: "A assimilação transforma a junção de T/D com Y em sons fricativos/africados (CH/DJ)." },
+                { q: "A pronúncia coloquial 'Didja' vem da junção de quais palavras?", o: ["Did I", "Did she", "Did you", "Do you"], a: 2, h: "O 'D' encontra o 'Y'.", j: "Pelo Yod Coalescence, o 'D' de 'Did' encontra o 'Y' de 'you', formando 'Didja'." },
+
+                // SECTION 5: SINTAXE E INVERSÕES (11 questions)
+                { q: "Ao iniciar uma frase com 'Never' (Inversão Negativa), qual a estrutura correta?", o: ["Never I have seen such beauty.", "Never have I seen such beauty.", "Never saw I such beauty.", "Never I saw such beauty."], a: 1, h: "O auxiliar vem antes do sujeito, como numa pergunta.", j: "Com advérbios negativos no início, oculta-se o sujeito atrás do verbo auxiliar: 'Never have I'." },
+                { q: "Complete a inversão com 'Seldom' (Raramente): 'Seldom ___ encounter such problems.'", o: ["we do", "do we", "we", "are we"], a: 1, h: "Auxiliar do Present Simple para 'we'.", j: "A inversão exige o auxiliar 'do' antes do sujeito: 'Seldom do we'." },
+                { q: "Traduza a estrutura 'Little did they know':", o: ["Eles sabiam pouco.", "Pequenos eles sabiam.", "Mal sabiam eles.", "Nada eles sabiam."], a: 2, h: "Expressão clássica de narrativa dramática.", j: "É uma inversão negativa estilística que significa 'Mal sabiam eles'." },
+                { q: "Na estrutura restritiva 'Only when I saw him...', onde ocorre a inversão do auxiliar?", o: ["Na primeira oração (did I see him).", "Não ocorre inversão.", "Na oração principal (did I realize).", "Em ambas as orações."], a: 2, h: "A inversão espera o advérbio 'Only' terminar a sua condição.", j: "Com locuções como 'Only when/after', a inversão sintática acontece apenas na oração principal (a segunda parte da frase)." },
+                { q: "Complete corretamente: 'Only after she left ___ speak.'", o: ["I could", "could I", "did I could", "I did could"], a: 1, h: "Inversão do modal com o sujeito.", j: "A inversão ocorre na oração principal: '...could I speak'." },
+                { q: "O Modo Subjuntivo Oculto é ativado após verbos como 'Suggest' ou 'Demand'. Qual a regra?", o: ["O verbo seguinte deve ir para o passado.", "O verbo seguinte perde a conjugação (base form) para todas as pessoas.", "O verbo seguinte deve usar 'to'.", "O verbo seguinte ganha '-ing'."], a: 1, h: "Ignora o S da terceira pessoa.", j: "Em estruturas de exigência/recomendação, o verbo da oração seguinte ignora a conjugação padrão (ex: he stay, it be)." },
+                { q: "Complete a frase usando o Subjuntivo Oculto: 'I suggest that he ___ here.'", o: ["stays", "stayed", "stay", "is staying"], a: 2, h: "Verbo na forma base, sem 'S'.", j: "Apesar de ser 'he', o verbo 'stay' fica na forma base por causa do subjuntivo exigido por 'suggest'." },
+                { q: "Complete: 'It is vital that she ___ informed.'", o: ["is", "are", "be", "was"], a: 2, h: "A forma nua do verbo To Be.", j: "No subjuntivo oculto, o verbo 'To Be' vira apenas 'be', independentemente do sujeito." },
+                { q: "Em uma 'Mixed Conditional', misturamos o passado irreal com o presente. Qual a estrutura?", o: ["If + Simple Past, Result + Will", "If + Past Perfect, Result + Would + Base verb", "If + Present, Result + Would have", "If + Past Perfect, Result + Would have"], a: 1, h: "Causa no passado distante, consequência no hoje.", j: "Mistura-se a condição da 3ª (Past Perfect) com o resultado da 2ª (Would + verbo base)." },
+                { q: "Cleft Sentences são usadas para dar ênfase. Qual frase abaixo é uma Cleft Sentence?", o: ["I need a long vacation.", "What I really need is a long vacation.", "Do I need a vacation?", "I really need a vacation."], a: 1, h: "Usa 'What' ou 'It is' para isolar a informação.", j: "A estrutura 'What I really need is...' fende a frase para destacar absurdamente o objeto de desejo." },
+                { q: "Complete a Cleft Sentence: '___ John who broke the window, not Peter.'", o: ["That was", "He was", "It was", "This was"], a: 2, h: "A introdução padrão de ênfase para pessoas.", j: "A estrutura 'It is / It was...' é clássica para Cleft Sentences enfatizando o sujeito da ação." },
+
+                // SECTION 6: REPORTED SPEECH (8 questions)
+                { q: "Alunos avançados usam o 'Reported Speech' com verbos específicos. O verbo 'Deny' (Negar) exige qual estrutura a seguir?", o: ["Verbo + Infinitivo (to + verb)", "Verbo + Gerúndio (-ing)", "Verbo + that + passado", "Verbo + preposição"], a: 1, h: "He denied...", j: "O verbo 'deny' exige que o verbo da ação negada esteja no gerúndio (-ing)." },
+                { q: "Complete: 'She suggested ___ to the park.'", o: ["to go", "go", "going", "went"], a: 2, h: "Suggest segue a mesma regra do Deny no Reported Speech simples.", j: "Quando 'suggest' não usa oração com 'that' (subjuntivo), ele é seguido diretamente pelo gerúndio (-ing)." },
+                { q: "O verbo 'Refuse' (Recusar) no Reported Speech exige:", o: ["Verbo + Infinitivo (to + verb)", "Verbo + Gerúndio (-ing)", "Objeto direto obrigatório", "Nenhuma das anteriores"], a: 0, h: "He refused...", j: "Verbos como refuse, threaten e promise são seguidos por infinitivo com 'to'." },
+                { q: "Complete: 'They threatened ___ the police.'", o: ["calling", "to call", "call", "called"], a: 1, h: "Uma promessa negativa.", j: "O verbo 'threaten' exige o infinitivo: 'to call'." },
+                { q: "Qual a preposição correta após o verbo 'Accuse' no Reported Speech?", o: ["on", "for", "from", "of"], a: 3, h: "Acusar 'de' algo.", j: "A estrutura correta é 'Accuse + pessoa + OF + verbo(ing)'." },
+                { q: "Complete: 'I congratulated her ___ passing the test.'", o: ["for", "in", "on", "at"], a: 2, h: "Dar os parabéns 'sobre' o feito.", j: "A preposição exigida pelo verbo congratulate é 'ON' seguida de gerúndio." },
+                { q: "O verbo 'Blame' (Culpar) é seguido por qual preposição?", o: ["of", "for", "on", "about"], a: 1, h: "Culpar 'por' algo.", j: "A estrutura é 'Blame + pessoa + FOR + verbo(ing)'." },
+                { q: "Exceção do Backshifting: Por que na frase 'The teacher said that the Earth goes around the Sun', o verbo 'goes' não foi para o passado?", o: ["Porque o professor errou.", "Porque se trata de uma verdade absoluta e científica.", "Porque Reported Speech nunca muda o tempo.", "Porque tem o 'that' na frase."], a: 1, h: "Fatos imutáveis.", j: "Se a situação relatada é uma verdade absoluta ou ainda não mudou, o tempo verbal não precisa voltar para o passado (backshift)." },
+
+                // SECTION 7: ERROR ANALYSIS (7 questions)
+                { q: "Qual o erro na frase 'I'm looking forward to meet you'?", o: ["Não se usa 'I'm'.", "Deveria ser 'for meet'.", "O 'to' é preposição, então o verbo deve ser 'meeting'.", "A frase está totalmente correta."], a: 2, h: "A expressão termina com uma preposição.", j: "Em 'look forward to', o 'to' não é partícula de infinitivo, mas preposição, exigindo o verbo em -ing." },
+                { q: "Qual o erro na frase 'Despite of the rain, we went out'?", o: ["O uso de 'went'.", "A palavra 'Despite' não leva 'of'.", "Falta o sujeito antes de Despite.", "Não há erro."], a: 1, h: "Misturou duas estruturas diferentes.", j: "O correto é 'Despite the rain' (sem of) ou 'In spite of the rain' (com of)." },
+                { q: "Corrija: 'If I was you, I'd go.'", o: ["If I am you...", "If I were you...", "If I had been you...", "If me was you..."], a: 1, h: "Modo hipotético/irreal.", j: "No modo subjuntivo irreal, o verbo 'To Be' para todas as pessoas é 'were'." },
+                { q: "Por que a frase 'The doctor suggested me to rest' está errada no nível avançado?", o: ["Porque 'doctor' leva 'an'.", "Porque 'suggest' não aceita infinitivo com 'to'.", "Porque 'rest' não é verbo.", "Porque falta o 'did'."], a: 1, h: "Suggest + that ou Suggest + ing.", j: "O correto é 'suggested that I rest' (subjuntivo) ou 'suggested resting'. Não se usa 'suggest someone to do'." },
+                { q: "Corrija: 'I am used to drive on the left.'", o: ["I used to drive...", "I am used to driving...", "I am use to drive...", "I was use to driving..."], a: 1, h: "O 'to' aqui é preposição da locução adjetiva 'acostumado a'.", j: "Como o 'to' faz parte de 'be used to' (estar acostumado a), o verbo seguinte deve estar no gerúndio (-ing)." },
+                { q: "Qual o erro de concordância em 'A number of students has failed'?", o: ["'students' não tem 'S'.", "'A number' significa 'vários/um grupo', exigindo o verbo no plural ('have').", "Falta o artigo 'The' no início.", "Não há erro algum."], a: 1, h: "A number = plural. The number = singular.", j: "A expressão 'A number of' atua como 'vários', exigindo o verbo no plural ('have failed')." },
+                { q: "Corrija o erro duplo (redundância) em: 'What I want it is peace.'", o: ["What I want is peace.", "What do I want is peace.", "It what I want is peace.", "What I want are peace."], a: 0, h: "O 'What' já engloba o sujeito da oração.", j: "Na Cleft Sentence com 'What', usar o pronome 'it' antes do verbo 'is' é um erro clássico de redundância." }
+            ],
+
+            init() {
+                this.elements = {
+                    studentCodeInput: document.getElementById('student-code'),
+                    introCard: document.getElementById('intro-card'),
+                    quizCard: document.getElementById('quiz-card'),
+                    resultsCard: document.getElementById('results-card'),
+                    questionText: document.getElementById('question-text'),
+                    optionsList: document.getElementById('options-list'),
+                    nextButton: document.getElementById('next-button'),
+                    skipButton: document.getElementById('skip-button'),
+                    hintButton: document.getElementById('hint-button'),
+                    hintText: document.getElementById('hint-text'),
+                    justificationText: document.getElementById('justification-text'),
+                    currentQuestionNumSpan: document.getElementById('current-question-num'),
+                    scoreDisplay: document.getElementById('score-display'),
+                    percentageDisplay: document.getElementById('percentage-display'),
+                    reportStudentName: document.getElementById('report-student-name'),
+                    reportStudentCode: document.getElementById('report-student-code'),
+                    incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                    progressCorrect: document.getElementById('progress-correct'),
+                    progressIncorrect: document.getElementById('progress-incorrect')
+                };
+            },
+
+            jumpToReport() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    const savedData = localStorage.getItem('masterclass_avancado_report_' + code);
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.validatedStudentCode = code;
+                        this.validatedStudentName = this.studentData[code];
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        this.elements.introCard.style.display = 'none';
+                        this.showResults();
+                    } else {
+                        alert('Nenhum relatório final salvo encontrado para este código neste quiz. Por favor, inicie o teste.');
+                    }
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            updateProgress() {
+                const total = this.questions.length;
+                const correctPerc = (this.score / total) * 100;
+                const incorrectPerc = (this.incorrectAnswers.length / total) * 100;
+                this.elements.progressCorrect.style.width = `${correctPerc}%`;
+                this.elements.progressIncorrect.style.width = `${incorrectPerc}%`;
+            },
+
+            saveProgress() {
+                localStorage.setItem('masterclass_avancado_progress_' + this.validatedStudentCode, JSON.stringify({
+                    currentIndex: this.currentQuestionIndex,
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+            },
+
+            clearProgress() {
+                localStorage.removeItem('masterclass_avancado_progress_' + this.validatedStudentCode);
+            },
+
+            startQuiz() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.validatedStudentCode = code;
+                    this.validatedStudentName = this.studentData[code];
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+
+                    const savedProgress = localStorage.getItem('masterclass_avancado_progress_' + code);
+                    if (savedProgress) {
+                        const data = JSON.parse(savedProgress);
+                        this.currentQuestionIndex = data.currentIndex;
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        
+                        if(this.currentQuestionIndex >= this.questions.length) {
+                            this.currentQuestionIndex = 0;
+                            this.score = 0;
+                            this.incorrectAnswers = [];
+                        }
+                    } else {
+                        this.currentQuestionIndex = 0;
+                        this.score = 0;
+                        this.incorrectAnswers = [];
+                    }
+
+                    this.loadQuestion();
+                    this.updateProgress(); 
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            loadQuestion() {
+                this.elements.hintText.style.display = 'none';
+                this.elements.justificationText.style.display = 'none';
+                this.elements.nextButton.style.display = 'none';
+                this.elements.skipButton.style.display = 'inline-block';
+                this.elements.optionsList.innerHTML = '';
+
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.elements.currentQuestionNumSpan.textContent = this.currentQuestionIndex + 1;
+                this.elements.questionText.textContent = currentQ.q;
+                this.elements.hintText.textContent = currentQ.h;
+                this.elements.justificationText.innerHTML = `<strong>Justificativa:</strong> ${currentQ.j}`;
+
+                currentQ.o.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = option;
+                    li.onclick = () => this.checkAnswer(index, li);
+                    this.elements.optionsList.appendChild(li);
+                });
+            },
+
+            checkAnswer(selectedIndex, liElement) {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                const allOptions = this.elements.optionsList.querySelectorAll('.option-item');
+                
+                allOptions.forEach(opt => {
+                    opt.style.pointerEvents = 'none';
+                });
+
+                this.elements.skipButton.style.display = 'none';
+                this.elements.nextButton.style.display = 'inline-block';
+                this.elements.justificationText.style.display = 'block';
+
+                if (selectedIndex === currentQ.a) {
+                    liElement.classList.add('correct');
+                    this.score++;
+                } else {
+                    liElement.classList.add('incorrect');
+                    allOptions[currentQ.a].classList.add('correct');
+                    this.incorrectAnswers.push({
+                        q: currentQ.q,
+                        userAnswer: currentQ.o[selectedIndex],
+                        correctAnswer: currentQ.o[currentQ.a],
+                        justification: currentQ.j
+                    });
+                }
+                
+                this.updateProgress();
+            },
+
+            showHint() {
+                this.elements.hintText.style.display = 'block';
+            },
+
+            skipQuestion() {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.incorrectAnswers.push({
+                    q: currentQ.q,
+                    userAnswer: "Pulou a questão",
+                    correctAnswer: currentQ.o[currentQ.a],
+                    justification: currentQ.j
+                });
+                
+                this.updateProgress();
+                this.nextQuestion();
+            },
+
+            nextQuestion() {
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.saveProgress();
+                    this.loadQuestion();
+                } else {
+                    this.clearProgress();
+                    this.showResults();
+                }
+            },
+
+            showResults() {
+                localStorage.setItem('masterclass_avancado_report_' + this.validatedStudentCode, JSON.stringify({
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = this.score;
+                
+                const percentage = ((this.score / this.questions.length) * 100).toFixed(1);
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.incorrectQuestionsContainer.innerHTML = '<h3>Questões Incorretas / Puladas:</h3>';
+                if (this.incorrectAnswers.length === 0) {
+                    this.elements.incorrectQuestionsContainer.innerHTML += '<p>Parabéns! Você não errou nenhuma questão.</p>';
+                } else {
+                    this.incorrectAnswers.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'incorrect-question-item';
+                        div.innerHTML = `
+                            <p><strong>Questão:</strong> ${item.q}</p>
+                            <p><strong>Sua Resposta:</strong> <span style="color: salmon;">${item.userAnswer}</span></p>
+                            <p><strong>Resposta Correta:</strong> <span style="color: #2e8b57;">${item.correctAnswer}</span></p>
+                            <p style="margin-top: 10px; font-size: 0.9em; background: #fff; padding: 10px; border-left: 4px solid lightgreen;">
+                                ${item.justification}
+                            </p>
+                        `;
+                        this.elements.incorrectQuestionsContainer.appendChild(div);
+                    });
+                }
+            },
+
+            restartQuiz() {
+                this.clearProgress(); 
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.incorrectAnswers = [];
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                
+                if(this.elements.progressCorrect) this.elements.progressCorrect.style.width = '0%';
+                if(this.elements.progressIncorrect) this.elements.progressIncorrect.style.width = '0%';
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+    </script>
+</body>
+</html>
