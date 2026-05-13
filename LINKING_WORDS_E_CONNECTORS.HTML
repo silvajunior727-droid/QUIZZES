@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>MASTERCLASS LINKING WORDS E GRAMMAR - QUIZ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: salmon;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #e0f7e0;
+        }
+
+        .option-item.correct {
+            background-color: lightgreen;
+            color: #000;
+            font-weight: bold;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(144, 238, 144, 0.5);
+        }
+
+        .option-item.incorrect {
+            background-color: salmon;
+            color: white;
+            font-weight: bold;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(250, 128, 114, 0.5);
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid lightgreen;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .skip-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .hint-btn {
+            background-color: salmon;
+            color: white;
+            display: inline-block;
+            float: none;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid salmon;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .start-btn, .restart-btn, .print-btn, .continue-btn {
+            display: inline-block;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .start-btn, .print-btn, .continue-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .restart-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: lightgreen;
+            text-shadow: 1px 1px 2px #000;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .incorrect-questions-list h3 {
+            color: salmon;
+            margin-bottom: 15px;
+        }
+
+        .incorrect-question-item {
+            background-color: #fff3f3;
+            border: 1px solid salmon;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media print {
+            body { background-color: #fff; padding-top: 0; display: block; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: none; min-height: auto; }
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter { display: none !important; }
+            #results-card { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>Guia Completo: Connectors & Grammar</h1>
+            <h2>AVALIAÇÃO GERAL</h2>
+            <p id="personalized-welcome" style="font-size: 1.4rem; font-weight: bold; margin-top: 10px; color: salmon;">Oi, Alunos - grato por sua visita!!!</p>
+            <p id="quiz-description">Por favor, insira seu código de acesso para iniciar a avaliação ou continuar de onde parou. Este teste possui 60 questões cobrindo todos os módulos da apostila.</p>
+            <input type="text" id="student-code" placeholder="Digite seu Código de Acesso">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz()">Iniciar / Continuar Quiz</button>
+                <button class="continue-btn" onclick="quizApp.jumpToReport()" style="background-color: #ffc107;">Já fiz o Quiz (Ver Relatório)</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 60</div>
+            
+            <div id="progress-bar-container" style="display: flex; height: 12px; background: #e9ecef; border-radius: 5px; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                <div id="progress-correct" style="width: 0%; background: lightgreen; transition: width 0.3s;"></div>
+                <div id="progress-incorrect" style="width: 0%; background: salmon; transition: width 0.3s;"></div>
+            </div>
+
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Mostrar Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+            </div>
+            <div id="justification-text" class="justification"></div>
+            <div class="question-actions">
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório de Desempenho</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display" class="score-display"></span> / 60</p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            
+            <div class="results-actions">
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <button class="print-btn" onclick="window.print()">Imprimir/Salvar Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const quizApp = {
+            currentQuestionIndex: 0,
+            score: 0,
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            incorrectAnswers: [],
+            
+            studentData: {
+                "001AB": "ELMA", "002CD": "VALDINEI", "003EF": "RENATA", "004GH": "GEOVANNA", "005IJ": "LEOZINHO",   
+                "006KL": "MARIANA", "007MN": "NICOLAS", "008OP": "YAGO", "009QR": "CAIO", "010ST": "GIH",
+                "011UV": "LUCAS RESENDE", "012WX": "BRUNA", "013YZ": "DIMI", "014AB": "FABRÍCIO", "015CD": "MIGUEL",
+                "016EF": "YAGO", "017GH": "ANDRÉIA", "018IJ": "KAUÃ", "019KL": "PABLO", "020MN": "SURY",
+                "021SP": "SOPHIA", "022QR": "YASMIN", "023ST": "MÁRCIA", "024UV": "RICK", "025WX": "ROSA",
+                "026YZ": "BRUNA", "027AB": "FERNANDO", "028CD": "ALEX", "029EF": "DÉBORA", "030GH": "GIOVANNA",
+                "031IJ": "PÂMELA", "032KL": "YASMIN", "033MN": "ADRIANO", "034OP": "ARTHUR", "035QR": "YASMIN",
+                "036ST": "DAVI", "037UV": "DEREK", "038WX": "PEDRINHO", "039YZ": "DENILSON", "040AB": "EDSON",
+                "041LS": "LUCAS", "042EF": "CAROLINA", "043GH": "ELSON", "044IJ": "LETÍCIA", "045KL": "DIEGO",
+                "046MN": "GABI", "047OP": "KIM", "048QR": "LANA", "049ST": "MANU", "050UV": "SABRINA",
+                "051WX": "BRUNA", "052YZ": "DIMI", "053AB": "FABRÍCIO", "054CD": "MIGUEL", "055EF": "YAGO",
+                "056GH": "ANDRÉIA", "057IJ": "KAUÃ", "058KL": "PABLO", "059MN": "SURY", "060OP": "TAINÁ",
+                "061QR": "YASMIN", "062ST": "MÁRCIA", "063UV": "RICK", "064WX": "ROSA", "065YZ": "FÁTIMA",
+                "066AB": "LUCA", "067CD": "ALEX", "JR123": "JÚNIOR", "068EF": "DÉBORA", "069GH": "GIOVANNA", "070IJ": "PÂMELA",
+                "071KL": "YASMIN", "072MN": "ADRIANO", "073OP": "ARTHUR", "074QR": "YASMIN", "075ST": "DAVI",
+                "076UV": "DEREK", "077WX": "PEDRINHO", "078YZ": "DENILSON", "079AB": "EDSON", "080CD": "ALÍCIA",
+                "081EF": "CAROLINA", "082GH": "ELSON", "083IJ": "LETÍCIA", "084KL": "DIEGO", "085MN": "GABI",
+                "086OP": "KIM", "087QR": "LANA", "088ST": "MANU", "089UV": "SABRINA", "090WX": "DIMI", "101QR": "ANA CLARA", "102ST": "JOAQUIM",
+                "091YZ": "FABRÍCIO", "092AB": "MIGUEL", "093CD": "YAGO", "094EF": "ANDRÉIA", "095GH": "KAUÃ",
+                "096IJ": "PABLO", "097KL": "SURY", "098MN": "LEILA", "099OP": "YASMIN", "100QR": "MÁRCIA", "101ST": "MONIQUE", "102EA": "ELIANA",
+                "JUNIOR": "PROFESSOR JÚNIOR", "ALUNOS": "TURMA GERAL"
+            },
+
+            questions: [
+                // BLOCK 1: ADDITION
+                { q: "Qual conjunção coordenativa é a mais básica para somar informações da mesma importância?", o: ["Also", "And", "Besides", "Moreover"], a: 1, h: "A palavra mais comum da língua inglesa para unir ideias.", j: "'And' é a conjunção padrão para conectar itens ou ideias equivalentes." },
+                { q: "Qual palavra adiciona um ponto extra e é frequentemente traduzida como 'além disso' ou 'além do mais' em contextos informais?", o: ["Besides", "However", "Because", "Then"], a: 0, h: "Termina com 's'.", j: "'Besides' é usada para dar um argumento extra, geralmente com o sentido de 'além disso'." },
+                { q: "Ao usar 'In addition to', qual deve ser a forma do verbo imediatamente seguinte?", o: ["Infinitivo com 'to'", "Gerúndio (-ING)", "Passado simples", "Particípio"], a: 1, h: "A mesma regra aplica-se a preposições.", j: "Locuções prepositivas como 'In addition to' exigem que o verbo subsequente termine em -ING." },
+                { q: "O conector 'Furthermore' pertence a qual categoria de nível de formalidade?", o: ["Gíria", "Informal", "Neutro", "Altamente Formal"], a: 3, h: "É usado em artigos acadêmicos e e-mails de trabalho.", j: "'Furthermore' é um advérbio conjuntivo altamente formal." },
+                { q: "Se uma frase começa com 'Not only', o que deve ocorrer obrigatoriamente logo em seguida?", o: ["Colocar uma vírgula.", "Inverter o sujeito e o auxiliar do verbo.", "Omitir o sujeito.", "Usar a palavra 'but'."], a: 1, h: "Parece a estrutura de uma pergunta.", j: "É obrigatório fazer a inversão do sujeito com o verbo/auxiliar após iniciar a frase com 'Not only'." },
+                
+                // BLOCK 2: CONTRAST
+                { q: "Qual conjunção coordenativa introduz diretamente um contraste ou oposição?", o: ["And", "So", "But", "Since"], a: 2, h: "A palavra oposta de 'And'.", j: "'But' é a forma mais direta e neutra de apresentar uma ideia oposta." },
+                { q: "A palavra 'However' é pontuada corretamente em qual das opções abaixo?", o: ["However we went.", "It rained; however, we went.", "It rained however we went.", "However, it rained we went."], a: 1, h: "Exige pausas claras (ponto e vírgula antes, vírgula depois).", j: "Como advérbio conjuntivo, 'However' geralmente é precedido por ponto ou ponto-e-vírgula e seguido de vírgula." },
+                { q: "O que nunca deve aparecer na mesma frase em que você usou 'Although'?", o: ["A palavra 'and'", "Um verbo no passado", "A conjunção 'but'", "Uma vírgula"], a: 2, h: "Causa redundância no sentido de contraste.", j: "Usar 'Although' (embora) e 'But' (mas) na mesma oração é redundante e gramaticalmente incorreto." },
+                { q: "As locuções 'Despite' e 'In spite of' devem ser seguidas de:", o: ["Substantivos ou verbos no gerúndio (-ING)", "Orações completas", "Apenas verbos no infinitivo", "Advérbios"], a: 0, h: "Elas funcionam como preposições.", j: "Por serem preposições, não aceitam orações diretas, exigindo substantivos, pronomes ou verbos no -ING." },
+                { q: "Qual palavra transmite um contraste forte, semelhante a 'não obstante' ou 'mesmo assim'?", o: ["Nevertheless", "Therefore", "Moreover", "Because"], a: 0, h: "Uma palavra longa, altamente formal.", j: "'Nevertheless' é um advérbio de contraste forte, frequentemente usado na escrita formal." },
+
+                // BLOCK 3: CAUSE
+                { q: "Qual conjunção introduz uma causa ou motivo diretos, sendo a resposta natural para 'Why'?", o: ["So", "Because", "Consequently", "Although"], a: 1, h: "Significa 'porque'.", j: "'Because' é a conjunção subordinativa padrão para dar a razão principal de algo." },
+                { q: "Qual é a diferença fundamental entre 'Because' e 'Because of'?", o: ["'Because of' é seguido por oração completa.", "'Because of' é seguido por um substantivo ou pronome.", "Não há diferença.", "Ambos são usados para contraste."], a: 1, h: "'Of' transforma a conjunção numa preposição.", j: "'Because of' atua como preposição e, portanto, exige um substantivo, não uma oração completa." },
+                { q: "Além de significar 'desde' no tempo, qual palavra pode ser usada para explicar a causa (significando 'já que')?", o: ["Since", "But", "Thus", "Unless"], a: 0, h: "Começa com S.", j: "'Since' pode atuar como conjunção causal, indicando um motivo já conhecido pelas pessoas." },
+                { q: "A expressão 'Due to' é mais corretamente utilizada após qual tipo de verbo?", o: ["Verbos de ação", "O verbo 'To Be'", "Verbos modais", "Verbos no passado apenas"], a: 1, h: "Funciona tecnicamente como um adjetivo.", j: "Gramaticalmente, 'Due to' deve modificar um substantivo e geralmente vem após o verbo 'to be'." },
+                { q: "Qual palavra atua de forma semelhante a 'Since', significando 'como/já que' no início da frase para justificar um ato?", o: ["As", "Though", "Yet", "Next"], a: 0, h: "Uma palavra de duas letras.", j: "'As' é frequentemente usado no início da frase para introduzir uma causa de forma mais amena." },
+
+                // BLOCK 4: RESULT
+                { q: "Qual palavra usamos para introduzir a consequência direta de uma ação em conversas informais?", o: ["Hence", "So", "Thus", "Moreover"], a: 1, h: "Palavra curta, significa 'então/por isso'.", j: "'So' é a conjunção coordenativa mais comum para expressar resultado no dia a dia." },
+                { q: "O advérbio 'Therefore' (Portanto) é frequentemente utilizado para:", o: ["Indicar tempo.", "Introduzir a conclusão lógica ou resultado matemático.", "Somar itens em uma lista.", "Mostrar contraste."], a: 1, h: "Muito comum em textos argumentativos e matemática.", j: "'Therefore' é um conector de resultado formal, usado para conclusões e demonstrações lógicas." },
+                { q: "A palavra 'Thus' é um sinônimo formal de:", o: ["However", "Because", "So / Therefore", "Although"], a: 2, h: "Indica 'desta forma' ou 'assim'.", j: "'Thus' indica a consequência do que acabou de ser mencionado, sendo similar a 'So' ou 'Therefore'." },
+                { q: "A frase 'He lost his passport; ________, he couldn't board the plane.' deve ser completada com um conector de:", o: ["Addition (Adição)", "Result (Resultado)", "Contrast (Contraste)", "Time (Tempo)"], a: 1, h: "A segunda parte é o efeito da primeira.", j: "A perda do passaporte causou a impossibilidade do embarque; logo, é uma relação de consequência (consequently/as a result)." },
+                { q: "Qual desses conectores introduz um resultado?", o: ["As a result", "In addition", "Despite", "Since"], a: 0, h: "A própria palavra dá a dica.", j: "'As a result' é uma locução que introduz claramente o efeito ou a consequência de uma ação." },
+
+                // BLOCK 5: TIME AND SEQUENCE
+                { q: "Qual conector utilizamos para iniciar o primeiro passo de uma sequência de instruções?", o: ["Finally", "First", "Meanwhile", "Then"], a: 1, h: "O ponto de partida.", j: "'First' ou 'Firstly' introduz o início de uma sequência ou lista cronológica." },
+                { q: "As palavras 'Then' e 'Next' são usadas para indicar:", o: ["Conclusão", "Oposição", "O próximo passo temporal de uma ação", "Razão"], a: 2, h: "Mostram progressão na linha do tempo.", j: "Ambas indicam sequência, respondendo à pergunta 'E depois?'." },
+                { q: "Para descrever ações que acontecem simultaneamente, qual advérbio de tempo usamos?", o: ["Eventually", "Meanwhile", "After that", "Consequently"], a: 1, h: "Significa 'enquanto isso'.", j: "'Meanwhile' conecta dois eventos que ocorrem no mesmo período de tempo." },
+                { q: "O conector 'Eventually' não significa 'eventualmente'. Qual o seu verdadeiro significado temporal?", o: ["No mesmo instante.", "No começo de tudo.", "Por fim / Com o tempo (após demora ou esforço).", "De vez em quando."], a: 2, h: "É um falso cognato.", j: "'Eventually' é usado para dizer que algo finalmente aconteceu após longo tempo, esforço ou atraso." },
+                { q: "Qual locução introduz uma ação que acontecerá imediatamente após a outra? ('Logo que')", o: ["As well as", "As soon as", "In spite of", "So that"], a: 1, h: "Indica urgência temporal.", j: "'As soon as' significa 'assim que / logo que', mostrando sucessão imediata." },
+
+                // BLOCK 6: RELATIVE PRONOUNS
+                { q: "Para nos referirmos exclusivamente a pessoas em orações relativas, qual pronome devemos usar?", o: ["Which", "Where", "Who", "Whose"], a: 2, h: "Significa 'quem / o qual'.", j: "'Who' é o pronome relativo designado para sujeitos humanos." },
+                { q: "Para coisas e animais (como sujeito ou objeto), utilizamos o pronome relativo:", o: ["Whom", "Who", "Where", "Which"], a: 3, h: "Usado para objetos inanimados.", j: "'Which' é usado exclusivamente para se referir a animais e coisas." },
+                { q: "Qual pronome indica posse e significa 'cujo/cuja'?", o: ["Who", "Whose", "That", "Which"], a: 1, h: "Relaciona o dono à coisa possuída.", j: "'Whose' é o pronome relativo possessivo usado para relacionar o possuidor ao objeto da posse." },
+                { q: "O pronome 'Where' é usado para referenciar:", o: ["Tempo", "Razão", "Lugares físicos", "Pessoas"], a: 2, h: "Refere-se a localização.", j: "'Where' é o relativo usado quando o antecedente é um local físico ou geográfico." },
+                { q: "Qual pronome é curinga e pode substituir 'Who' e 'Which' em orações que não têm vírgulas (defining clauses)?", o: ["Whom", "Whose", "That", "Where"], a: 2, h: "Pronome muito comum na fala cotidiana.", j: "'That' pode substituir 'who' ou 'which' em orações essenciais restritivas (sem vírgulas)." },
+
+                // BLOCK 7: INTENSIFIERS
+                { q: "Qual intensificador usamos para indicar que algo é 'em excesso' ou 'demais', geralmente com sentido negativo?", o: ["Very", "Too", "Quite", "Fairly"], a: 1, h: "Acompanha o adjetivo, como em '___ hot to drink'.", j: "'Too' significa que a quantidade/intensidade passou do limite aceitável." },
+                { q: "Os intensificadores 'Very' e 'Really' têm o objetivo de:", o: ["Diminuir a força do adjetivo.", "Aumentar a força de um adjetivo ou advérbio.", "Criar oposição.", "Explicar causa."], a: 1, h: "São chamados de 'boosters'.", j: "Eles amplificam o significado da palavra que acompanham ('muito' / 'realmente')." },
+                { q: "A palavra 'Quite' no inglês americano geralmente significa:", o: ["Pouco", "Nada", "Muito / Bastante", "Sempre"], a: 2, h: "Eleva um pouco o grau.", j: "Especialmente no inglês americano, 'Quite' significa que algo é considerável ou notável ('bastante')." },
+                { q: "Se queremos dizer que algo é 'extremamente' importante, o intensificador correto é:", o: ["Extremely", "Slightly", "Hardly", "Fairly"], a: 0, h: "A palavra deriva da raiz 'extreme'.", j: "'Extremely' é o advérbio correto para maximizar a intensidade de uma característica." },
+                { q: "Para adjetivos que já possuem um sentido extremo ('absolutos', como 'delicious' ou 'huge'), qual intensificador usamos?", o: ["Very", "Absolutely", "A little", "Slightly"], a: 1, h: "Combina com a ideia de perfeição ou extremismo total.", j: "Com adjetivos absolutos não se usa 'very', usa-se intensificadores absolutos como 'absolutely' ou 'totally'." },
+
+                // BLOCK 8: PREPOSITIONS OF PLACE
+                { q: "A preposição 'In' é usada para locais que dão a ideia de:", o: ["Superfície", "Um ponto específico no mapa", "Dentro de um espaço tridimensional/fechado", "Em movimento"], a: 2, h: "Lembre-se da tradução 'dentro'.", j: "'In' é a preposição clássica para volumes, recintos fechados, bairros, cidades e países." },
+                { q: "Para superfícies planas (como chão, mesa, parede) e meios de transporte grandes, usamos a preposição:", o: ["At", "In", "On", "Under"], a: 2, h: "Pense no contato físico superior.", j: "'On' é usado quando o objeto está sobre ou em contato direto com uma superfície." },
+                { q: "Se queremos indicar um ponto exato ou endereço específico, a preposição correta é:", o: ["In", "On", "At", "Between"], a: 2, h: "Serve para interseções e endereços completos.", j: "'At' é usado para dar coordenadas específicas ou pontos exatos num mapa." },
+                { q: "Qual preposição indica que o objeto está posicionado no meio de outros dois itens ou pessoas?", o: ["Under", "Behind", "Next to", "Between"], a: 3, h: "Significa 'entre'.", j: "'Between' é usado para localizar algo que está no meio exato de duas coisas delimitadas." },
+                { q: "Se o objeto está fisicamente abaixo de outro, muitas vezes oculto por ele, a preposição é:", o: ["Under", "Above", "On", "In"], a: 0, h: "Abaixo da superfície.", j: "'Under' indica que algo está em um nível inferior e muitas vezes coberto pelo objeto de cima." },
+
+                // BLOCK 9: PURPOSE & COMPARISON
+                { q: "A locução 'In order to' serve para:", o: ["Mostrar tempo", "Introduzir o propósito ou finalidade de uma ação", "Mostrar oposição", "Comparar tamanhos"], a: 1, h: "Pode ser traduzido como 'a fim de'.", j: "'In order to' é a maneira formal de justificar o porquê (o propósito) de uma ação ser tomada." },
+                { q: "Qual a principal diferença sintática entre 'In order to' e 'So that'?", o: ["Não há diferença.", "'So that' é seguido por um verbo no gerúndio.", "'So that' exige uma oração completa (sujeito + verbo modais) depois.", "'In order to' exige uma oração completa."], a: 2, h: "'That' normalmente chama um novo sujeito.", j: "'So that' é seguido por oração (ex: so that I can go), enquanto 'in order to' é seguido diretamente pelo verbo principal." },
+                { q: "A estrutura de comparação de igualdade na frase 'He is ___ tall ___ his father' usa quais palavras?", o: ["so / that", "more / than", "as / as", "like / as"], a: 2, h: "Significa 'tão... quanto'.", j: "A estrutura 'As + adjetivo + as' estabelece igualdade exata na comparação." },
+                { q: "A conjunção 'Either... or' é usada para indicar:", o: ["Nenhuma das opções (nem um nem outro).", "As duas opções obrigatoriamente.", "Uma alternativa entre duas opções (ou um ou outro).", "Uma ordem sequencial."], a: 2, h: "Exige uma escolha de múltipla alternativa.", j: "'Either... or' apresenta uma escolha excludente entre duas alternativas." },
+                { q: "Qual estrutura indica que duas coisas são verdadeiras ('tanto um quanto o outro')?", o: ["Neither / Nor", "Both / And", "Whether / Or", "Like / As"], a: 1, h: "Somatória positiva de dois itens.", j: "'Both... and...' é a estrutura correlativa para somar dois sujeitos ou itens afirmativamente." },
+
+                // BLOCK 10: PRONOUNS
+                { q: "O pronome 'Me' na frase 'She gave the book to me' funciona como:", o: ["Pronome sujeito", "Pronome objeto", "Pronome possessivo", "Adjetivo possessivo"], a: 1, h: "Sofre ou recebe a ação.", j: "Pronomes como me, him, us, them, atuam como objetos, recebendo a ação do verbo." },
+                { q: "Qual a diferença entre 'My' e 'Mine'?", o: ["My é objeto, Mine é sujeito.", "My acompanha o substantivo (adjetivo possessivo), Mine substitui o substantivo (pronome possessivo).", "Não há diferença.", "Mine é o plural de My."], a: 1, h: "Um precede o nome, o outro vem sozinho.", j: "'My car' (acompanha o nome). 'The car is mine' (toma o lugar do nome)." },
+                { q: "Pronomes reflexivos (como 'himself', 'ourselves') são usados quando:", o: ["Ação é feita para outra pessoa.", "O sujeito e o objeto da ação são a mesma pessoa (ação volta para o sujeito).", "O verbo é intransitivo.", "Queremos expressar lugar."], a: 1, h: "A ação reflete em quem a praticou.", j: "Se 'ele se cortou' (He cut himself), a ação saiu e voltou para o mesmo indivíduo." },
+                { q: "Como substituímos o sujeito na frase '___ is raining today'?", o: ["He", "She", "It", "They"], a: 2, h: "É um pronome neutro obrigatório para clima.", j: "No inglês, o sujeito oculto para fenômenos da natureza é preenchido obrigatoriamente pelo pronome neutro 'It'." },
+                { q: "Qual o pronome objeto correspondente a 'We'?", o: ["Our", "Ourselves", "Ours", "Us"], a: 3, h: "Pronome plural que recebe a ação.", j: "Quando 'Nós' sofre a ação (ex: Eles nos viram), usamos o pronome objeto 'Us'." },
+
+                // BLOCK 11: ADJECTIVES
+                { q: "A regra OSASCOMP determina o quê?", o: ["A conjugação dos verbos no passado.", "A ordem fixa dos adjetivos quando há vários antes do substantivo.", "A ordem dos pronomes relativos.", "A regra de pontuação do 'And'."], a: 1, h: "Sigla mnemônica.", j: "OSASCOMP dita a ordem: Opinion, Size, Age, Shape, Color, Origin, Material, Purpose." },
+                { q: "Na comparação de superioridade de adjetivos curtos (como 'fast'), o que adicionamos ao final da palavra?", o: ["-est", "-ing", "-er", "-ed"], a: 2, h: "Acompanhado da palavra 'than'.", j: "Adjetivos com uma sílaba recebem o sufixo '-er' (ex: faster) para a forma comparativa." },
+                { q: "Para formar o grau Superlativo de adjetivos curtos (o mais de todos), adicionamos:", o: ["-er", "-est", "more", "less"], a: 1, h: "Geralmente precedido do artigo 'the'.", j: "O sufixo '-est' (ex: the fastest) indica que aquele item é o limite máximo daquela característica." },
+                { q: "Com adjetivos longos (3 ou mais sílabas), como fazemos o comparativo de superioridade?", o: ["Adicionamos -er no final.", "Colocamos 'most' antes do adjetivo.", "Colocamos 'more' antes do adjetivo.", "O adjetivo não muda."], a: 2, h: "Similar ao português 'mais... do que'.", j: "Adjetivos longos mantêm sua forma e são precedidos por 'more' (ex: more beautiful)." },
+                { q: "Na ordem OSASCOMP, qual adjetivo vem primeiro?", o: ["Origin (Origem)", "Size (Tamanho)", "Color (Cor)", "Opinion (Opinião - ex: lindo, feio)"], a: 3, h: "A letra 'O' inicial.", j: "A Opinião sempre antecede as características factuais do objeto." },
+
+                // BLOCK 12: ADVERBS
+                { q: "Advérbios de modo (Manner Adverbs) frequentemente terminam em:", o: ["-er", "-ing", "-ly", "-est"], a: 2, h: "O equivalente ao nosso sufixo '-mente'.", j: "Grande parte dos advérbios que indicam 'como' a ação foi feita são formados por Adjetivo + ly (ex: quickly)." },
+                { q: "Em qual posição da frase normalmente colocamos os advérbios de frequência (como 'always' ou 'never')?", o: ["No final da frase.", "No início da frase.", "Entre o sujeito e o verbo principal.", "Depois do complemento."], a: 2, h: "Regra clássica do Present Simple.", j: "A regra geral é Sujeito + Advérbio de Frequência + Verbo Principal (ex: I always go)." },
+                { q: "Qual a exceção clássica para a posição dos advérbios de frequência?", o: ["Eles vêm APÓS o verbo 'To Be' e verbos auxiliares.", "Eles nunca podem ser usados com o verbo 'To Be'.", "Vêm apenas antes de pronomes.", "São colocados fora da frase."], a: 0, h: "O verbo 'To Be' é o chefe.", j: "Com o verbo ser/estar, o advérbio vem depois: 'I am always happy', e não 'I always am happy'." },
+                { q: "O advérbio 'Actually' é um falso cognato famoso. O que ele significa?", o: ["Atualmente", "No momento", "Na verdade / O fato é que", "Ativamente"], a: 2, h: "Serve para corrigir uma informação.", j: "'Actually' não significa atualmente (que é 'currently'), mas sim 'na verdade/de fato'." },
+
+                // BLOCK 13: MODAL VERBS
+                { q: "Qual verbo modal é usado para indicar uma obrigação pessoal fortíssima ou uma dedução lógica absoluta?", o: ["Should", "May", "Can", "Must"], a: 3, h: "Não dá margem para negociações.", j: "O 'Must' é imperativo, expressando leis, obrigações inegociáveis ou deduções quase certas." },
+                { q: "Se você quer dar um conselho a alguém sobre qual é a melhor atitude a tomar, qual modal é chamado de 'rei dos conselhos'?", o: ["Must", "Should", "Will", "Can"], a: 1, h: "Traduz-se como 'deveria'.", j: "'Should' indica o que é o mais correto, apropriado ou esperado a se fazer." },
+                { q: "Para pedir uma permissão de maneira extremamente formal e respeitosa (ex: para entrar na sala do diretor), qual modal é o ideal?", o: ["May", "Can", "Will", "Should"], a: 0, h: "Modal que transborda formalidade.", j: "'May' (ex: May I come in?) lida com permissões oficiais e polidez rigorosa." },
+                { q: "O modal 'Would' é a ferramenta gramatical que altera o verbo principal para indicar o quê?", o: ["Uma habilidade física presente.", "Uma certeza matemática futura.", "Situações hipotéticas ou condicionais (faria, iria).", "Uma obrigação severa no passado."], a: 2, h: "O famoso final '-ria' dos verbos.", j: "O 'Would' projeta a ação para cenários imaginários ou resultados de condições hipotéticas." }
+            ],
+
+            init() {
+                this.elements = {
+                    studentCodeInput: document.getElementById('student-code'),
+                    introCard: document.getElementById('intro-card'),
+                    quizCard: document.getElementById('quiz-card'),
+                    resultsCard: document.getElementById('results-card'),
+                    questionText: document.getElementById('question-text'),
+                    optionsList: document.getElementById('options-list'),
+                    nextButton: document.getElementById('next-button'),
+                    skipButton: document.getElementById('skip-button'),
+                    hintButton: document.getElementById('hint-button'),
+                    hintText: document.getElementById('hint-text'),
+                    justificationText: document.getElementById('justification-text'),
+                    currentQuestionNumSpan: document.getElementById('current-question-num'),
+                    scoreDisplay: document.getElementById('score-display'),
+                    percentageDisplay: document.getElementById('percentage-display'),
+                    reportStudentName: document.getElementById('report-student-name'),
+                    reportStudentCode: document.getElementById('report-student-code'),
+                    incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                    progressCorrect: document.getElementById('progress-correct'),
+                    progressIncorrect: document.getElementById('progress-incorrect')
+                };
+            },
+
+            jumpToReport() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    const savedData = localStorage.getItem('masterclass_general_report_' + code);
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.validatedStudentCode = code;
+                        this.validatedStudentName = this.studentData[code];
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        this.elements.introCard.style.display = 'none';
+                        this.showResults();
+                    } else {
+                        alert('Nenhum relatório final salvo encontrado para este código neste quiz. Por favor, inicie o teste.');
+                    }
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            updateProgress() {
+                const total = this.questions.length;
+                const correctPerc = (this.score / total) * 100;
+                const incorrectPerc = (this.incorrectAnswers.length / total) * 100;
+                this.elements.progressCorrect.style.width = `${correctPerc}%`;
+                this.elements.progressIncorrect.style.width = `${incorrectPerc}%`;
+            },
+
+            saveProgress() {
+                localStorage.setItem('masterclass_general_progress_' + this.validatedStudentCode, JSON.stringify({
+                    currentIndex: this.currentQuestionIndex,
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+            },
+
+            clearProgress() {
+                localStorage.removeItem('masterclass_general_progress_' + this.validatedStudentCode);
+            },
+
+            startQuiz() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.validatedStudentCode = code;
+                    this.validatedStudentName = this.studentData[code];
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+
+                    const savedProgress = localStorage.getItem('masterclass_general_progress_' + code);
+                    if (savedProgress) {
+                        const data = JSON.parse(savedProgress);
+                        this.currentQuestionIndex = data.currentIndex;
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        
+                        if(this.currentQuestionIndex >= this.questions.length) {
+                            this.currentQuestionIndex = 0;
+                            this.score = 0;
+                            this.incorrectAnswers = [];
+                        }
+                    } else {
+                        this.currentQuestionIndex = 0;
+                        this.score = 0;
+                        this.incorrectAnswers = [];
+                    }
+
+                    this.loadQuestion();
+                    this.updateProgress(); 
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            loadQuestion() {
+                this.elements.hintText.style.display = 'none';
+                this.elements.justificationText.style.display = 'none';
+                this.elements.nextButton.style.display = 'none';
+                this.elements.skipButton.style.display = 'inline-block';
+                this.elements.optionsList.innerHTML = '';
+
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.elements.currentQuestionNumSpan.textContent = this.currentQuestionIndex + 1;
+                this.elements.questionText.textContent = currentQ.q;
+                this.elements.hintText.textContent = currentQ.h;
+                this.elements.justificationText.innerHTML = `<strong>Justificativa:</strong> ${currentQ.j}`;
+
+                currentQ.o.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = option;
+                    li.onclick = () => this.checkAnswer(index, li);
+                    this.elements.optionsList.appendChild(li);
+                });
+            },
+
+            checkAnswer(selectedIndex, liElement) {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                const allOptions = this.elements.optionsList.querySelectorAll('.option-item');
+                
+                allOptions.forEach(opt => {
+                    opt.style.pointerEvents = 'none';
+                });
+
+                this.elements.skipButton.style.display = 'none';
+                this.elements.nextButton.style.display = 'inline-block';
+                this.elements.justificationText.style.display = 'block';
+
+                if (selectedIndex === currentQ.a) {
+                    liElement.classList.add('correct');
+                    this.score++;
+                } else {
+                    liElement.classList.add('incorrect');
+                    allOptions[currentQ.a].classList.add('correct');
+                    this.incorrectAnswers.push({
+                        q: currentQ.q,
+                        userAnswer: currentQ.o[selectedIndex],
+                        correctAnswer: currentQ.o[currentQ.a],
+                        justification: currentQ.j
+                    });
+                }
+                
+                this.updateProgress();
+            },
+
+            showHint() {
+                this.elements.hintText.style.display = 'block';
+            },
+
+            skipQuestion() {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.incorrectAnswers.push({
+                    q: currentQ.q,
+                    userAnswer: "Pulou a questão",
+                    correctAnswer: currentQ.o[currentQ.a],
+                    justification: currentQ.j
+                });
+                
+                this.updateProgress();
+                this.nextQuestion();
+            },
+
+            nextQuestion() {
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.saveProgress();
+                    this.loadQuestion();
+                } else {
+                    this.clearProgress();
+                    this.showResults();
+                }
+            },
+
+            showResults() {
+                localStorage.setItem('masterclass_general_report_' + this.validatedStudentCode, JSON.stringify({
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = this.score;
+                
+                const percentage = ((this.score / this.questions.length) * 100).toFixed(1);
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.incorrectQuestionsContainer.innerHTML = '<h3>Questões Incorretas / Puladas:</h3>';
+                if (this.incorrectAnswers.length === 0) {
+                    this.elements.incorrectQuestionsContainer.innerHTML += '<p>Parabéns! Você não errou nenhuma questão.</p>'; 
+                } else {
+                    this.incorrectAnswers.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'incorrect-question-item';
+                        div.innerHTML = `
+                            <p><strong>Questão:</strong> ${item.q}</p>
+                            <p><strong>Sua Resposta:</strong> <span style="color: salmon;">${item.userAnswer}</span></p>
+                            <p><strong>Resposta Correta:</strong> <span style="color: #2e8b57;">${item.correctAnswer}</span></p>
+                            <p style="margin-top: 10px; font-size: 0.9em; background: #fff; padding: 10px; border-left: 4px solid lightgreen;">
+                                ${item.justification}
+                            </p>
+                        `;
+                        this.elements.incorrectQuestionsContainer.appendChild(div);
+                    });
+                }
+            },
+
+            restartQuiz() {
+                this.clearProgress(); 
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.incorrectAnswers = [];
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                
+                if(this.elements.progressCorrect) this.elements.progressCorrect.style.width = '0%';
+                if(this.elements.progressIncorrect) this.elements.progressIncorrect.style.width = '0%';
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+    </script>
+</body>
+</html>
