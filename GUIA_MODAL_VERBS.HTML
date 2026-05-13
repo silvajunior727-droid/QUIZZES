@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>MASTERCLASS VERBOS MODAIS - QUIZ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: salmon;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #e0f7e0;
+        }
+
+        .option-item.correct {
+            background-color: lightgreen;
+            color: #000;
+            font-weight: bold;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(144, 238, 144, 0.5);
+        }
+
+        .option-item.incorrect {
+            background-color: salmon;
+            color: white;
+            font-weight: bold;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(250, 128, 114, 0.5);
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid lightgreen;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .skip-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .hint-btn {
+            background-color: salmon;
+            color: white;
+            display: inline-block;
+            float: none;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid salmon;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .start-btn, .restart-btn, .print-btn, .continue-btn {
+            display: inline-block;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .start-btn, .print-btn, .continue-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .restart-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: lightgreen;
+            text-shadow: 1px 1px 2px #000;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .incorrect-questions-list h3 {
+            color: salmon;
+            margin-bottom: 15px;
+        }
+
+        .incorrect-question-item {
+            background-color: #fff3f3;
+            border: 1px solid salmon;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media print {
+            body { background-color: #fff; padding-top: 0; display: block; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: none; min-height: auto; }
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter { display: none !important; }
+            #results-card { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>Masterclass de Verbos Modais</h1>
+            <h2>AVALIAÇÃO COMPLETA</h2>
+            <p id="personalized-welcome" style="font-size: 1.4rem; font-weight: bold; margin-top: 10px; color: salmon;">Oi, Alunos - grato por sua visita!!!</p>
+            <p id="quiz-description">Por favor, insira seu código de acesso para iniciar a avaliação ou continuar de onde parou. Este teste possui 60 questões sobre o Guia de Verbos Modais.</p>
+            <input type="text" id="student-code" placeholder="Digite seu Código de Acesso">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz()">Iniciar / Continuar Quiz</button>
+                <button class="continue-btn" onclick="quizApp.jumpToReport()" style="background-color: #ffc107;">Já fiz o Quiz (Ver Relatório)</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 60</div>
+            
+            <div id="progress-bar-container" style="display: flex; height: 12px; background: #e9ecef; border-radius: 5px; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                <div id="progress-correct" style="width: 0%; background: lightgreen; transition: width 0.3s;"></div>
+                <div id="progress-incorrect" style="width: 0%; background: salmon; transition: width 0.3s;"></div>
+            </div>
+
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Mostrar Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+            </div>
+            <div id="justification-text" class="justification"></div>
+            <div class="question-actions">
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório de Desempenho</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display" class="score-display"></span> / 60</p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            
+            <div class="results-actions">
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <button class="print-btn" onclick="window.print()">Imprimir/Salvar Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const quizApp = {
+            currentQuestionIndex: 0,
+            score: 0,
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            incorrectAnswers: [],
+            
+            studentData: {
+                "001AB": "ELMA", "002CD": "VALDINEI", "003EF": "RENATA", "004GH": "GEOVANNA", "005IJ": "LEOZINHO",   
+                "006KL": "MARIANA", "007MN": "NICOLAS", "008OP": "YAGO", "009QR": "CAIO", "010ST": "GIH",
+                "011UV": "LUCAS RESENDE", "012WX": "BRUNA", "013YZ": "DIMI", "014AB": "FABRÍCIO", "015CD": "MIGUEL",
+                "016EF": "YAGO", "017GH": "ANDRÉIA", "018IJ": "KAUÃ", "019KL": "PABLO", "020MN": "SURY",
+                "021SP": "SOPHIA", "022QR": "YASMIN", "023ST": "MÁRCIA", "024UV": "RICK", "025WX": "ROSA",
+                "026YZ": "BRUNA", "027AB": "FERNANDO", "028CD": "ALEX", "029EF": "DÉBORA", "030GH": "GIOVANNA",
+                "031IJ": "PÂMELA", "032KL": "YASMIN", "033MN": "ADRIANO", "034OP": "ARTHUR", "035QR": "YASMIN",
+                "036ST": "DAVI", "037UV": "DEREK", "038WX": "PEDRINHO", "039YZ": "DENILSON", "040AB": "EDSON",
+                "041LS": "LUCAS", "042EF": "CAROLINA", "043GH": "ELSON", "044IJ": "LETÍCIA", "045KL": "DIEGO",
+                "046MN": "GABI", "047OP": "KIM", "048QR": "LANA", "049ST": "MANU", "050UV": "SABRINA",
+                "051WX": "BRUNA", "052YZ": "DIMI", "053AB": "FABRÍCIO", "054CD": "MIGUEL", "055EF": "YAGO",
+                "056GH": "ANDRÉIA", "057IJ": "KAUÃ", "058KL": "PABLO", "059MN": "SURY", "060OP": "TAINÁ",
+                "061QR": "YASMIN", "062ST": "MÁRCIA", "063UV": "RICK", "064WX": "ROSA", "065YZ": "FÁTIMA",
+                "066AB": "LUCA", "067CD": "ALEX", "JR123": "JÚNIOR", "068EF": "DÉBORA", "069GH": "GIOVANNA", "070IJ": "PÂMELA",
+                "071KL": "YASMIN", "072MN": "ADRIANO", "073OP": "ARTHUR", "074QR": "YASMIN", "075ST": "DAVI",
+                "076UV": "DEREK", "077WX": "PEDRINHO", "078YZ": "DENILSON", "079AB": "EDSON", "080CD": "ALÍCIA",
+                "081EF": "CAROLINA", "082GH": "ELSON", "083IJ": "LETÍCIA", "084KL": "DIEGO", "085MN": "GABI",
+                "086OP": "KIM", "087QR": "LANA", "088ST": "MANU", "089UV": "SABRINA", "090WX": "DIMI", "101QR": "ANA CLARA", "102ST": "JOAQUIM",
+                "091YZ": "FABRÍCIO", "092AB": "MIGUEL", "093CD": "YAGO", "094EF": "ANDRÉIA", "095GH": "KAUÃ",
+                "096IJ": "PABLO", "097KL": "SURY", "098MN": "LEILA", "099OP": "YASMIN", "100QR": "MÁRCIA", "101ST": "MONIQUE", "102EA": "ELIANA",
+                "JUNIOR": "PROFESSOR JÚNIOR"
+            },
+
+            questions: [
+                { q: "Qual verbo modal é usado em contextos cotidianos para expressar habilidade ou capacidade física e mental?", o: ["May", "Can", "Must", "Should"], a: 1, h: "Indica o que o sujeito consegue fazer.", j: "O 'Can' é usado para indicar habilidade ou capacidade. Ex: I can swim." },
+                { q: "Complete a frase: 'She ___ speak fluent Japanese.'", o: ["can", "mights", "would", "shall"], a: 0, h: "Expressa uma habilidade dela.", j: "'Can' indica capacidade/habilidade física ou mental." },
+                { q: "Qual modal usamos para pedir permissão de forma informal a um amigo?", o: ["May", "Can", "Must", "Ought to"], a: 1, h: "É usado entre pessoas com certa intimidade.", j: "'Can' é usado para pedir ou conceder permissões informais." },
+                { q: "Na frase 'Smoking ___ cause cancer', qual o sentido do modal 'can'?", o: ["Habilidade", "Permissão Informal", "Possibilidade Geral", "Oferta"], a: 2, h: "Indica algo que é teoricamente possível.", j: "Neste contexto, 'can' indica uma possibilidade geral (algo que pode acontecer na teoria)." },
+                { q: "Como oferecemos ajuda de forma direta a alguém usando 'Can'?", o: ["Can you help me?", "I can drive you to the airport.", "Can I go?", "Can it get cold?"], a: 1, h: "A frase deve oferecer uma ação sua para a pessoa.", j: "'I can drive you' é uma oferta direta de ajuda a alguém." },
+                { q: "Complete: '___ we leave the party now?' (Permissão informal)", o: ["Might", "Shall", "Must", "Can"], a: 3, h: "Contexto entre amigos/íntimo.", j: "Usamos 'Can' para pedir permissões informais, como sair da festa." },
+                { q: "Identifique a frase onde 'can' expressa habilidade:", o: ["Can I have a piece of cake?", "Traffic can be terrible.", "He can code in Python and Java.", "Can you call me later?"], a: 2, h: "Envolve conhecimento ou capacidade técnica.", j: "'Code in Python' é uma habilidade mental/técnica, logo 'can' expressa habilidade aqui." },
+                { q: "O modal 'Could' é extensivamente usado como o passado de qual verbo modal?", o: ["Must", "Will", "Can", "May"], a: 2, h: "Refere-se a habilidade no passado.", j: "'Could' é frequentemente o passado de 'Can'." },
+                { q: "Complete: 'When I was young, I ___ run for miles.'", o: ["can", "could", "would", "should"], a: 1, h: "Habilidade que você tinha no passado.", j: "Para habilidades que existiam no passado, usamos 'could'." },
+                { q: "Se você precisa falar com o gerente de um banco (alguém que não conhece), qual modal é o mais polido para o pedido?", o: ["Can", "Could", "Must", "Will"], a: 1, h: "É mais formal que o 'can'.", j: "'Could' é excelente para pedidos educados no ambiente de trabalho ou com estranhos." },
+                { q: "Complete a frase indicando possibilidade futura incerta: 'It ___ rain later this afternoon.'", o: ["must", "can", "could", "shall"], a: 2, h: "Tem um tom de incerteza em relação ao futuro.", j: "'Could' indica que algo é possível no presente/futuro, mas não é garantido." },
+                { q: "Para dar uma sugestão suave e não impositiva, como 'Nós poderíamos ir ao cinema', qual modal usamos?", o: ["Could", "Must", "Will", "Can"], a: 0, h: "Traduz-se como 'poderíamos'.", j: "'We could go...' é usado para sugerir atividades de forma suave." },
+                { q: "Qual a negação correta para falta de habilidade no passado: 'Eu não sabia nadar até os dez anos'?", o: ["I wouldn't swim...", "I shouldn't swim...", "I didn't can swim...", "I couldn't swim..."], a: 3, h: "Passado negativo de Can.", j: "Couldn't (could not) é usado para incapacidades no passado." },
+                { q: "Na frase 'Could I borrow your pen for a second?', o 'could' está expressando:", o: ["Sugestão", "Possibilidade", "Habilidade passada", "Pedido educado"], a: 3, h: "Você quer algo emprestado de alguém.", j: "É uma forma polida de pedir permissão ou fazer um favor." },
+                { q: "Qual modal transborda formalidade e respeito, lidando principalmente com permissões oficiais?", o: ["Can", "May", "Should", "Would"], a: 1, h: "Muito usado em instituições.", j: "'May' é a escolha correta para pedir ou conceder permissões de maneira muito formal." },
+                { q: "Complete a regra de sala de aula: 'Students ___ not leave the room during the exam.'", o: ["may", "might", "could", "can"], a: 0, h: "Regra institucional oficial.", j: "Permissões e proibições institucionais usam frequentemente 'may' ou 'may not'." },
+                { q: "Qual modal indica uma probabilidade de cerca de 50% de chance de algo acontecer?", o: ["Must", "Might", "May", "Shall"], a: 2, h: "É mais provável que o 'Might'.", j: "'May' indica que há uma boa chance (cerca de 50%) de que a ação ocorra." },
+                { q: "Complete expressando um desejo positivo: '___ the Force be with you.'", o: ["May", "Might", "Can", "Could"], a: 0, h: "Geralmente aparece no início da frase para bênçãos.", j: "'May' no início da frase expressa desejos profundos, bênçãos ou esperança." },
+                { q: "Na frase 'I may travel to Europe next year', o que o falante quer dizer?", o: ["Ele tem obrigação de viajar.", "Ele tem permissão para viajar.", "Há uma boa probabilidade dele viajar.", "Ele tinha o costume de viajar."], a: 2, h: "Planos futuros que não são 100% certos.", j: "Neste contexto, 'may' expressa uma possibilidade/probabilidade real." },
+                { q: "Qual frase expressa uma bênção ou voto usando modal?", o: ["You may start the test.", "May God bless you.", "He may be late.", "May I come in?"], a: 1, h: "Desejando o bem espiritual ou sucesso.", j: "A estrutura 'May + sujeito + verbo' é clássica para votos e bênçãos." },
+                { q: "O porteiro de um prédio comercial diz: 'Visitors ___ park in the designated area.'", o: ["might", "may", "can", "could"], a: 1, h: "Concessão de permissão formal.", j: "Usa-se 'may' em ambientes corporativos e oficiais para ditar regras de permissão." },
+                { q: "Qual a diferença de probabilidade entre 'May' e 'Might'?", o: ["Might tem maior chance que May", "May indica boa chance, Might indica chance remota", "São exatamente iguais", "May é usado só no passado"], a: 1, h: "Might é mais incerto.", j: "'Might' indica uma chance menor (remota, uns 30%) de algo acontecer em comparação com 'May'." },
+                { q: "Complete a frase indicando possibilidade remota: 'I ___ go to the gym, but I'm very tired.'", o: ["must", "can", "might", "shall"], a: 2, h: "É muito improvável que a pessoa vá.", j: "Usa-se 'might' para indicar que a ação é possível, mas bastante improvável devido ao cansaço." },
+                { q: "Para especular sobre algo no passado (que talvez tenha acontecido), usamos Might + qual verbo auxiliar?", o: ["be", "have", "do", "will"], a: 1, h: "Você precisa formar uma estrutura 'perfect'.", j: "Usamos a estrutura 'Might have + particípio' para especular sobre possibilidades no passado." },
+                { q: "Complete: 'She is not here yet. She ___ have missed the bus.'", o: ["might", "can", "shall", "ought"], a: 0, h: "Possibilidade especulativa sobre algo anterior.", j: "'Might have missed' (Pode ter perdido) é usado para suposições no passado." },
+                { q: "Traduza: 'It might rain, but the sky is clear right now.'", o: ["Deve chover muito...", "Pode ser que chova (chance remota)...", "Com certeza vai chover...", "Não é permitido chover..."], a: 1, h: "Indica uma probabilidade baixa.", j: "'Might' frequentemente se traduz como 'pode ser que' ou 'talvez', indicando incerteza." },
+                { q: "O uso de 'might have' em 'Someone might have stolen it' significa:", o: ["Alguém com certeza roubou.", "Alguém talvez tenha roubado (suposição).", "Alguém tinha a habilidade de roubar.", "Alguém deveria ter roubado."], a: 1, h: "Especulação incerta.", j: "A frase expressa uma possibilidade sobre um evento passado do qual não se tem certeza." },
+                { q: "Em 'He might be asleep already', a probabilidade expressa é:", o: ["Fato comprovado", "Dedução óbvia", "Suposição / Possibilidade remota", "Obrigação legal"], a: 2, h: "O falante não tem certeza se a pessoa dormiu.", j: "A frase indica que talvez ele já esteja dormindo, mas é apenas uma suposição." },
+                { q: "Qual verbo modal tem um peso muito forte, não dá margem a negociações e expressa coisas absolutas?", o: ["Should", "May", "Might", "Must"], a: 3, h: "Usado para leis inflexíveis ou certezas.", j: "O 'Must' expressa forte obrigação ou dedução quase absoluta." },
+                { q: "Complete a frase com o sentido de necessidade pessoal inegociável: 'I ___ finish this report by 5 PM.'", o: ["must", "can", "might", "would"], a: 0, h: "É estritamente necessário terminar.", j: "'Must' é usado quando impomos uma obrigação forte a nós mesmos ou aos outros." },
+                { q: "Como fazemos uma dedução lógica forte baseada em evidências óbvias?", o: ["You can be exhausted.", "You might be exhausted.", "You must be exhausted.", "You should be exhausted."], a: 2, h: "Se a pessoa viajou o dia todo, a conclusão lógica é certa.", j: "'Must' é usado para deduções que beiram 100% de certeza com base na lógica ou em evidências." },
+                { q: "Se o chão da rua está molhado, a dedução 'It ___ have rained' usa qual modal?", o: ["could", "must", "should", "will"], a: 1, h: "Evidência inegável de que choveu.", j: "'Must have' + particípio é a forma clássica de fazer deduções fortes sobre o passado." },
+                { q: "O que acontece quando usamos o 'Must' na forma negativa (Must not / Mustn't)?", o: ["Indica que a pessoa não precisa fazer a ação.", "Vira um conselho suave.", "Transforma-se numa proibição estrita.", "Indica que a ação é impossível de ser feita."], a: 2, h: "Não é apenas a ausência da obrigação.", j: "Na forma negativa, o 'must' deixa de ser uma obrigação e vira uma proibição ('é proibido')." },
+                { q: "Qual placa de trânsito usaria a estrutura gramatical correta em inglês?", o: ["You shouldn't park here.", "You mustn't park here.", "You might not park here.", "You wouldn't park here."], a: 1, h: "As leis de trânsito são proibições estritas.", j: "Para regras inflexíveis e proibições, usamos 'must not' ou 'mustn't'." },
+                { q: "Complete: 'She got a perfect score; she ___ be very smart.'", o: ["must", "can", "ought", "shall"], a: 0, h: "Conclusão óbvia pela nota tirada.", j: "Dedução baseada na evidência clara (nota perfeita), logo usamos 'must'." },
+                { q: "Traduza: 'Passengers must not smoke in the airplane.'", o: ["Passageiros não precisam fumar...", "Passageiros não deveriam fumar...", "Passageiros são estritamente proibidos de fumar...", "Passageiros talvez não fumem..."], a: 2, h: "Violação de regra federal de aviação.", j: "Must not expressa que a ação não é apenas desaconselhada, mas estritamente proibida." },
+                { q: "Qual verbo modal é amplamente conhecido como 'o rei dos conselhos'?", o: ["Should", "Must", "Will", "Can"], a: 0, h: "Recomenda a melhor atitude a se tomar.", j: "O 'Should' indica o que é apropriado ou esperado, sem ser uma obrigação severa." },
+                { q: "Complete o conselho: 'You ___ see a doctor about that terrible cough.'", o: ["would", "should", "shall", "might"], a: 1, h: "É a atitude sensata a se fazer.", j: "'Should' é a principal ferramenta gramatical para dar opiniões e conselhos no inglês." },
+                { q: "Além de conselhos, o 'Should' indica forte Expectativa. Qual frase exemplifica isso?", o: ["The train should arrive in ten minutes.", "You should stop smoking.", "I should apologize.", "You shouldn't eat fast food."], a: 0, h: "Algo que foi programado para acontecer em breve.", j: "Neste caso, 'should' expressa que se espera que o trem chegue logo, pois é o planejado." },
+                { q: "Qual a forma negativa de 'Should' usada para aconselhar as pessoas a NÃO fazerem algo?", o: ["Should no", "Don't should", "Shouldn't", "Not should"], a: 2, h: "Contraído em uma só palavra.", j: "A forma negativa padrão e correta é 'should not' ou a contração 'shouldn't'." },
+                { q: "Complete a frase pedindo uma recomendação de roupa: 'What ___ I wear to the interview?'", o: ["must", "should", "would", "might"], a: 1, h: "Buscando a opinião do amigo.", j: "Usamos 'should' tanto para dar quanto para solicitar opiniões e conselhos." },
+                { q: "Na frase 'This software update should fix the bug', qual é o sentido aplicado?", o: ["Obrigação moral do computador", "Conselho para a máquina", "Expectativa forte de que o erro será resolvido", "Probabilidade matemática remota"], a: 2, h: "A atualização foi programada exatamente para isso.", j: "'Should' aqui expressa expectativa. É esperado que funcione porque foi feito para isso." },
+                { q: "Como podemos traduzir a ideia central de 'We should save money for the future'?", o: ["Nós somos obrigados a guardar...", "Nós poderíamos tentar guardar...", "Nós deveríamos guardar dinheiro...", "Nós guardaremos todo o dinheiro..."], a: 2, h: "Dica de bom senso financeiro.", j: "Should traduz perfeitamente como 'deveria/deveríamos', servindo como uma ótima recomendação." },
+                { q: "Qual modal é considerado quase um sinônimo de 'Should', mas soa mais formal e geralmente carrega um 'senso de dever moral'?", o: ["Must", "Ought to", "Shall", "Would"], a: 1, h: "É um modal acompanhado de preposição.", j: "O 'Ought to' é a alternativa formal e com peso moral do 'Should'." },
+                { q: "Complete: 'You ___ respect your elders.' (Dever moral para com os mais velhos)", o: ["should to", "ought to", "must to", "can to"], a: 1, h: "A palavra 'to' já está na opção.", j: "'Ought to' é o único modal dessa lista que necessita e utiliza a partícula 'to' logo após." },
+                { q: "Como devemos construir a forma negativa do modal 'Ought to'?", o: ["Ought not to", "Don't ought to", "Ought to not", "Didn't ought to"], a: 0, h: "O 'not' entra como um recheio na estrutura.", j: "A negativa divide as duas palavras originais: 'ought not to'." },
+                { q: "Na frase 'The government ought to lower taxes', o que o falante expressa?", o: ["Uma possibilidade futura de certeza.", "Uma habilidade administrativa do governo.", "Uma opinião sobre a atitude moral/correta do governo.", "Uma permissão concedida aos governantes."], a: 2, h: "O que seria o dever coletivo da instituição.", j: "'Ought to' é amplamente usado para expressar o que é moralmente correto para a sociedade." },
+                { q: "Assim como o should, o 'ought to' pode indicar expectativa. Complete: 'The soup ___ be ready in five minutes.'", o: ["ought to", "might to", "can to", "shall to"], a: 0, h: "Você espera que a sopa cozinhe no tempo certo.", j: "Podemos aplicar 'ought to' para expectativas físicas: 'A sopa deve estar pronta em breve'." },
+                { q: "Identifique o erro gramatical clássico nesta frase: 'He ought tell the truth.'", o: ["O ought não se conjuga com a terceira pessoa (He).", "Falta a partícula 'to' entre o modal e o verbo.", "O verbo tell está no tempo errado.", "A palavra truth está mal posicionada."], a: 1, h: "O ought nunca anda sozinho.", j: "A estrutura correta é inseparável: 'ought TO tell'. Diferente do should, o ought exige o 'to'." },
+                { q: "O modal 'Would' é a ferramenta gramatical mais importante do inglês para falar sobre:", o: ["Deduções do presente inegáveis.", "Leis constitucionais e deveres.", "Situações imaginárias, hipotéticas e resultados de condições.", "Planos que definitivamente acontecerão."], a: 2, h: "Equivale frequentemente ao final '-ria' do nosso idioma.", j: "'Would' transforma os verbos para o futuro do pretérito (faria, iria, comeria)." },
+                { q: "Complete a condicional: 'If I had a million dollars, I ___ travel the world.'", o: ["will", "would", "should", "could"], a: 1, h: "Representa a consequência irreal: 'eu viajaria'.", j: "Usa-se 'would' para indicar a parte do resultado em cenários hipotéticos ou imaginários." },
+                { q: "Qual a forma mais polida e elegante de pedir algo, fazer um convite em um restaurante chique?", o: ["Do you want some wine?", "Can you give me wine?", "Would you like some wine?", "Must you serve wine?"], a: 2, h: "Traduz-se como 'Você gostaria...'.", j: "'Would you like...' é o padrão máximo para oferecer coisas ou convidar de forma polida." },
+                { q: "Além de hipóteses, o 'Would' substitui perfeitamente a expressão 'used to' para indicar o quê?", o: ["Rotinas constantes no presente.", "Hábitos e rotinas clássicas do passado (ações repetidas).", "Arrependimentos profundos.", "Habilidades recém-adquiridas."], a: 1, h: "Como no Pretérito Imperfeito (eu brincava, corria).", j: "Quando lemos histórias passadas, é muito comum o 'would' indicar repetições de fatos antigos." },
+                { q: "Traduza: 'When I was a kid, I would play outside all day.'", o: ["Quando criança, eu gostaria de brincar...", "Quando criança, eu brincava lá fora o dia todo (rotina).", "Quando criança, eu devo brincar...", "Quando criança, eu fui forçado a brincar..."], a: 1, h: "Lembre da semelhança com o 'used to'.", j: "O contexto da frase indica que ele costumava/tinha o hábito de brincar repetidamente lá fora." },
+                { q: "Como expressamos preferência utilizando o 'Would' para dizer 'Eu preferiria ficar em casa'?", o: ["I would like stay home.", "I would prefer not to stay home.", "I would rather stay home.", "I would always stay home."], a: 2, h: "Exige uma palavra que rima com 'father'.", j: "'Would rather' é a combinação padrão do inglês para dizer 'prefiro/preferiria'." },
+                { q: "Complete esse pedido extremamente polido: '___ you mind opening the window?'", o: ["Do", "Will", "Would", "Should"], a: 2, h: "Significa 'Você se importaria de...'.", j: "'Would you mind...' é uma frase de extrema delicadeza para solicitar algo a estranhos ou chefes." },
+                { q: "O modal 'Shall' possui características antiquadas. No inglês coloquial moderno, ele sobrevive quase exclusivamente para:", o: ["Obrigações e castigos pessoais.", "Falar do passado remoto.", "Fazer sugestões finas com as pessoas 'I' e 'We' (Ex: Shall we dance?).", "Dar deduções meteorológicas."], a: 2, h: "Famoso pela cena de dança em filmes.", j: "Hoje em dia, a frase interrogativa com 'Shall I' ou 'Shall we' é uma alternativa elegante para oferecer algo." },
+                { q: "No ambiente de contratos, termos de uso e documentos jurídicos, qual é a função severa do 'Shall'?", o: ["Sugerir que as partes façam algo, se puderem.", "Ditar obrigações rigorosas e incontestáveis com força de lei ('deverá').", "Indicar os direitos adquiridos de uma empresa.", "Descrever fatos que aconteceram no ano passado."], a: 1, h: "Não tem escapatória se estiver escrito shall no documento.", j: "No 'Legal English', a palavra Shall indica dever legal impositivo e rigoroso." },
+                { q: "Qual frase pergunta elegantemente e substitui a expressão comum 'Let's take a break'?", o: ["Must we take a break?", "Can we take a break?", "Shall we take a break?", "Would we take a break?"], a: 2, h: "Sugerindo pausa para o grupo todo.", j: "'Shall we...?' funciona como a versão interrogativa do convite 'Let's'." },
+                { q: "Complete esta cláusula de um contrato de locação: 'The tenant ___ pay the rent on the 5th of each month.'", o: ["might", "would", "shall", "can"], a: 2, h: "Linguagem e exigência jurídica de pagamento.", j: "Quando o senhorio escreve contratos, usa 'shall' para formalizar os deveres legais do inquilino." }
+            ],
+
+            init() {
+                this.elements = {
+                    studentCodeInput: document.getElementById('student-code'),
+                    introCard: document.getElementById('intro-card'),
+                    quizCard: document.getElementById('quiz-card'),
+                    resultsCard: document.getElementById('results-card'),
+                    questionText: document.getElementById('question-text'),
+                    optionsList: document.getElementById('options-list'),
+                    nextButton: document.getElementById('next-button'),
+                    skipButton: document.getElementById('skip-button'),
+                    hintButton: document.getElementById('hint-button'),
+                    hintText: document.getElementById('hint-text'),
+                    justificationText: document.getElementById('justification-text'),
+                    currentQuestionNumSpan: document.getElementById('current-question-num'),
+                    scoreDisplay: document.getElementById('score-display'),
+                    percentageDisplay: document.getElementById('percentage-display'),
+                    reportStudentName: document.getElementById('report-student-name'),
+                    reportStudentCode: document.getElementById('report-student-code'),
+                    incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                    progressCorrect: document.getElementById('progress-correct'),
+                    progressIncorrect: document.getElementById('progress-incorrect')
+                };
+            },
+
+            jumpToReport() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    const savedData = localStorage.getItem('masterclass_modais_report_' + code);
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.validatedStudentCode = code;
+                        this.validatedStudentName = this.studentData[code];
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        this.elements.introCard.style.display = 'none';
+                        this.showResults();
+                    } else {
+                        alert('Nenhum relatório final salvo encontrado para este código neste quiz. Por favor, inicie o teste.');
+                    }
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            updateProgress() {
+                const total = this.questions.length;
+                const correctPerc = (this.score / total) * 100;
+                const incorrectPerc = (this.incorrectAnswers.length / total) * 100;
+                this.elements.progressCorrect.style.width = `${correctPerc}%`;
+                this.elements.progressIncorrect.style.width = `${incorrectPerc}%`;
+            },
+
+            saveProgress() {
+                localStorage.setItem('masterclass_modais_progress_' + this.validatedStudentCode, JSON.stringify({
+                    currentIndex: this.currentQuestionIndex,
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+            },
+
+            clearProgress() {
+                localStorage.removeItem('masterclass_modais_progress_' + this.validatedStudentCode);
+            },
+
+            startQuiz() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.validatedStudentCode = code;
+                    this.validatedStudentName = this.studentData[code];
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+
+                    const savedProgress = localStorage.getItem('masterclass_modais_progress_' + code);
+                    if (savedProgress) {
+                        const data = JSON.parse(savedProgress);
+                        this.currentQuestionIndex = data.currentIndex;
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        
+                        if(this.currentQuestionIndex >= this.questions.length) {
+                            this.currentQuestionIndex = 0;
+                            this.score = 0;
+                            this.incorrectAnswers = [];
+                        }
+                    } else {
+                        this.currentQuestionIndex = 0;
+                        this.score = 0;
+                        this.incorrectAnswers = [];
+                    }
+
+                    this.loadQuestion();
+                    this.updateProgress(); 
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            loadQuestion() {
+                this.elements.hintText.style.display = 'none';
+                this.elements.justificationText.style.display = 'none';
+                this.elements.nextButton.style.display = 'none';
+                this.elements.skipButton.style.display = 'inline-block';
+                this.elements.optionsList.innerHTML = '';
+
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.elements.currentQuestionNumSpan.textContent = this.currentQuestionIndex + 1;
+                this.elements.questionText.textContent = currentQ.q;
+                this.elements.hintText.textContent = currentQ.h;
+                this.elements.justificationText.innerHTML = `<strong>Justificativa:</strong> ${currentQ.j}`;
+
+                currentQ.o.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = option;
+                    li.onclick = () => this.checkAnswer(index, li);
+                    this.elements.optionsList.appendChild(li);
+                });
+            },
+
+            checkAnswer(selectedIndex, liElement) {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                const allOptions = this.elements.optionsList.querySelectorAll('.option-item');
+                
+                allOptions.forEach(opt => {
+                    opt.style.pointerEvents = 'none';
+                });
+
+                this.elements.skipButton.style.display = 'none';
+                this.elements.nextButton.style.display = 'inline-block';
+                this.elements.justificationText.style.display = 'block';
+
+                if (selectedIndex === currentQ.a) {
+                    liElement.classList.add('correct');
+                    this.score++;
+                } else {
+                    liElement.classList.add('incorrect');
+                    allOptions[currentQ.a].classList.add('correct');
+                    this.incorrectAnswers.push({
+                        q: currentQ.q,
+                        userAnswer: currentQ.o[selectedIndex],
+                        correctAnswer: currentQ.o[currentQ.a],
+                        justification: currentQ.j
+                    });
+                }
+                
+                this.updateProgress();
+            },
+
+            showHint() {
+                this.elements.hintText.style.display = 'block';
+            },
+
+            skipQuestion() {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.incorrectAnswers.push({
+                    q: currentQ.q,
+                    userAnswer: "Pulou a questão",
+                    correctAnswer: currentQ.o[currentQ.a],
+                    justification: currentQ.j
+                });
+                
+                this.updateProgress();
+                this.nextQuestion();
+            },
+
+            nextQuestion() {
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.saveProgress();
+                    this.loadQuestion();
+                } else {
+                    this.clearProgress();
+                    this.showResults();
+                }
+            },
+
+            showResults() {
+                localStorage.setItem('masterclass_modais_report_' + this.validatedStudentCode, JSON.stringify({
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = this.score;
+                
+                const percentage = ((this.score / this.questions.length) * 100).toFixed(1);
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.incorrectQuestionsContainer.innerHTML = '<h3>Questões Incorretas / Puladas:</h3>';
+                if (this.incorrectAnswers.length === 0) {
+                    this.elements.incorrectQuestionsContainer.innerHTML += '<p>Parabéns! Você não errou nenhuma questão.</p>';
+                } else {
+                    this.incorrectAnswers.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'incorrect-question-item';
+                        div.innerHTML = `
+                            <p><strong>Questão:</strong> ${item.q}</p>
+                            <p><strong>Sua Resposta:</strong> <span style="color: salmon;">${item.userAnswer}</span></p>
+                            <p><strong>Resposta Correta:</strong> <span style="color: #2e8b57;">${item.correctAnswer}</span></p>
+                            <p style="margin-top: 10px; font-size: 0.9em; background: #fff; padding: 10px; border-left: 4px solid lightgreen;">
+                                ${item.justification}
+                            </p>
+                        `;
+                        this.elements.incorrectQuestionsContainer.appendChild(div);
+                    });
+                }
+            },
+
+            restartQuiz() {
+                this.clearProgress(); 
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.incorrectAnswers = [];
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                
+                if(this.elements.progressCorrect) this.elements.progressCorrect.style.width = '0%';
+                if(this.elements.progressIncorrect) this.elements.progressIncorrect.style.width = '0%';
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+    </script>
+</body>
+</html>
