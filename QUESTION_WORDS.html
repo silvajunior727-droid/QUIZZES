@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>ENGLISH - QUESTION WORDS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: salmon;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        .topic-summary {
+            background-color: #e0f7fa;
+            border-left: 5px solid #00bcd4;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.95rem;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #e0f7e0;
+        }
+
+        .option-item.correct {
+            background-color: lightgreen;
+            color: #000;
+            font-weight: bold;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(144, 238, 144, 0.5);
+            pointer-events: none;
+        }
+
+        .option-item.incorrect {
+            background-color: salmon;
+            color: white;
+            font-weight: bold;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(250, 128, 114, 0.5);
+            pointer-events: none;
+        }
+
+        /* Drag and Drop / Fill in styles */
+        .interactive-area {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .drop-zone {
+            min-width: 200px;
+            min-height: 50px;
+            border: 2px dashed #888;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fafafa;
+            font-weight: bold;
+            color: #666;
+            transition: background-color 0.3s;
+        }
+
+        .drop-zone.dragover {
+            background-color: #d1ecf1;
+            border-color: #0c5460;
+        }
+
+        .drag-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .drag-item {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .drag-item:active {
+            transform: scale(0.95);
+        }
+
+        .fill-in-input {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            text-transform: lowercase;
+        }
+
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid lightgreen;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .skip-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .hint-btn {
+            background-color: salmon;
+            color: white;
+            display: inline-block;
+            float: none;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid salmon;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .start-btn, .restart-btn, .print-btn, .continue-btn {
+            display: inline-block;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .start-btn, .print-btn, .continue-btn {
+            background-color: lightgreen;
+            color: #000;
+        }
+
+        .restart-btn {
+            background-color: salmon;
+            color: white;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: lightgreen;
+            text-shadow: 1px 1px 2px #000;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .incorrect-questions-list h3 {
+            color: salmon;
+            margin-bottom: 15px;
+        }
+
+        .incorrect-question-item {
+            background-color: #fff3f3;
+            border: 1px solid salmon;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media print {
+            body { background-color: #fff; padding-top: 0; display: block; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: none; min-height: auto; }
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter { display: none !important; }
+            #results-card { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1></h1>
+            <h2>ENGLISH - QUESTION WORDS</h2>
+            <p id="personalized-welcome" style="font-size: 1.4rem; font-weight: bold; margin-top: 10px; color: salmon;">Olá, Aluno (a) - grato por sua visita!!!</p>
+            <p id="quiz-description">Por favor, insira seu código de acesso para iniciar o Quiz ou continuar de onde parou. Este teste aborda o conteúdo completo do Tópico.</p>
+            <input type="text" id="student-code" placeholder="Digite seu Código de Acesso">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz()">Iniciar / Continuar Quiz</button>
+                <button class="continue-btn" onclick="quizApp.jumpToReport()" style="background-color: #ffc107;">Já fiz o Quiz (Ver Relatório)</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de <span id="total-questions"></span></div>
+            
+            <div id="progress-bar-container" style="display: flex; height: 12px; background: #e9ecef; border-radius: 5px; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                <div id="progress-correct" style="width: 0%; background: lightgreen; transition: width 0.3s;"></div>
+                <div id="progress-incorrect" style="width: 0%; background: salmon; transition: width 0.3s;"></div>
+            </div>
+
+            <div id="topic-summary" class="topic-summary"></div>
+            <div id="question-text" class="question-text"></div>
+            
+            <div id="interactive-container" class="interactive-area"></div>
+            <ul id="options-list" class="options-list"></ul>
+            
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Mostrar Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+            </div>
+            <div id="justification-text" class="justification"></div>
+            <div class="question-actions">
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório de Desempenho</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display" class="score-display"></span> / <span id="total-score"></span></p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            
+            <div class="results-actions">
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <button class="print-btn" onclick="window.print()">Imprimir/Salvar Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const TOPIC_SUMMARIES = {
+            "Pets & Skins": "Revisamos os animais de estimação (cat, dog, turtle, etc.) e as partes que cobrem o corpo deles (scales, shell, hair, feather).",
+            "Demonstratives & Sizes": "Aprendemos a usar 'This is' (Este é/Esta é), 'This is not' (Este não é/Esta não é) e os tamanhos 'Big' (Grande) e 'Small' (Pequeno).",
+            "Numbers 1-20": "Contamos de 1 a 20, incluindo palavras como 'eleven' (11), 'twelve' (12) e 'twenty' (20).",
+            "Wild Animals": "Conhecemos animais selvagens, como o elephant, jaguar, kangaroo, gorilla, lion, giraffe e panda.",
+            "Articles & Time": "Treinamos o uso de 'A/An' (um/uma) e aprendemos a ver as horas exatas com a palavra 'o'clock'.",
+            "Prepositions": "Estudamos onde as coisas estão: in (dentro), on (sobre/encima), under (debaixo) e next to (ao lado).",
+            "Family": "Relembramos a família: father, mother, brother, sister, grandfather, grandmother, uncle, cousin.",
+            "Verb To Be": "Acompanhamos o uso de 'It is' para um animal ou objeto, e 'They are' quando falamos de dois ou mais."
+        };
+
+        const quizApp = {
+            currentQuestionIndex: 0,
+            score: 0,
+            hintClicks: 0,
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            incorrectAnswers: [],
+            
+        studentData: {
+     		"472AM": "BEATRIZ", 
+                "819AS": "BRUNO",
+                "365AS": "ENDRIL", 
+                "294BS": "GABRIELLE",
+                "581BS": "GIOVANNA", 
+                "736DF": "ISABEL",
+                "158DG": "LAURA", 
+                "942EN": "MARIA CLARA",
+                "627ES": "MARIA EDUARDA", 
+                "301ES": "MELISSA",
+                "514HB": "MILLENA LEITE",
+	        "275HC": "MYLLENA FREIRE", 
+                "892HS": "NICOLLE",
+                "463HB": "PAULO", 
+	        "829BS": "REBECCA",
+                "371PY": "YASMIN", 
+                "JR123": "JUNIOR"
+            },
+
+         questions: [
+            // --- MULTIPLE CHOICE (25 Questões) ---
+            {
+                type: 'mcq',
+                question: "Se você pode responder com 'He', 'She' ou 'They', qual question word você usou?",
+                topic: "Who",
+                hint: "DICA 1: Pergunta sobre pessoas.",
+                hint_2: "DICA 2: Atua como sujeito da frase.",
+                options: [
+                    { text: "Whose", isCorrect: false, rationale: "Incorreto." },
+                    { text: "What", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Who", isCorrect: true, rationale: "Correto! 'Who' é usado para perguntar quem faz a ação (sujeito)." },
+                    { text: "Which", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ is knocking at the door?'",
+                topic: "Who",
+                hint: "DICA 1: Alguém está batendo na porta.",
+                hint_2: "DICA 2: Refere-se a pessoa.",
+                options: [
+                    { text: "When", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Who", isCorrect: true, rationale: "Correto! Who is knocking at the door? (Quem está batendo na porta?)" },
+                    { text: "How", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Where", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Qual a diferença entre 'Whose' e 'Who\\'s'?",
+                topic: "Whose",
+                hint: "DICA 1: A pronúncia é igual.",
+                hint_2: "DICA 2: Um é posse, o outro é contração.",
+                options: [
+                    { text: "São sinônimos exatos.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Whose é plural e Who's é singular.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Who's é posse e Whose é verbo.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Whose é 'de quem' e Who's é contração de 'Who is/has'.", isCorrect: true, rationale: "Correto! Whose questiona posse." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ jacket is this?'",
+                topic: "Whose",
+                hint: "DICA 1: Você quer saber a quem pertence a jaqueta.",
+                hint_2: "DICA 2: Indica posse.",
+                options: [
+                    { text: "What", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Who", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Whose", isCorrect: true, rationale: "Correto! Whose jacket is this? (De quem é esta jaqueta?)" },
+                    { text: "How", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "A palavra 'Where' em inglês substitui quais palavras do português?",
+                topic: "Where",
+                hint: "DICA 1: Lugar fixo ou movimento.",
+                hint_2: "DICA 2: O verbo determina se há movimento.",
+                options: [
+                    { text: "Quem e Qual", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Onde e Aonde", isCorrect: true, rationale: "Correto! Em inglês 'Where' serve para ambos." },
+                    { text: "Porque e Como", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Quando e Quanto", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Se você quer perguntar a hora exata, o que é melhor usar no lugar de 'When'?",
+                topic: "When",
+                hint: "DICA 1: When é amplo (dias, meses).",
+                hint_2: "DICA 2: Relógio exige precisão.",
+                options: [
+                    { text: "How clock", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Which hour", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Where time", isCorrect: false, rationale: "Incorreto." },
+                    { text: "What time", isCorrect: true, rationale: "Correto! 'What time' é usado para hora exata." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ did you realize you lost your wallet?' (Quando)",
+                topic: "When",
+                hint: "DICA 1: Pergunta sobre tempo.",
+                hint_2: "DICA 2: Começa com W.",
+                options: [
+                    { text: "Why", isCorrect: false, rationale: "Incorreto." },
+                    { text: "When", isCorrect: true, rationale: "Correto! Quando você percebeu..." },
+                    { text: "Where", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Who", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Qual a regra de ouro do 'Why' e 'Because'?",
+                topic: "Why",
+                hint: "DICA 1: Um pergunta.",
+                hint_2: "DICA 2: O outro responde.",
+                options: [
+                    { text: "Use Because para perguntar.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Ambos são pronomes relativos.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Pergunte com Why, responda com Because.", isCorrect: true, rationale: "Correto! Why na pergunta, Because na resposta." },
+                    { text: "Responda com Why.", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Na linguagem digital, 'Why' costuma ser substituído por qual letra?",
+                topic: "Why",
+                hint: "DICA 1: Tem a mesma pronúncia.",
+                hint_2: "DICA 2: É a penúltima letra do alfabeto.",
+                options: [
+                    { text: "W", isCorrect: false, rationale: "Incorreto." },
+                    { text: "R", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Y", isCorrect: true, rationale: "Correto! 'Y' tem a exata pronúncia de 'Why'." },
+                    { text: "U", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ is your name?'",
+                topic: "What",
+                hint: "DICA 1: O coringa das perguntas.",
+                hint_2: "DICA 2: Pode significar 'Qual'.",
+                options: [
+                    { text: "Where", isCorrect: false, rationale: "Incorreto." },
+                    { text: "What", isCorrect: true, rationale: "Correto! What is your name?" },
+                    { text: "Who", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Which", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Se um cardápio tem apenas 3 sabores, qual question word usar?",
+                topic: "Which",
+                hint: "DICA 1: Número limitado de opções.",
+                hint_2: "DICA 2: Pronome da escolha.",
+                options: [
+                    { text: "How", isCorrect: false, rationale: "Incorreto." },
+                    { text: "What", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Why", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Which", isCorrect: true, rationale: "Correto! 'Which' é usado quando há opções limitadas para escolha." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ color do you prefer, red or blue?'",
+                topic: "Which",
+                hint: "DICA 1: Opções estão definidas na frase.",
+                hint_2: "DICA 2: Apenas duas escolhas.",
+                options: [
+                    { text: "What", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Whose", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Which", isCorrect: true, rationale: "Correto! Como há limite (red or blue), usamos Which." },
+                    { text: "Who", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Para perguntar 'Como você faz este bolo?', usamos:",
+                topic: "How",
+                hint: "DICA 1: Maneira ou método.",
+                hint_2: "DICA 2: Não começa com 'W'.",
+                options: [
+                    { text: "Where", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How", isCorrect: true, rationale: "Correto! 'How' pergunta sobre maneira/método." },
+                    { text: "What", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Why", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Se eu posso contar usando números (1, 2, 3...), qual eu uso?",
+                topic: "How Many vs How Much",
+                hint: "DICA 1: Substantivos contáveis.",
+                hint_2: "DICA 2: Sempre no plural.",
+                options: [
+                    { text: "How far", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How long", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How much", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How many", isCorrect: true, rationale: "Correto! How many é usado para coisas que podemos contar individualmente." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ brothers do you have?'",
+                topic: "How Many vs How Much",
+                hint: "DICA 1: Irmãos são contáveis.",
+                hint_2: "DICA 2: Palavra no plural.",
+                options: [
+                    { text: "How often", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How many", isCorrect: true, rationale: "Correto! Irmãos são contáveis." },
+                    { text: "How much", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How old", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Para perguntar o preço ('Quanto custa?'), usamos:",
+                topic: "How Many vs How Much",
+                hint: "DICA 1: O substantivo fica subentendido.",
+                hint_2: "DICA 2: Dinheiro como conceito geral.",
+                options: [
+                    { text: "How many", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How price", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How much", isCorrect: true, rationale: "Correto! How much é universal para perguntar preço." },
+                    { text: "What price", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Dinheiro (Money) é incontável, mas a unidade (Dollar) é contável. Como fica a pergunta para dólares?",
+                topic: "How Many vs How Much",
+                hint: "DICA 1: Dólares são contáveis.",
+                hint_2: "DICA 2: Use no plural.",
+                options: [
+                    { text: "What many dollars", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How many dollars", isCorrect: true, rationale: "Correto! Por ser contável, usamos How many." },
+                    { text: "How dollar", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How much dollars", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Para descobrir a idade de um prédio histórico, qual combinação usamos?",
+                topic: "How Combinations",
+                hint: "DICA 1: Significa 'quão velho'.",
+                hint_2: "DICA 2: Mesma estrutura que idade humana.",
+                options: [
+                    { text: "How years", isCorrect: false, rationale: "Incorreto." },
+                    { text: "What age", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How long", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How old", isCorrect: true, rationale: "Correto! 'How old' serve para pessoas, animais, coisas e lugares." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ is the nearest hospital?' (Quão longe)",
+                topic: "How Combinations",
+                hint: "DICA 1: Distância física.",
+                hint_2: "DICA 2: Não é 'How much'.",
+                options: [
+                    { text: "Where far", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How long", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How far", isCorrect: true, rationale: "Correto! 'How far' é usado para distâncias físicas." },
+                    { text: "How distance", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "O 'How long' possui duplo sentido. Quais são?",
+                topic: "How Combinations",
+                hint: "DICA 1: Tempo e tamanho físico.",
+                hint_2: "DICA 2: Voo para Miami e Ponte.",
+                options: [
+                    { text: "Altura e Idade.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Duração de tempo e Comprimento físico.", isCorrect: true, rationale: "Correto! How long serve tanto para duração (tempo) quanto para comprimento da ponte, etc." },
+                    { text: "Distância e Peso.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Tempo e Dinheiro.", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Para perguntar 'Com que frequência você vai à academia?', usamos:",
+                topic: "How Combinations",
+                hint: "DICA 1: Rotina, repetição.",
+                hint_2: "DICA 2: Termina com 'ten'.",
+                options: [
+                    { text: "How time", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How much", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How often", isCorrect: true, rationale: "Correto! 'How often' descobre frequência e rotina." },
+                    { text: "How long", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ can you type?' (Quão rápido)",
+                topic: "How Combinations",
+                hint: "DICA 1: Velocidade.",
+                hint_2: "DICA 2: Oposto de slow.",
+                options: [
+                    { text: "How speed", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How quick", isCorrect: false, rationale: "Incorreto." },
+                    { text: "What fast", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How fast", isCorrect: true, rationale: "Correto! 'How fast' mede velocidade." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Qual a diferença no uso de 'How tall' e 'How high'?",
+                topic: "How Combinations",
+                hint: "DICA 1: Um é para o que cresce do chão (pessoas).",
+                hint_2: "DICA 2: Outro para o que não toca o solo ou montanhas.",
+                options: [
+                    { text: "São sinônimos exatos, não há diferença.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Tall: Pessoas/Prédios. High: Montanhas/Coisas no céu.", isCorrect: true, rationale: "Correto! Tall = seres vivos/prédios. High = relevo, drones, aviões." },
+                    { text: "Tall: Comprimento. High: Peso.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Tall: Montanhas. High: Pessoas.", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ is this suitcase?' (Quão pesada)",
+                topic: "How Combinations",
+                hint: "DICA 1: Peso bruto.",
+                hint_2: "DICA 2: Oposto de light.",
+                options: [
+                    { text: "How tall", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How weight", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How heavy", isCorrect: true, rationale: "Correto! 'How heavy' questiona o peso físico de algo." },
+                    { text: "How deep", isCorrect: false, rationale: "Incorreto." }
+                ]
+            },
+            {
+                type: 'mcq',
+                question: "Complete: '____ is the swimming pool?' (Qual a profundidade)",
+                topic: "How Combinations",
+                hint: "DICA 1: Buracos, oceanos, piscinas.",
+                hint_2: "DICA 2: Oposto de shallow.",
+                options: [
+                    { text: "How high", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How water", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How much", isCorrect: false, rationale: "Incorreto." },
+                    { text: "How deep", isCorrect: true, rationale: "Correto! 'How deep' refere-se à profundidade de rios, piscinas, sentimentos." }
+                ]
+            },
+
+            // --- TRUE / FALSE (15 Questões) ---
+            {
+                type: 'tf',
+                question: "Usamos 'Who' quando queremos perguntar sobre o lugar de origem de alguém.",
+                topic: "Who",
+                hint: "DICA 1: Who significa quem.",
+                hint_2: "DICA 2: Lugar de origem é Where.",
+                options: [
+                    { text: "Verdadeiro", isCorrect: false, rationale: "Incorreto. Para lugar, usamos Where." },
+                    { text: "Falso", isCorrect: true, rationale: "Correto! Who é usado exclusivamente para pessoas (Quem), e não lugares." }
+                ],
+                answer: false
+            },
+            {
+                type: 'tf',
+                question: "O pronome 'Whose' é frequentemente seguido imediatamente pelo objeto de posse, ex: 'Whose car'.",
+                topic: "Whose",
+                hint: "DICA 1: Pense em 'De quem é o carro'.",
+                hint_2: "DICA 2: Liga o dono diretamente ao objeto.",
+                options: [
+                    { text: "Verdadeiro", isCorrect: true, rationale: "Correto! Na estrutura inglesa, o objeto geralmente vem logo após a palavra Whose." },
+                    { text: "Falso", isCorrect: false, rationale: "Incorreto." }
+                ],
+                answer: true
+            },
+            {
+                type: 'tf',
+                question: "No inglês informal, a preposição pode ir para o final da frase em perguntas com Where. Ex: 'Where are you from?'",
+                topic: "Where",
+                hint: "DICA 1: Isso é muito comum na fala do dia a dia.",
+                hint_2: "DICA 2: Regra da preposição isolada (dangling preposition).",
+                options: [
+                    { text: "Falso", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Verdadeiro", isCorrect: true, rationale: "Correto! Essa é uma estrutura muito natural e comum no inglês." }
+                ],
+                answer: true
+            },
+            {
+                type: 'tf',
+                question: "A palavra 'When' nunca pode ser usada como uma conjunção no meio da frase, apenas no início como pergunta.",
+                topic: "When",
+                hint: "DICA 1: Pense na frase: 'I smiled when I saw her'.",
+                hint_2: "DICA 2: Conecta duas ideias simultâneas.",
+                options: [
+                    { text: "Falso", isCorrect: true, rationale: "Correto! When também funciona perfeitamente como conjunção (ex: I smiled when I saw her)." },
+                    { text: "Verdadeiro", isCorrect: false, rationale: "Incorreto." }
+                ],
+                answer: false
+            },
+            {
+                type: 'tf',
+                question: "A resposta clássica e correta para uma pergunta que começa com 'Why' inicia com 'Because'.",
+                topic: "Why",
+                hint: "DICA 1: É a famosa 'dupla dinâmica' do inglês.",
+                hint_2: "DICA 2: Um pergunta, outro responde.",
+                options: [
+                    { text: "Falso", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Verdadeiro", isCorrect: true, rationale: "Correto! É a regra básica: Why pergunta o motivo, Because explica o motivo." }
+                ],
+                answer: true
+            },
+            {
+                type: 'tf',
+                question: "O pronome 'What' é usado quando há um número extremamente limitado e específico de opções na mesa.",
+                topic: "What vs Which",
+                hint: "DICA 1: Pense num cardápio com 3 sabores de sorvete.",
+                hint_2: "DICA 2: Se é limitado, a escolha é outra palavra.",
+                options: [
+                    { text: "Verdadeiro", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Falso", isCorrect: true, rationale: "Correto! What é para um universo infinito de possibilidades. Quando as opções são limitadas, usamos Which." }
+                ],
+                answer: false
+            },
+            {
+                type: 'tf',
+                question: "Apesar de não começar com a letra 'W', a palavra 'How' pertence oficialmente à família dos 'Wh- words'.",
+                topic: "How",
+                hint: "DICA 1: Ela tem a mesma função gramatical.",
+                hint_2: "DICA 2: Mesma origem linguística (etimologia).",
+                options: [
+                    { text: "Falso", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Verdadeiro", isCorrect: true, rationale: "Correto! Pertence ao grupo por partilhar função sintática e história em comum com os demais." }
+                ],
+                answer: true
+            },
+            {
+                type: 'tf',
+                question: "A palavra geral 'Time' (Tempo) é considerada incontável em inglês, logo devemos usar 'How much time'.",
+                topic: "How Much",
+                hint: "DICA 1: Ninguém diz 'eu tenho 3 tempos'.",
+                hint_2: "DICA 2: Minutos são contáveis, o tempo não.",
+                options: [
+                    { text: "Verdadeiro", isCorrect: true, rationale: "Correto! O conceito de tempo é abstrato e incontável, exigindo How Much." },
+                    { text: "Falso", isCorrect: false, rationale: "Incorreto." }
+                ],
+                answer: true
+            },
+            {
+                type: 'tf',
+                question: "'How many money do you have?' é uma pergunta gramaticalmente correta no inglês nativo.",
+                topic: "How Many",
+                hint: "DICA 1: Dinheiro (money) como conceito não se conta em números (1 dinheiro, 2 dinheiros).",
+                hint_2: "DICA 2: Conta-se os dólares ou reais.",
+                options: [
+                    { text: "Verdadeiro", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Falso", isCorrect: true, rationale: "Correto! 'Money' é incontável, portanto o correto é usar 'How much money'." }
+                ],
+                answer: false
+            },
+            {
+                type: 'tf',
+                question: "'How far' é utilizado exclusivamente para verificar o tempo exato de duração de um voo.",
+                topic: "How Combinations",
+                hint: "DICA 1: Far significa longe.",
+                hint_2: "DICA 2: Duração de voo se mede com How long.",
+                options: [
+                    { text: "Falso", isCorrect: true, rationale: "Correto! 'How far' pergunta sobre a distância física (quão longe em km/milhas), e não sobre tempo de duração." },
+                    { text: "Verdadeiro", isCorrect: false, rationale: "Incorreto." }
+                ],
+                answer: false
+            },
+            {
+                type: 'tf',
+                question: "'How often' serve perfeitamente para verificar a frequência com que um evento ou hábito ocorre (ex: ir à academia).",
+                topic: "How Combinations",
+                hint: "DICA 1: Pense na palavra frequência.",
+                hint_2: "DICA 2: How often = com que frequência.",
+                options: [
+                    { text: "Falso", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Verdadeiro", isCorrect: true, rationale: "Correto! Ex: 'How often do you go to the gym?' descobre a rotina." }
+                ],
+                answer: true
+            },
+            {
+                type: 'tf',
+                question: "Ao perguntar sobre a altura de um acidente geográfico (como a montanha Everest), a gramática exige 'How tall'.",
+                topic: "How Combinations",
+                hint: "DICA 1: Tall é pra quem cresce a partir do chão em formato estreito (pessoas, árvores).",
+                hint_2: "DICA 2: Montanhas são largas e geológicas.",
+                options: [
+                    { text: "Verdadeiro", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Falso", isCorrect: true, rationale: "Correto! Para acidentes geográficos (montanhas) e objetos altos no céu, usa-se 'How high'." }
+                ],
+                answer: false
+            },
+            {
+                type: 'tf',
+                question: "O pronome interrogativo 'Which' provém da antiga palavra inglesa 'hwilc'.",
+                topic: "Which",
+                hint: "DICA 1: É uma curiosidade etimológica abordada na nossa apostila.",
+                hint_2: "DICA 2: Significava algo como 'de que forma'.",
+                options: [
+                    { text: "Verdadeiro", isCorrect: true, rationale: "Correto! Uma curiosidade histórica sobre a evolução da palavra." },
+                    { text: "Falso", isCorrect: false, rationale: "Incorreto." }
+                ],
+                answer: true
+            },
+            {
+                type: 'tf',
+                question: "'How old' só pode ser usado para seres humanos, nunca sendo aplicado para descrever a idade de prédios ou objetos antigos.",
+                topic: "How Combinations",
+                hint: "DICA 1: Idade se aplica a coisas na língua inglesa.",
+                hint_2: "DICA 2: Pense em 'How old is this building?'.",
+                options: [
+                    { text: "Verdadeiro", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Falso", isCorrect: true, rationale: "Correto! Pode ser aplicado livremente a prédios, construções, animais e objetos." }
+                ],
+                answer: false
+            },
+            {
+                type: 'tf',
+                question: "'How deep' pode ser usado de maneira metafórica na literatura e na música para referir-se à intensidade de um sentimento.",
+                topic: "How Combinations",
+                hint: "DICA 1: Lembre-se da música 'How deep is your love'.",
+                hint_2: "DICA 2: Quão profunda é a amizade.",
+                options: [
+                    { text: "Falso", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Verdadeiro", isCorrect: true, rationale: "Correto! Ex: 'How deep is their friendship?' é um uso figurado perfeito da estrutura." }
+                ],
+                answer: true
+            },
+
+            // --- DRAG AND DROP (10 Questões) ---
+            {
+                type: 'drag-drop',
+                question: "____ has finished the homework? (Quem)",
+                topic: "Who",
+                hint: "DICA 1: É uma pessoa.",
+                hint_2: "DICA 2: Funciona como sujeito.",
+                options: ["Where", "Who", "Why", "When"],
+                answer: "Who",
+                rationale: "Correto! Quem terminou a lição de casa."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ keys had you found before I called? (De quem)",
+                topic: "Whose",
+                hint: "DICA 1: O foco é na posse.",
+                hint_2: "DICA 2: Pertence a alguém.",
+                options: ["What", "Whose", "How", "Who"],
+                answer: "Whose",
+                rationale: "Correto! De quem eram as chaves."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ will the party take place? (Onde)",
+                topic: "Where",
+                hint: "DICA 1: É uma localização.",
+                hint_2: "DICA 2: Local fixo.",
+                options: ["Why", "Where", "Which", "When"],
+                answer: "Where",
+                rationale: "Correto! Localização pede Where."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ does the train leave? (Quando)",
+                topic: "When",
+                hint: "DICA 1: Foca no cronograma.",
+                hint_2: "DICA 2: Partida do trem.",
+                options: ["Where", "What", "When", "Who"],
+                answer: "When",
+                rationale: "Correto! Quando o trem parte."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ do you like this song? (Por que)",
+                topic: "Why",
+                hint: "DICA 1: Razão ou motivo.",
+                hint_2: "DICA 2: Espera 'Because' na resposta.",
+                options: ["How", "Which", "Why", "When"],
+                answer: "Why",
+                rationale: "Correto! Qual o motivo de gostar da música."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ team is winning the match right now? (Qual - dentro das opções da liga)",
+                topic: "Which",
+                hint: "DICA 1: Quantidade limitada de times.",
+                hint_2: "DICA 2: É o pronome usado para seleção.",
+                options: ["Who", "Which", "What", "Why"],
+                answer: "Which",
+                rationale: "Correto! 'Which' seleciona dentre as opções existentes."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ water should I drink daily? (Quanta água - incontável)",
+                topic: "How Much",
+                hint: "DICA 1: Água é um líquido incontável.",
+                hint_2: "DICA 2: Foco em massa/fluido.",
+                options: ["How many", "How far", "How much", "How long"],
+                answer: "How much",
+                rationale: "Correto! How much é usado sempre com substantivos incontáveis (no singular)."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ cars are in the garage? (Quantos carros - plural)",
+                topic: "How Many",
+                hint: "DICA 1: Substantivo contável.",
+                hint_2: "DICA 2: A palavra 'carros' está no plural.",
+                options: ["How much", "How often", "How many", "How old"],
+                answer: "How many",
+                rationale: "Correto! How many é usado com substantivos contáveis no plural."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ is the nearest hospital? (Qual distância)",
+                topic: "How Combinations",
+                hint: "DICA 1: Refere-se a Quilômetros ou milhas.",
+                hint_2: "DICA 2: Mede distância física.",
+                options: ["How long", "How far", "How fast", "How deep"],
+                answer: "How far",
+                rationale: "Correto! Distância física = How far."
+            },
+            {
+                type: 'drag-drop',
+                question: "____ have you managed to do all this alone? (Como)",
+                topic: "How",
+                hint: "DICA 1: Método ou maneira de executar algo.",
+                hint_2: "DICA 2: O único question word sem o 'W' inicial.",
+                options: ["When", "Where", "How", "Why"],
+                answer: "How",
+                rationale: "Correto! O modo, método ou maneira pede o uso de How."
+            },
+
+            // --- FILL IN (10 Questões) ---
+            {
+                type: 'fill-in',
+                question: "Complete com o pronome interrogativo (3 letras): ___ was talking to you when I arrived? (Quem)",
+                topic: "Who",
+                hint: "DICA 1: Pergunta sobre sujeito humano.",
+                hint_2: "DICA 2: Inicia com W.",
+                answer: ["who", "Who", "WHO"],
+                rationale: "Correto! Who was talking to you."
+            },
+            {
+                type: 'fill-in',
+                question: "Complete a palavra da 'dupla dinâmica': Use _____ para responder explicações iniciadas com Why.",
+                topic: "Why / Because",
+                hint: "DICA 1: Significa 'Porque' de resposta.",
+                hint_2: "DICA 2: Tem 7 letras.",
+                answer: ["because", "Because", "BECAUSE"],
+                rationale: "Correto! Pergunte sempre com Why e responda com Because."
+            },
+            {
+                type: 'fill-in',
+                question: "Complete a expressão universal (duas palavras): ____ ____ is this shirt? (Quanto custa)",
+                topic: "How Much",
+                hint: "DICA 1: Preço/dinheiro é incontável no conceito.",
+                hint_2: "DICA 2: Combinação iniciada por H e terminada por H.",
+                answer: ["how much", "How much", "How Much", "HOW MUCH"],
+                rationale: "Correto! How much serve como a expressão padrão para perguntar preços."
+            },
+            {
+                type: 'fill-in',
+                question: "Complete o pronome (5 letras): ____ color do you prefer, red or blue? (Opção limitante na mesa)",
+                topic: "Which",
+                hint: "DICA 1: Há alternativas pré-definidas na frase.",
+                hint_2: "DICA 2: Começa com W.",
+                answer: ["which", "Which", "WHICH"],
+                rationale: "Correto! Opção limitante requer sempre o uso do Which."
+            },
+            {
+                type: 'fill-in',
+                question: "Complete a palavra dupla: ____ ____ brothers do you have? (Quantos)",
+                topic: "How Many",
+                hint: "DICA 1: Brothers (irmãos) é um item contável.",
+                hint_2: "DICA 2: Termina em Y.",
+                answer: ["how many", "How many", "How Many", "HOW MANY"],
+                rationale: "Correto! Utilizamos How many para todos os substantivos contáveis no plural."
+            },
+            {
+                type: 'fill-in',
+                question: "Qual pronome (4 letras) usamos para um universo infinito de opções ou objetos abstratos (O que / Qual)?",
+                topic: "What",
+                hint: "DICA 1: É o verdadeiro coringa das perguntas.",
+                hint_2: "DICA 2: Termina com a letra T.",
+                answer: ["what", "What", "WHAT"],
+                rationale: "Correto! What é usado livremente para opções ilimitadas e infinitas."
+            },
+            {
+                type: 'fill-in',
+                question: "Complete a combinação (duas palavras) para 'Quanto tempo leva o voo?': ____ ____ does the flight take?",
+                topic: "How Combinations",
+                hint: "DICA 1: Pede um período de duração de tempo.",
+                hint_2: "DICA 2: A segunda palavra é o oposto de short (curto).",
+                answer: ["how long", "How long", "How Long", "HOW LONG"],
+                rationale: "Correto! A expressão How long serve tanto para duração de tempo quanto para comprimento."
+            },
+            {
+                type: 'fill-in',
+                question: "Complete a combinação para 'Qual a velocidade da luz?': ____ ____ does light travel?",
+                topic: "How Combinations",
+                hint: "DICA 1: Foca no ritmo / velocidade.",
+                hint_2: "DICA 2: A segunda palavra é o oposto de slow (devagar).",
+                answer: ["how fast", "How fast", "How Fast", "HOW FAST"],
+                rationale: "Correto! Usamos How fast para medir velocidade exata."
+            },
+            {
+                type: 'fill-in',
+                question: "Se o foco é uma PESSOA (crescendo do chão), qual palavra usar com How para perguntar a altura: How ____?",
+                topic: "How Combinations",
+                hint: "DICA 1: Começa com T.",
+                hint_2: "DICA 2: Tem 4 letras.",
+                answer: ["tall", "Tall", "TALL"],
+                rationale: "Correto! Para pessoas, animais e prédios retos, usamos How tall."
+            },
+            {
+                type: 'fill-in',
+                question: "Atenção à contração: A junção exata de 'Who is' ou 'Who has' na escrita fica: _____'s.",
+                topic: "Who's",
+                hint: "DICA 1: Não confunda com o pronome de posse (Whose).",
+                hint_2: "DICA 2: Tem 3 letras antes do apóstrofo.",
+                answer: ["who", "Who", "WHO"],
+                rationale: "Correto! O pronome mais o verbo to be vira Who's."
+            }
+        ],
+
+            init() {
+                this.elements = {
+                    studentCodeInput: document.getElementById('student-code'),
+                    introCard: document.getElementById('intro-card'),
+                    quizCard: document.getElementById('quiz-card'),
+                    resultsCard: document.getElementById('results-card'),
+                    topicSummary: document.getElementById('topic-summary'),
+                    questionText: document.getElementById('question-text'),
+                    optionsList: document.getElementById('options-list'),
+                    interactiveContainer: document.getElementById('interactive-container'),
+                    nextButton: document.getElementById('next-button'),
+                    skipButton: document.getElementById('skip-button'),
+                    hintButton: document.getElementById('hint-button'),
+                    hintText: document.getElementById('hint-text'),
+                    justificationText: document.getElementById('justification-text'),
+                    currentQuestionNumSpan: document.getElementById('current-question-num'),
+                    totalQuestionsSpan: document.getElementById('total-questions'),
+                    scoreDisplay: document.getElementById('score-display'),
+                    totalScoreDisplay: document.getElementById('total-score'),
+                    percentageDisplay: document.getElementById('percentage-display'),
+                    reportStudentName: document.getElementById('report-student-name'),
+                    reportStudentCode: document.getElementById('report-student-code'),
+                    incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                    progressCorrect: document.getElementById('progress-correct'),
+                    progressIncorrect: document.getElementById('progress-incorrect')
+                };
+                this.elements.totalQuestionsSpan.textContent = this.questions.length;
+                this.elements.totalScoreDisplay.textContent = this.questions.length;
+            },
+
+            jumpToReport() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    const savedData = localStorage.getItem('masterclass_report_' + code);
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.validatedStudentCode = code;
+                        this.validatedStudentName = this.studentData[code];
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        this.elements.introCard.style.display = 'none';
+                        this.showResults();
+                    } else {
+                        alert('Nenhum relatório final salvo encontrado para este código. Por favor, inicie o quiz.');
+                    }
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            updateProgress() {
+                const total = this.questions.length;
+                const correctPerc = (this.score / total) * 100;
+                const incorrectPerc = (this.incorrectAnswers.length / total) * 100;
+                this.elements.progressCorrect.style.width = `${correctPerc}%`;
+                this.elements.progressIncorrect.style.width = `${incorrectPerc}%`;
+            },
+
+            saveProgress() {
+                localStorage.setItem('masterclass_progress_' + this.validatedStudentCode, JSON.stringify({
+                    currentIndex: this.currentQuestionIndex,
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+            },
+
+            clearProgress() {
+                localStorage.removeItem('masterclass_progress_' + this.validatedStudentCode);
+            },
+
+            startQuiz() {
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.validatedStudentCode = code;
+                    this.validatedStudentName = this.studentData[code];
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+
+                    const savedProgress = localStorage.getItem('masterclass_progress_' + code);
+                    if (savedProgress) {
+                        const data = JSON.parse(savedProgress);
+                        this.currentQuestionIndex = data.currentIndex;
+                        this.score = data.score;
+                        this.incorrectAnswers = data.incorrectAnswers;
+                        
+                        if(this.currentQuestionIndex >= this.questions.length) {
+                            this.currentQuestionIndex = 0;
+                            this.score = 0;
+                            this.incorrectAnswers = [];
+                        }
+                    } else {
+                        this.currentQuestionIndex = 0;
+                        this.score = 0;
+                        this.incorrectAnswers = [];
+                    }
+
+                    this.loadQuestion();
+                    this.updateProgress();
+                } else {
+                    alert('Código de acesso inválido! Tente novamente.');
+                }
+            },
+
+            loadQuestion() {
+                this.hintClicks = 0;
+                this.elements.hintText.style.display = 'none';
+                this.elements.justificationText.style.display = 'none';
+                this.elements.nextButton.style.display = 'none';
+                this.elements.skipButton.style.display = 'inline-block';
+                this.elements.optionsList.innerHTML = '';
+                this.elements.interactiveContainer.innerHTML = '';
+                this.elements.interactiveContainer.style.display = 'none';
+
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.elements.currentQuestionNumSpan.textContent = this.currentQuestionIndex + 1;
+                
+                // Show Topic Summary
+                if(TOPIC_SUMMARIES[currentQ.topic]) {
+                    this.elements.topicSummary.style.display = 'block';
+                    this.elements.topicSummary.innerHTML = `<strong>Tópico: ${currentQ.topic}</strong><br>${TOPIC_SUMMARIES[currentQ.topic]}`;
+                } else {
+                    this.elements.topicSummary.style.display = 'none';
+                }
+
+                this.elements.questionText.textContent = currentQ.question;
+                
+                // Reset Hint text logic
+                this.elements.hintText.innerHTML = ""; 
+
+                // Process Question Types
+                if (currentQ.type === 'mcq' || currentQ.type === 'tf') {
+                    currentQ.options.forEach((opt) => {
+                        const li = document.createElement('li');
+                        li.className = 'option-item';
+                        li.textContent = opt.text;
+                        li.onclick = () => this.handleSelection(opt.isCorrect, opt.text, currentQ.question, opt.rationale, li);
+                        this.elements.optionsList.appendChild(li);
+                    });
+                } else if (currentQ.type === 'drag-drop') {
+                    this.elements.interactiveContainer.style.display = 'flex';
+                    
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone';
+                    dropZone.id = 'drop-zone';
+                    dropZone.textContent = "Arraste ou Clique para responder";
+                    
+                    const optionsContainer = document.createElement('div');
+                    optionsContainer.className = 'drag-options';
+
+                    // Logic for drop zone
+                    dropZone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        dropZone.classList.add('dragover');
+                    });
+                    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+                    dropZone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        dropZone.classList.remove('dragover');
+                        const data = e.dataTransfer.getData('text/plain');
+                        this.processDragDropAnswer(data, dropZone, currentQ);
+                    });
+
+                    currentQ.options.forEach(optText => {
+                        const dragItem = document.createElement('div');
+                        dragItem.className = 'drag-item';
+                        dragItem.textContent = optText;
+                        dragItem.draggable = true;
+                        
+                        dragItem.addEventListener('dragstart', (e) => {
+                            e.dataTransfer.setData('text/plain', optText);
+                        });
+
+                        // Clicar para preencher
+                        dragItem.addEventListener('click', () => {
+                            this.processDragDropAnswer(optText, dropZone, currentQ);
+                        });
+
+                        optionsContainer.appendChild(dragItem);
+                    });
+
+                    this.elements.interactiveContainer.appendChild(dropZone);
+                    this.elements.interactiveContainer.appendChild(optionsContainer);
+
+                } else if (currentQ.type === 'fill-in') {
+                    this.elements.interactiveContainer.style.display = 'flex';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'fill-in-input';
+                    input.placeholder = 'Digite a palavra...';
+                    
+                    const btn = document.createElement('button');
+                    btn.className = 'submit-btn';
+                    btn.textContent = 'Confirmar';
+                    btn.onclick = () => {
+                        const val = input.value.trim().toLowerCase();
+                        if(val === "") return;
+                        input.disabled = true;
+                        btn.style.display = 'none';
+                        const isCorrect = currentQ.answer.includes(val);
+                        this.handleSelection(isCorrect, val, currentQ.question, currentQ.rationale, null);
+                    };
+
+                    this.elements.interactiveContainer.appendChild(input);
+                    this.elements.interactiveContainer.appendChild(btn);
+                }
+            },
+
+            processDragDropAnswer(userText, dropZone, currentQ) {
+                if(dropZone.getAttribute('data-answered') === 'true') return;
+                dropZone.setAttribute('data-answered', 'true');
+                dropZone.textContent = userText;
+                
+                const isCorrect = (userText === currentQ.answer);
+                if(isCorrect) {
+                    dropZone.style.backgroundColor = 'lightgreen';
+                    dropZone.style.color = '#000';
+                } else {
+                    dropZone.style.backgroundColor = 'salmon';
+                    dropZone.style.color = '#fff';
+                }
+
+                // Desabilitar itens para não clicar de novo
+                const items = this.elements.interactiveContainer.querySelectorAll('.drag-item');
+                items.forEach(i => { i.style.pointerEvents = 'none'; i.style.opacity = '0.6'; });
+
+                this.handleSelection(isCorrect, userText, currentQ.question, currentQ.rationale, null);
+            },
+
+            handleSelection(isCorrect, userText, questionText, rationale, htmlElement) {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                
+                // Block other options in MCQ/TF
+                if(htmlElement) {
+                    const allOptions = this.elements.optionsList.querySelectorAll('.option-item');
+                    allOptions.forEach(opt => opt.style.pointerEvents = 'none');
+                }
+
+                this.elements.skipButton.style.display = 'none';
+                this.elements.nextButton.style.display = 'inline-block';
+                
+                this.elements.justificationText.style.display = 'block';
+                this.elements.justificationText.innerHTML = `<strong>Justificativa:</strong> ${rationale}`;
+
+                if (isCorrect) {
+                    if(htmlElement) htmlElement.classList.add('correct');
+                    this.score++;
+                } else {
+                    if(htmlElement) {
+                        htmlElement.classList.add('incorrect');
+                        // Show correct option
+                        const allOptions = this.elements.optionsList.querySelectorAll('.option-item');
+                        allOptions.forEach(opt => {
+                            if(currentQ.options && currentQ.options.find(o => o.text === opt.textContent && o.isCorrect)) {
+                                opt.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    // Determinar a resposta correta para o relatório
+                    let correctAnswerText = "Ver Justificativa";
+                    if(currentQ.type === 'mcq' || currentQ.type === 'tf') {
+                        const correctOpt = currentQ.options.find(o => o.isCorrect);
+                        if(correctOpt) correctAnswerText = correctOpt.text;
+                    } else if (currentQ.type === 'drag-drop') {
+                        correctAnswerText = currentQ.answer;
+                    } else if (currentQ.type === 'fill-in') {
+                        correctAnswerText = currentQ.answer.join(" ou ");
+                    }
+
+                    this.incorrectAnswers.push({
+                        q: questionText,
+                        userAnswer: userText,
+                        correctAnswer: correctAnswerText,
+                        justification: rationale
+                    });
+                }
+                
+                this.updateProgress();
+            },
+
+            showHint() {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                this.elements.hintText.style.display = 'block';
+                
+                if(this.hintClicks === 0) {
+                    this.elements.hintText.innerHTML = currentQ.hint;
+                    this.hintClicks++;
+                } else if(this.hintClicks === 1 && currentQ.hint_2) {
+                    this.elements.hintText.innerHTML += `<br><br>${currentQ.hint_2}`;
+                    this.hintClicks++;
+                }
+            },
+
+            skipQuestion() {
+                const currentQ = this.questions[this.currentQuestionIndex];
+                
+                let correctAnswerText = "Ver Justificativa";
+                let rationaleText = currentQ.rationale || "";
+
+                if(currentQ.type === 'mcq' || currentQ.type === 'tf') {
+                    const correctOpt = currentQ.options.find(o => o.isCorrect);
+                    if(correctOpt) {
+                        correctAnswerText = correctOpt.text;
+                        rationaleText = correctOpt.rationale;
+                    }
+                } else if (currentQ.type === 'drag-drop') {
+                    correctAnswerText = currentQ.answer;
+                } else if (currentQ.type === 'fill-in') {
+                    correctAnswerText = currentQ.answer.join(" ou ");
+                }
+
+                this.incorrectAnswers.push({
+                    q: currentQ.question,
+                    userAnswer: "Pulou a questão",
+                    correctAnswer: correctAnswerText,
+                    justification: rationaleText
+                });
+                
+                this.updateProgress();
+                this.nextQuestion();
+            },
+
+            nextQuestion() {
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.saveProgress();
+                    this.loadQuestion();
+                } else {
+                    this.clearProgress();
+                    this.showResults();
+                }
+            },
+
+            showResults() {
+                localStorage.setItem('masterclass_report_' + this.validatedStudentCode, JSON.stringify({
+                    score: this.score,
+                    incorrectAnswers: this.incorrectAnswers
+                }));
+
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = this.score;
+                
+                const percentage = ((this.score / this.questions.length) * 100).toFixed(1);
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.incorrectQuestionsContainer.innerHTML = '<h3>Questões Incorretas / Puladas:</h3>';
+                if (this.incorrectAnswers.length === 0) {
+                    this.elements.incorrectQuestionsContainer.innerHTML += '<p>Parabéns! Você não errou nenhuma questão.</p>';
+                } else {
+                    this.incorrectAnswers.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'incorrect-question-item';
+                        div.innerHTML = `
+                            <p><strong>Questão:</strong> ${item.q}</p>
+                            <p><strong>Sua Resposta:</strong> <span style="color: salmon;">${item.userAnswer}</span></p>
+                            <p><strong>Resposta Correta:</strong> <span style="color: #2e8b57;">${item.correctAnswer}</span></p>
+                            <p style="margin-top: 10px; font-size: 0.9em; background: #fff; padding: 10px; border-left: 4px solid lightgreen;"> 
+                                ${item.justification}
+                            </p>
+                        `;
+                        this.elements.incorrectQuestionsContainer.appendChild(div);
+                    });
+                }
+            },
+
+            restartQuiz() {
+                this.clearProgress();
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.incorrectAnswers = [];
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                
+                if(this.elements.progressCorrect) this.elements.progressCorrect.style.width = '0%';
+                if(this.elements.progressIncorrect) this.elements.progressIncorrect.style.width = '0%';
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+    </script>
+</body>
+</html>
