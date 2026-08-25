@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVISÃO - PASSADO SIMPLES DO TO BE!!!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #dc3545; /* Alterado para vermelho */
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #d1e7dd;
+        }
+
+        .option-item.correct {
+            background-color: #28a745;
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+        }
+
+        .option-item.incorrect {
+            background-color: #dc3545;
+            color: white;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #007bff;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feedback.correct-text {
+            color: #28a745;
+        }
+
+        .feedback.incorrect-text {
+            color: #dc3545;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+        }
+
+        .skip-btn {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .hint-btn {
+            background-color: #6a0dad; /* Cor roxa para o botão Dica */
+            display: inline-block;
+            float: none;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid #6c757d;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap; /* Permite que os itens quebrem linha */
+        }
+        
+        .start-btn, .restart-btn, .send-report-btn, .print-btn, .share-btn, .save-report-btn, .continue-btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            animation: pulse 2s infinite;
+        }
+
+        .restart-btn {
+            background-color: #dc3545;
+        }
+
+        .send-report-btn {
+            background-color: #6c757d;
+        }
+
+        .print-btn {
+            background-color: #007bff;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            background-color: #25d366;
+        }
+
+        .share-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        .save-report-btn {
+            background-color: #007bff;
+        }
+
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .full-report-list {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ccc;
+        }
+
+        .incorrect-questions-list h3, .full-report-list h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .full-report-list h3 {
+            color: #007bff;
+        }
+
+        .incorrect-question-item, .report-question-item {
+            background-color: #fff3f3;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .report-question-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+
+        .incorrect-question-item p, .report-question-item p {
+            margin: 5px 0;
+        }
+
+        .incorrect-question-item p strong, .report-question-item p strong {
+            color: #333;
+        }
+
+        .incorrect-question-item .justification, .report-question-item .justification {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+
+        .report-question-item .option-item-report {
+            background-color: #e9ecef;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+
+        .report-question-item .option-item-report.correct {
+            background-color: #d4edda;
+        }
+
+        .report-question-item .option-item-report.incorrect {
+            background-color: #f8d7da;
+        }
+
+        .classification-red {
+            color: red;
+        }
+
+        .classification-blue {
+            color: #007bff;
+        }
+
+        .classification-orange {
+            color: #FFA500;
+            font-weight: bold;
+            animation: blink-text 1s linear infinite;
+        }
+
+        .performance-btn {
+            background-color: #FFA500; /* Laranja */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            margin-left: 0; /* Ajustado para alinhar corretamente com flexbox */
+            margin-right: auto; /* Empurra os outros botões para a direita */
+        }
+
+        .performance-display {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #856404;
+            text-align: left;
+        }
+
+        @keyframes blink-text {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Estilos específicos para impressão */
+        @media print {
+            body {
+                background-color: #fff;
+                padding-top: 0;
+                display: block;
+            }
+
+            .container {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                max-width: none;
+                min-height: auto;
+            }
+
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter {
+                display: none !important;
+            }
+
+            #results-card {
+                display: block !important;
+            }
+
+            .incorrect-questions-list, .full-report-list {
+                display: block !important;
+                border-top: 1px solid #ccc;
+                padding-top: 10px;
+            }
+
+            .incorrect-question-item, .report-question-item {
+                margin-bottom: 10px;
+                border: 1px solid #ddd;
+                background-color: #f9f9f9;
+            }
+
+            .report-question-item .justification {
+                display: block !important;
+                padding: 10px;
+                margin-top: 5px;
+                border-left: 3px solid #eee;
+                background-color: #eee;
+                font-size: 0.9em;
+            }
+
+            .report-question-item .option-item-report {
+                margin: 3px 0;
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>English Grammar Quiz</h1>
+            <h2>REVISÃO PASSADO SIMPLES - TO BE (WAS/WERE)</h2>
+            <p id="personalized-welcome" style="font-size: 1.2rem; font-weight: bold; margin-top: 10px; display: none;">Seja bem-vindo(a) e boa sorte!</p>
+            <p id="quiz-description">Por favor, insira seu código de acesso para iniciar o teste. Ele tem 30 questões. Você tem tentativas <span id="intro-attempts-left">ilimitadas</span> para fazer este teste.</p>
+            <input type="text" id="student-code" placeholder="Your Access Code!">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 30</div>
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+                <div id="summary-text" class="hint-text" style="border-left-color: #28a745;"></div>
+            </div>
+            <div class="question-actions">
+                <button id="performance-btn" class="performance-btn">DESEMPENHO</button>
+                <button id="summary-button" class="start-btn" onclick="quizApp.showSummary()" style="background-color: #28a745; display: none;">Resumo</button>
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+                <div id="performance-display" class="performance-display" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório Final</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display"></span></p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            <p><strong>Classificação:</strong> <span id="classification-display"></span></p>
+            <div class="results-actions">
+                <a id="send-report-link" class="send-report-btn" href="#" target="_blank">Enviar Relatório ao Professor</a>
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <a id="share-whatsapp" class="start-btn share-btn" href="#" target="_blank">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"> Compartilhar
+                </a>
+                <button class="start-btn save-report-btn" onclick="quizApp.saveReport()">Salvar Relatório</button>
+                <button class="start-btn print-btn" onclick="quizApp.printReport()">Imprimir Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+            <div id="full-report-container" class="full-report-list" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        const quizApp = {
+            // SUBSTITUA A URL ABAIXO PELA URL DO SEU PRÓPRIO GOOGLE SCRIPT.
+            APP_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwtDAlCCBcc3cN3pHX5YTvCZBsYTH--UJbeaczv64av_vIkybVIaEs-nTLKM2ssHND2/exec',
+            
+            currentQuestionIndex: 0,
+            score: 0,
+            userAnswers: {},
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            totalAttempts: "Ilimitadas",
+            skippedQuestions: [], 
+            currentSkippedIndex: 0, 
+            
+            // Elementos DOM
+            elements: {
+                studentCodeInput: document.getElementById('student-code'),
+                introCard: document.getElementById('intro-card'),
+                quizCard: document.getElementById('quiz-card'),
+                resultsCard: document.getElementById('results-card'),
+                questionText: document.getElementById('question-text'),
+                optionsList: document.getElementById('options-list'),
+                nextButton: document.getElementById('next-button'),
+                skipButton: document.getElementById('skip-button'), 
+                hintButton: document.getElementById('hint-button'),
+                hintText: document.getElementById('hint-text'),
+                attemptsLeftSpan: document.getElementById('attempts-left'),
+                currentQuestionNumSpan: document.getElementById('current-question-num'),
+                scoreDisplay: document.getElementById('score-display'),
+                percentageDisplay: document.getElementById('percentage-display'),
+                classificationDisplay: document.getElementById('classification-display'),
+                reportStudentName: document.getElementById('report-student-name'),
+                reportStudentCode: document.getElementById('report-student-code'),
+                sendReportLink: document.getElementById('send-report-link'),
+                introAttemptsLeftSpan: document.getElementById('intro-attempts-left'),
+                incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                fullReportContainer: document.getElementById('full-report-container'),
+                shareWhatsappLink: document.getElementById('share-whatsapp'),
+                personalizedWelcome: document.getElementById('personalized-welcome'),
+                startActionsDiv: document.getElementById('start-actions'),
+                quizDescription: document.getElementById('quiz-description'),
+                summaryButton: document.getElementById('summary-button'),
+                summaryText: document.getElementById('summary-text'),
+                performanceButton: document.getElementById('performance-btn'),
+                performanceDisplay: document.getElementById('performance-display')
+            },
+
+            studentData: {
+                "001AB": "ELMA", "002CD": "VALDINEI", "003EF": "RENATA", "004GH": "GEOVANNA", "005IJ": "LEOZINHO",
+                "006KL": "MARIANA", "007MN": "NICOLAS", "008OP": "YAGO", "009QR": "CAIO", "010ST": "GIH",
+                "011UV": "LUCAS RESENDE", "012WX": "BRUNA", "013YZ": "DIMI", "014AB": "FABRÍCIO", "015CD": "MIGUEL",
+                "016EF": "YAGO", "017GH": "ANDRÉIA", "018IJ": "KAUÃ", "019KL": "PABLO", "020MN": "SURY",
+                "021SP": "SOPHIA", "022QR": "YASMIN", "023ST": "MÁRCIA", "024UV": "RICK", "025WX": "ROSA",
+                "026MA": "MARA", "026YZ": "BRUNA", "027AB": "FERNANDO", "028CD": "ALEX", "029EF": "DÉBORA", 
+                "030GH": "GIOVANNA", "031IJ": "PÂMELA", "032KL": "YASMIN", "033MN": "ADRIANO", "034OP": "ARTHUR", 
+                "035QR": "YASMIN", "036ST": "DAVI", "037UV": "DEREK", "038WX": "PEDRINHO", "039YZ": "DENILSON", 
+                "040AB": "EDSON", "041CD": "ALÍCIA", "042EF": "CAROLINA", "043GH": "ELSON", "044IJ": "LETÍCIA", 
+                "045KL": "DIEGO", "046MN": "GABI", "047OP": "KIM", "048QR": "LANA", "049ST": "MANU", "050UV": "SABRINA",
+                "051WX": "BRUNA", "052YZ": "DIMI", "053AB": "FABRÍCIO", "054CD": "MIGUEL", "055EF": "YAGO",
+                "056GH": "ANDRÉIA", "057IJ": "KAUÃ", "058KL": "PABLO", "059MN": "SURY", "060OP": "TAINÁ",
+                "061QR": "YASMIN", "062ST": "MÁRCIA", "063UV": "RICK", "064WX": "ROSA", "065YZ": "FÁTIMA",
+                "066AB": "LUCA", "067CD": "ALEX", "JR123": "JÚNIOR", "068EF": "DÉBORA", "069GH": "GIOVANNA", "070IJ": "PÂMELA",
+                "071KL": "YASMIN", "072MN": "ADRIANO", "073OP": "ARTHUR", "074QR": "YASMIN", "075ST": "DAVI",
+                "076UV": "DEREK", "077WX": "PEDRINHO", "078YZ": "DENILSON", "079AB": "EDSON", "080CD": "ALÍCIA",
+                "081EF": "CAROLINA", "082GH": "ELSON", "083IJ": "LETÍCIA", "084KL": "DIEGO", "085MN": "GABI",
+                "086OP": "KIM", "087QR": "LANA", "088ST": "MANU", "089UV": "SABRINA", "090WX": "DIMI", "101QR": "ANA CLARA", "102ST": "JOAQUIM",
+                "091YZ": "FABRÍCIO", "092AB": "MIGUEL", "093CD": "YAGO", "094EF": "ANDRÉIA", "095GH": "KAUÃ",
+                "096IJ": "PABLO", "097KL": "SURY", "098MN": "LEILA", "099OP": "YASMIN", "100QR": "MÁRCIA", "101ST": "MONIQUE", "102UV": "AURELIO"
+            },
+            
+            summaries: {
+                "Affirmative Form (I, He, She, It)": "No passado simples, usamos 'was' para os pronomes singulares I, He, She e It. Ex: I was tired.",
+                "Affirmative Form (You, We, They)": "Para os pronomes no plural e para 'You' (você/vocês), a forma correta do verbo To Be no passado é 'were'. Ex: We were happy.",
+                "Negative Form": "Para formar a negativa no passado, adicionamos o 'not' após o verbo. As contrações são 'wasn't' (was not) e 'weren't' (were not).",
+                "Interrogative Form": "Para fazer perguntas no passado com o verbo To Be, nós invertemos a ordem: 'Was' ou 'Were' vem antes do sujeito. Ex: Was she at home?",
+                "Wh-Questions": "Em perguntas com pronomes interrogativos (What, Where, Why, etc.), a 'Wh-word' vem primeiro, seguida pelo 'was/were', e depois o sujeito. Ex: Where were you yesterday?",
+                "Past Time Expressions": "O passado do verbo To Be frequentemente acompanha expressões de tempo passado, como 'yesterday' (ontem), 'last night' (noite passada) ou 'in 1990'.",
+                "Plural Subjects": "Quando o sujeito da frase for composto ou estiver no plural (Ex: 'John and Mary' ou 'The cars'), o pronome equivalente é 'They', logo usamos 'were'."
+            },
+
+// --- INÍCIO DO CÓDIGO DE BALANCEAMENTO DE ALTERNATIVAS ---
+
+            // Função utilitária para embaralhar um array (Algoritmo Fisher-Yates)
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            },
+
+            // Função principal para forçar a distribuição uniforme das respostas corretas
+            balanceCorrectAnswers() {
+                const totalQuestions = this.questions.length;
+                if (totalQuestions === 0) return;
+
+                const numPositions = 4; // A, B, C, D
+                
+                // 1. Embaralha a ordem desejada para as posições [0, 1, 2, 3] entre as questões.
+                let desiredPositions = [];
+                for (let i = 0; i < totalQuestions; i++) {
+                    desiredPositions.push(i % numPositions);
+                }
+                this.shuffleArray(desiredPositions);
+                
+                // 2. Itera sobre cada questão para garantir o rebalanceamento.
+                this.questions.forEach((q, index) => {
+                    // Primeiro, embaralha as opções da questão para que a alternativa correta não
+                    // fique sempre na mesma posição do código original.
+                    this.shuffleArray(q.options);
+                    
+                    // Encontra a opção correta e a posição alvo
+                    const correctOption = q.options.find(opt => opt.isCorrect);
+                    if (!correctOption) return; // Segurança caso não haja resposta correta
+                    
+                    const targetIndex = desiredPositions[index]; // Posição alvo (0, 1, 2 ou 3)
+
+                    // Se a resposta correta já estiver na posição alvo, não faz nada.
+                    if (q.options[targetIndex] === correctOption) {
+                        return;
+                    }
+
+                    // Remove a resposta correta da sua posição atual
+                    const currentIndex = q.options.indexOf(correctOption);
+                    q.options.splice(currentIndex, 1);
+                    
+                    // Insere a resposta correta na posição alvo (forçando o balanceamento)
+                    q.options.splice(targetIndex, 0, correctOption);
+                });
+
+                console.log("Alternativas corretas rebalanceadas.");
+            },
+
+// --- FIM DO CÓDIGO DE BALANCEAMENTO DE ALTERNATIVAS ---
+  "questions": [
+        {
+            "question": "1. I ______ at home yesterday.",
+            "topic": "Affirmative Form (I, He, She, It)",
+            "hint": "O sujeito é 'I' (Eu) e a frase está no passado.",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Para os sujeitos I, He, She e It, usamos 'was' no passado simples." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' é usado para You, We, They." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. 'Am' é a forma do presente, mas a palavra 'yesterday' (ontem) indica passado." },
+                { "text": "be", "isCorrect": false, "rationale": "Incorreto. Precisamos conjugar o verbo no passado (was)." }
+            ]
+        },
+        {
+            "question": "2. You ______ very tired last night.",
+            "topic": "Affirmative Form (You, We, They)",
+            "hint": "O sujeito é 'You' (Você/Vocês).",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! Para o pronome 'You', usamos 'were'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Was' é apenas para I, He, She, It." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. 'Are' é presente, mas a frase fala de 'last night' (noite passada)." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. A frase descreve um estado ('tired' = cansado), o que requer o verbo to be, não o auxiliar 'did'." }
+            ]
+        },
+        {
+            "question": "3. He ______ happy with the result.",
+            "topic": "Affirmative Form (I, He, She, It)",
+            "hint": "O sujeito é 'He' (Ele).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Para 'He', usamos 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' é para o plural e You." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Esta forma é do presente. Estamos praticando o passado." },
+                { "text": "wasn't", "isCorrect": false, "rationale": "Incorreto. A frase é afirmativa no seu sentido base, sem contexto para negação aqui. A opção mais adequada é 'was'." }
+            ]
+        },
+        {
+            "question": "4. We ______ late for school yesterday.",
+            "topic": "Affirmative Form (You, We, They)",
+            "hint": "O sujeito 'We' (Nós) está no plural.",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! Usamos 'were' para pronomes no plural, como 'We'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Was' é para sujeitos no singular (exceto You)." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. 'Yesterday' exige o passado." },
+                { "text": "weren't", "isCorrect": false, "rationale": "Incorreto. Não há indicativo de negativa. 'Were' é a resposta direta esperada." }
+            ]
+        },
+        {
+            "question": "5. ______ she at the party on Saturday?",
+            "topic": "Interrogative Form",
+            "hint": "É uma pergunta com o sujeito 'She'.",
+            "options": [
+                { "text": "Was", "isCorrect": true, "rationale": "Correto! Em perguntas com 'She' no passado, colocamos 'Was' no início da frase." },
+                { "text": "Were", "isCorrect": false, "rationale": "Incorreto. 'Were' não acompanha o pronome 'She'." },
+                { "text": "Did", "isCorrect": false, "rationale": "Incorreto. Para indicar presença/estado no passado (estar na festa), usamos o verbo to be." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. A expressão 'on Saturday' sugere um evento passado." }
+            ]
+        },
+        {
+            "question": "6. Where ______ they last week?",
+            "topic": "Wh-Questions",
+            "hint": "O sujeito é 'they' (eles/elas).",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! Após a Wh-word, usamos 'were' porque o sujeito é 'they'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Was' é singular." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. 'Last week' (semana passada) exige o passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. O verbo principal aqui é ser/estar (to be), não precisa de auxiliar." }
+            ]
+        },
+        {
+            "question": "7. It ______ raining yesterday morning.",
+            "topic": "Affirmative Form (I, He, She, It)",
+            "hint": "Para falar do clima usamos o pronome 'It' (singular).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Com o pronome 'It', usamos 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' é apenas para plural e You." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Yesterday morning' (ontem de manhã) indica passado." },
+                { "text": "does", "isCorrect": false, "rationale": "Incorreto. Esta estrutura (Past Continuous) exige o verbo to be como auxiliar, não 'does'." }
+            ]
+        },
+        {
+            "question": "8. The students ______ ready for the test.",
+            "topic": "Plural Subjects",
+            "hint": "'The students' está no plural (eles = they).",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! Substantivos no plural (students) exigem o verbo 'were'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Was' seria usado para apenas um aluno ('The student')." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Considerando o contexto do teste, estamos focando no passado, mas gramaticalmente 'were' é a opção correta para concordância." },
+                { "text": "wasn't", "isCorrect": false, "rationale": "Incorreto. 'Wasn't' é singular." }
+            ]
+        },
+        {
+            "question": "9. ______ you at the park yesterday?",
+            "topic": "Interrogative Form",
+            "hint": "É uma pergunta direta para 'You'.",
+            "options": [
+                { "text": "Were", "isCorrect": true, "rationale": "Correto! Em perguntas com 'You', invertemos a ordem e começamos com 'Were'." },
+                { "text": "Was", "isCorrect": false, "rationale": "Incorreto. 'Was' nunca acompanha 'You'." },
+                { "text": "Did", "isCorrect": false, "rationale": "Incorreto. Perguntar se alguém 'estava' em um lugar exige o verbo to be." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. 'Yesterday' indica passado." }
+            ]
+        },
+        {
+            "question": "10. I ______ (not) sad, I was just tired.",
+            "topic": "Negative Form",
+            "hint": "Como é a contração negativa do verbo to be no passado para 'I'?",
+            "options": [
+                { "text": "wasn't", "isCorrect": true, "rationale": "Correto! A forma negativa para 'I' no passado é 'was not' ou 'wasn't'." },
+                { "text": "weren't", "isCorrect": false, "rationale": "Incorreto. 'Weren't' é a negativa de 'were'." },
+                { "text": "didn't", "isCorrect": false, "rationale": "Incorreto. Não usamos 'didn't' com adjetivos (sad), precisamos do verbo ser/estar." },
+                { "text": "am not", "isCorrect": false, "rationale": "Incorreto. O resto da frase ('I was just tired') indica que estamos falando no passado." }
+            ]
+        },
+        {
+            "question": "11. Why ______ he crying last night?",
+            "topic": "Wh-Questions",
+            "hint": "A pergunta quer saber a razão de uma ação passada contínua do sujeito 'He'.",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Para o sujeito 'he', o verbo que o acompanha é 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' é para You, We, They." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. Com verbos terminados em -ing (crying), usamos o verbo to be como auxiliar." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Last night' pede passado." }
+            ]
+        },
+        {
+            "question": "12. John and Mary ______ best friends in childhood.",
+            "topic": "Plural Subjects",
+            "hint": "O sujeito é composto por duas pessoas (they).",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! 'John and Mary' equivalem a 'They', logo usamos 'were'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Usaríamos 'was' se fosse apenas John ou apenas Mary." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. A expressão 'in childhood' (na infância) indica passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. O verbo necessário aqui é 'eram', do verbo to be." }
+            ]
+        },
+        {
+            "question": "13. The weather ______ terrible last weekend.",
+            "topic": "Past Time Expressions",
+            "hint": "'The weather' (o clima) é singular (it).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! O clima (it) pede o verbo 'was' no passado." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. O sujeito não é plural." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Last weekend' exige o uso do passado." },
+                { "text": "has", "isCorrect": false, "rationale": "Incorreto. Em inglês o clima 'é/está', não 'tem'." }
+            ]
+        },
+        {
+            "question": "14. They ______ (not) at the beach on Sunday.",
+            "topic": "Negative Form",
+            "hint": "Como formamos a negativa para 'They'?",
+            "options": [
+                { "text": "weren't", "isCorrect": true, "rationale": "Correto! 'weren't' é a contração de 'were not', exigida pelo pronome 'They'." },
+                { "text": "wasn't", "isCorrect": false, "rationale": "Incorreto. 'Wasn't' é apenas para I, He, She, It." },
+                { "text": "aren't", "isCorrect": false, "rationale": "Incorreto. 'On Sunday' refere-se ao passado." },
+                { "text": "don't", "isCorrect": false, "rationale": "Incorreto. Para expressar 'não estavam', usamos o verbo to be na negativa." }
+            ]
+        },
+        {
+            "question": "15. How old ______ you in 2010?",
+            "topic": "Wh-Questions",
+            "hint": "Como perguntamos a idade no passado para 'You'?",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! A idade em inglês usa o verbo to be, e para 'You' no passado a forma é 'were'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Was' não combina com o pronome 'You'." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. 'Did' é um auxiliar e não serve para expressar idade." },
+                { "text": "had", "isCorrect": false, "rationale": "Incorreto. Não usamos o verbo ter (have/had) para idades em inglês." }
+            ]
+        },
+        {
+            "question": "16. My mother ______ a nurse before she retired.",
+            "topic": "Affirmative Form (I, He, She, It)",
+            "hint": "'My mother' equivale ao pronome 'She' (ela).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Para o pronome 'She', usamos 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Seria 'were' se fosse no plural (My parents)." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. O verbo 'retired' (aposentou) no fim da frase mostra que a profissão ativa está no passado." },
+                { "text": "had", "isCorrect": false, "rationale": "Incorreto. Ela 'era' (was) enfermeira, não 'tinha' (had)." }
+            ]
+        },
+        {
+            "question": "17. The dog ______ sleeping in the garden.",
+            "topic": "Affirmative Form (I, He, She, It)",
+            "hint": "O sujeito é 'The dog', que é singular (equivalente a 'it').",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Para um animal no singular (It), a conjugação no passado é 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Seria 'were' se fossem 'The dogs'." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. A opção correta é 'was' no contexto do exercício focado no passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. Com o gerúndio 'sleeping', usamos o verbo to be." }
+            ]
+        },
+        {
+            "question": "18. Who ______ the first president of Brazil?",
+            "topic": "Wh-Questions",
+            "hint": "A pergunta quer saber quem foi a pessoa (singular).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! 'The first president' é singular, logo usamos 'was' na pergunta." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Só usaríamos 'were' se a resposta esperada fosse um sujeito no plural." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Estamos perguntando sobre um evento histórico no passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. O verbo 'foi' requer to be, não 'did'." }
+            ]
+        },
+        {
+            "question": "19. We ______ (not) ready for the test.",
+            "topic": "Negative Form",
+            "hint": "Qual é a contração negativa do verbo to be no passado para 'We'?",
+            "options": [
+                { "text": "weren't", "isCorrect": true, "rationale": "Correto! A contração de 'were not' é 'weren't'." },
+                { "text": "wasn't", "isCorrect": false, "rationale": "Incorreto. 'Wasn't' é para I, He, She, It." },
+                { "text": "didn't", "isCorrect": false, "rationale": "Incorreto. Não usamos 'didn't' antes de adjetivos (ready)." },
+                { "text": "aren't", "isCorrect": false, "rationale": "Incorreto. O foco é passado." }
+            ]
+        },
+        {
+            "question": "20. Why ______ you angry yesterday?",
+            "topic": "Wh-Questions",
+            "hint": "Temos uma pergunta com 'Wh-' focada no sujeito 'you' e no passado.",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! Para o sujeito 'You', usamos 'were' no passado após a Wh-word." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Was' nunca é usado com 'you'." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. 'Angry' (bravo) é um estado, então precisamos do verbo to be." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. A palavra 'yesterday' pede o verbo no passado." }
+            ]
+        },
+        {
+            "question": "21. ______ it a good idea?",
+            "topic": "Interrogative Form",
+            "hint": "O pronome é 'It' e é uma pergunta.",
+            "options": [
+                { "text": "Was", "isCorrect": true, "rationale": "Correto! Quando o sujeito é 'It', a pergunta começa com 'Was'." },
+                { "text": "Were", "isCorrect": false, "rationale": "Incorreto. 'Were' não é usado para sujeitos no singular." },
+                { "text": "Did", "isCorrect": false, "rationale": "Incorreto. Não há um verbo principal de ação na frase para ser suportado por 'Did'." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. O foco do exercício é o passado." }
+            ]
+        },
+        {
+            "question": "22. This car ______ very expensive.",
+            "topic": "Affirmative Form (I, He, She, It)",
+            "hint": "'This car' (Este carro) é um objeto singular (it).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Sujeito singular no passado simples usa 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Se fossem 'These cars', usaríamos 'were'." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. O foco é o passado." },
+                { "text": "has", "isCorrect": false, "rationale": "Incorreto. O carro 'era' caro, não 'tinha' caro." }
+            ]
+        },
+        {
+            "question": "23. Those books ______ on the table.",
+            "topic": "Plural Subjects",
+            "hint": "'Those books' (Aqueles livros) está no plural (they).",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! Objetos no plural pedem o verbo 'were'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Usaríamos 'was' se fosse um único livro ('That book')." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. O foco aqui é treinar o passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. Para indicar localização usamos verbo to be." }
+            ]
+        },
+        {
+            "question": "24. You and I ______ a great team.",
+            "topic": "Plural Subjects",
+            "hint": "'Você e eu' formamos 'nós' (We).",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! 'You and I' equivale a 'We' (Nós), logo o verbo to be no passado é 'were'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. O pronome 'I' não domina a conjugação aqui, pois o sujeito todo é plural." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. O sujeito é plural (nós)." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Estamos avaliando o passado." }
+            ]
+        },
+        {
+            "question": "25. ______ he your teacher last year?",
+            "topic": "Interrogative Form",
+            "hint": "A pergunta foca no sujeito 'he' (ele) e ocorreu 'last year'.",
+            "options": [
+                { "text": "Was", "isCorrect": true, "rationale": "Correto! Para perguntar sobre 'He' no passado, usamos 'Was' no início." },
+                { "text": "Were", "isCorrect": false, "rationale": "Incorreto. 'Were' é apenas para plural e You." },
+                { "text": "Did", "isCorrect": false, "rationale": "Incorreto. Para identidades/profissões usamos o verbo to be." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. 'Last year' exige passado." }
+            ]
+        },
+        {
+            "question": "26. I ______ born in 1995.",
+            "topic": "Past Time Expressions",
+            "hint": "Para falar do próprio nascimento (eu nasci), qual é a conjugação correta?",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! A expressão 'nascer' em inglês é 'to be born'. Para 'I', usamos 'was born'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' é para plurais." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. O ano '1995' já passou, indicando a necessidade do passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. A estrutura é sempre passiva com o verbo to be: 'was born'." }
+            ]
+        },
+        {
+            "question": "27. My parents ______ very strict when I was young.",
+            "topic": "Plural Subjects",
+            "hint": "Temos dois pais ('parents'), portanto o sujeito é plural (they).",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! 'Parents' (pais) equivale a They, exigindo o verbo 'were'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. O sujeito é plural." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. Estamos descrevendo uma característica (estritos/rigorosos), exigindo to be." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. 'When I was young' indica que a ação ocorreu no passado." }
+            ]
+        },
+        {
+            "question": "28. ______ they friends in childhood?",
+            "topic": "Interrogative Form",
+            "hint": "A pergunta é focada no sujeito plural 'they' (eles).",
+            "options": [
+                { "text": "Were", "isCorrect": true, "rationale": "Correto! A estrutura para perguntar sobre 'they' no passado inicia-se com 'Were'." },
+                { "text": "Was", "isCorrect": false, "rationale": "Incorreto. Usado apenas para sujeitos no singular." },
+                { "text": "Did", "isCorrect": false, "rationale": "Incorreto. Ser ou estar (amigos) não usa 'Did'." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. 'In childhood' indica evento passado." }
+            ]
+        },
+        {
+            "question": "29. The movie ______ amazing!",
+            "topic": "Affirmative Form (I, He, She, It)",
+            "hint": "'The movie' (o filme) é um substantivo singular (it).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Sendo um objeto singular, usamos 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' é para a segunda pessoa ou plural." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. Adjetivos (amazing) acompanham o verbo to be." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Neste contexto de exercício, buscamos o verbo no passado (o filme 'foi' incrível)." }
+            ]
+        },
+        {
+            "question": "30. It ______ not my fault!",
+            "topic": "Negative Form",
+            "hint": "A frase afirma na negativa que a culpa não foi 'dele/disso' (it).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! O 'not' já está na frase, precisamos apenas de 'was' para acompanhar o pronome 'It'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' não acompanha sujeitos no singular." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. Em sentenças de 'ser a culpa', usamos o verbo ser (was/were)." },
+                { "text": "wasn't", "isCorrect": false, "rationale": "Incorreto. O 'not' já está escrito na frase ('not my fault!'). Inserir 'wasn't' duplicaria a negativa ('was not not')." }
+            ]
+        }
+    ],
+
+            startQuiz(continueFromSavedState) {
+                const studentCode = this.elements.studentCodeInput.value.trim().toUpperCase();
+                const correctName = this.studentData[studentCode];
+
+                if (!correctName) {
+                    alert("Código de acesso inválido. Por favor, verifique e tente novamente.");
+                    return;
+                }
+
+                this.validatedStudentCode = studentCode;
+                this.validatedStudentName = correctName;
+
+                if (continueFromSavedState) {
+                    this.loadQuizState(this.validatedStudentCode);
+                } else {
+                    this.currentQuestionIndex = 0;
+                    this.score = 0;
+                    this.userAnswers = {};
+                    this.skippedQuestions = [];
+                    this.currentSkippedIndex = 0;
+            this.balanceCorrectAnswers();
+                    localStorage.removeItem(`quizState_${this.validatedStudentCode}`);
+
+                    this.shuffledQuestions = this.shuffleArray([...this.questions]);
+                }
+
+                const storageKey = `quiz_attempts_${this.validatedStudentCode}`;
+                let attempts = parseInt(localStorage.getItem(storageKey) || 0);
+                localStorage.setItem(storageKey, attempts + 1);
+
+                this.elements.studentCodeInput.style.display = 'none';
+                this.elements.startActionsDiv.style.display = 'none';
+                this.elements.quizDescription.style.display = 'none';
+
+                if (this.validatedStudentName === "JÚNIOR") {
+                    this.elements.personalizedWelcome.textContent = "Oi, JÚNIOR - grato por sua visita!!!";
+                } else {
+                    this.elements.personalizedWelcome.textContent = `Bem-vindo(a), ${this.validatedStudentName}! Boa sorte!`;
+                }
+                
+                this.elements.personalizedWelcome.style.display = 'block';
+
+                setTimeout(() => {
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+                    this.displayQuestion();
+                }, 3000);
+            },
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            },
+
+            displayQuestion() {
+                this.elements.performanceDisplay.style.display = 'none';
+                let questionToDisplay;
+                let currentQuestionNumber;
+                this.elements.hintText.style.display = 'none';
+                this.elements.summaryText.style.display = 'none';
+                this.elements.summaryButton.style.display = 'none';
+
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length && this.skippedQuestions.length > 0) {
+                    const skippedIndex = this.skippedQuestions[this.currentSkippedIndex];
+                    questionToDisplay = this.questions[skippedIndex]; 
+                    currentQuestionNumber = `(Pulada) ${this.currentSkippedIndex + 1} de ${this.skippedQuestions.length}`;
+                    this.elements.skipButton.style.display = 'none';
+                    this.elements.nextButton.textContent = 'Próxima Questão';
+                } else if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    questionToDisplay = this.shuffledQuestions[this.currentQuestionIndex];
+                    currentQuestionNumber = this.currentQuestionIndex + 1;
+                    this.elements.skipButton.style.display = 'inline-block';
+                    this.elements.nextButton.textContent = 'Próxima Questão';
+                } else {
+                    this.showResults();
+                    return;
+                }
+
+                this.elements.currentQuestionNumSpan.textContent = currentQuestionNumber;
+                this.elements.nextButton.style.display = 'none';
+                this.elements.optionsList.innerHTML = '';
+                this.elements.questionText.textContent = questionToDisplay.question;
+
+                questionToDisplay.options.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = option.text;
+                    li.onclick = () => this.selectOption(li, option);
+                    this.elements.optionsList.appendChild(li);
+                });
+            },
+
+            selectOption(selectedElement, selectedOption) {
+                const options = document.querySelectorAll('.option-item');
+
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+
+                const justificationElement = document.createElement('div');
+                justificationElement.className = 'justification';
+
+                let currentQuestion;
+                let originalQuestionIndex;
+
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    originalQuestionIndex = this.skippedQuestions[this.currentSkippedIndex];
+                    currentQuestion = this.questions[originalQuestionIndex];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                    originalQuestionIndex = this.questions.findIndex(q => q.question === currentQuestion.question);
+                }
+
+                const correctOptions = currentQuestion.options.filter(opt => opt.isCorrect);
+                const correctOptionTexts = correctOptions.map(opt => opt.text);
+                const isCorrect = correctOptionTexts.includes(selectedOption.text);
+
+                if (isCorrect) {
+                    this.score++;
+                    selectedElement.classList.add('correct');
+                    justificationElement.textContent = selectedOption.rationale;
+                    justificationElement.style.borderColor = '#28a745';
+                    this.elements.summaryButton.style.display = 'none';
+                } else {
+                    selectedElement.classList.add('incorrect');
+                    const correctElements = Array.from(options).filter(el => correctOptionTexts.includes(el.textContent));
+                    correctElements.forEach(el => el.classList.add('correct'));
+                    justificationElement.textContent = selectedOption.rationale;
+                    justificationElement.style.borderColor = '#dc3545';
+                    this.elements.summaryButton.style.display = 'inline-block';
+                }
+
+                this.userAnswers[originalQuestionIndex] = {
+                    question: currentQuestion.question,
+                    userAnswer: selectedOption.text,
+                    isCorrect: isCorrect,
+                    correctAnswer: correctOptionTexts.join(' ou '),
+                    rationale: selectedOption.rationale
+                };
+
+                selectedElement.parentNode.insertBefore(justificationElement, selectedElement.nextSibling);
+                justificationElement.style.display = 'block';
+
+                this.elements.nextButton.style.display = 'block';
+                this.elements.skipButton.style.display = 'none'; 
+                this.saveQuizState();
+            },
+
+            showPerformance() {
+                const answeredCount = Object.keys(this.userAnswers).length;
+                const correctCount = this.score;
+                const incorrectCount = answeredCount - correctCount;
+
+                this.elements.performanceDisplay.innerHTML = `Até agora: <span style="color: #28a745;">${correctCount} acertos</span> e <span style="color: #dc3545;">${incorrectCount} erros</span>.`;
+                this.elements.performanceDisplay.style.display = 'block';
+            },
+            
+            showHint() {
+                let currentQuestion;
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    currentQuestion = this.questions[this.skippedQuestions[this.currentSkippedIndex]];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                }
+
+                if (currentQuestion && currentQuestion.hint) {
+                    this.elements.hintText.textContent = currentQuestion.hint;
+                    this.elements.hintText.style.display = 'block';
+                }
+            },
+
+            showSummary() {
+                let currentQuestion;
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    currentQuestion = this.questions[this.skippedQuestions[this.currentSkippedIndex]];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                }
+                
+                const questionTopic = currentQuestion.topic;
+
+                if (questionTopic && this.summaries[questionTopic]) {
+                    this.elements.summaryText.textContent = this.summaries[questionTopic];
+                    this.elements.summaryText.style.display = 'block';
+                }
+            },
+
+            nextQuestion() {
+                if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    this.currentQuestionIndex++;
+                } else {
+                    this.currentSkippedIndex++;
+                }
+                
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length && this.currentSkippedIndex >= this.skippedQuestions.length) {
+                    this.showResults();
+                } else {
+                    this.displayQuestion();
+                }
+            },
+
+            skipQuestion() {
+                if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    const originalIndex = this.questions.findIndex(q => q.question === this.shuffledQuestions[this.currentQuestionIndex].question);
+                    this.skippedQuestions.push(originalIndex);
+                }
+                this.currentQuestionIndex++;
+                this.displayQuestion();
+            },
+
+            getClassification(percentage) {
+                if (percentage >= 86) return "Excelente!!!";
+                if (percentage >= 71) return "Muito Bom!!";
+                if (percentage >= 51) return "Bom!";
+                if (percentage >= 0) return "Insatisfatório!";
+                return "Classificação não disponível";
+            },
+
+            launchConfetti() {
+                confetti({ particleCount: 600, spread: 70, origin: { y: 0.6 } });
+                setTimeout(() => confetti({ particleCount: 450, spread: 90, origin: { x: 0, y: 0.8 } }), 500);
+                setTimeout(() => confetti({ particleCount: 450, spread: 90, origin: { x: 1, y: 0.8 } }), 800);
+                setTimeout(() => confetti({ particleCount: 300, spread: 120, origin: { y: 0.2 } }), 1000);
+            },
+
+            showResults() {
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                this.elements.incorrectQuestionsContainer.innerHTML = '';
+                this.elements.fullReportContainer.innerHTML = '';
+                localStorage.removeItem(`quizState_${this.validatedStudentCode}`);
+
+                const percentage = Math.round((this.score / this.questions.length) * 100);
+                const classificationText = this.getClassification(percentage);
+
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = `${this.score} de ${this.questions.length}`;
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.classificationDisplay.textContent = classificationText;
+                this.elements.classificationDisplay.classList.remove('classification-red', 'classification-blue', 'classification-orange');
+                if (classificationText === "Insatisfatório!") {
+                    this.elements.classificationDisplay.classList.add('classification-red');
+                } else if (classificationText === "Excelente!!!") {
+                    this.launchConfetti();
+                    this.elements.classificationDisplay.classList.add('classification-orange');
+                    setTimeout(() => {
+                        this.elements.classificationDisplay.classList.remove('classification-orange');
+                        this.elements.classificationDisplay.style.color = '#FFA500';
+                        this.elements.classificationDisplay.style.fontWeight = 'bold';
+                        this.elements.classificationDisplay.style.animation = 'none';
+                    }, 5000);
+                } else if (classificationText === "Muito Bom!!" || classificationText === "Bom!") {
+                    this.elements.classificationDisplay.classList.add('classification-blue');
+                }
+
+                this.elements.fullReportContainer.innerHTML = this.generateFullReportHtml();
+                this.elements.fullReportContainer.style.display = 'block';
+
+                const shareMessage = this.generateShareMessage(percentage, classificationText);
+                const encodedMessage = encodeURIComponent(shareMessage);
+                this.elements.shareWhatsappLink.href = `https://wa.me/?text=${encodedMessage}`;
+
+                const data = {
+                    nome: this.validatedStudentName,
+                    codigo: this.validatedStudentCode,
+                    pontuacao: `${this.score} de ${this.questions.length}`,
+                    percentual: `${percentage}%`,
+                    classificacao: classificationText,
+                };
+
+                fetch(this.APP_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'no-cors'
+                })
+                .then(() => console.log('Dados enviados com sucesso para a planilha!'))
+                .catch(error => console.error('Erro ao enviar dados:', error));
+
+                this.elements.sendReportLink.textContent = 'Relatório Enviado!';
+                this.elements.sendReportLink.href = '#';
+                this.elements.sendReportLink.onclick = (e) => e.preventDefault();
+                this.elements.sendReportLink.style.cursor = 'default';
+                this.elements.sendReportLink.style.backgroundColor = '#ccc';
+            },
+
+            generateFullReportHtml() {
+                let html = '<h3>Relatório Completo de Respostas:</h3>';
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer;
+                    const isCorrect = userAnswerObj.isCorrect;
+                    
+                    html += `<div class="report-question-item">`;
+                    html += `<p><strong>Questão ${index + 1}:</strong> ${question.question}</p>`;
+                    html += `<ul style="list-style-type: none; padding-left: 0;">`;
+
+                    question.options.forEach(option => {
+                        const isUserAnswer = (option.text === userAnswerText);
+                        const isCorrectOption = option.isCorrect;
+
+                        let optionClass = '';
+                        if (isCorrectOption) {
+                            optionClass = 'correct';
+                        } else if (isUserAnswer) {
+                            optionClass = 'incorrect';
+                        }
+
+                        let textPrefix = '';
+                        if (isUserAnswer && isCorrectOption) {
+                            textPrefix = 'Sua Resposta Correta: ';
+                        } else if (isCorrectOption) {
+                            textPrefix = 'Resposta Correta: ';
+                        } else if (isUserAnswer) {
+                            textPrefix = 'Sua Resposta: ';
+                        }
+
+                        html += `<li class="option-item-report ${optionClass}">`;
+                        html += `<p><strong>${textPrefix}</strong>${option.text}</p>`;
+                        html += `<div class="justification" style="display: block;">${option.rationale}</div>`;
+                        html += `</li>`;
+                    });
+
+                    html += '</ul></div>';
+                });
+                return html;
+            },
+
+            generateShareMessage(percentage, classificationText) {
+                let message = `*Relatório Completo do Quiz de Inglês*\n\n`;
+                message += `*Aluno(a):* ${this.validatedStudentName}\n`;
+                message += `*Código de Acesso:* ${this.validatedStudentCode}\n`;
+                message += `*Pontuação:* ${this.score} de ${this.questions.length}\n`;
+                message += `*Percentual de Acerto:* ${percentage}%\n`;
+                message += `*Classificação:* ${classificationText}\n\n`;
+                message += `*--- Respostas ---*\n`;
+
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer || 'Não respondida';
+                    const isCorrect = userAnswerObj.isCorrect;
+                    const correctAnswer = question.options.find(opt => opt.isCorrect).text;
+                    const rationale = userAnswerObj.rationale || question.options.find(opt => opt.isCorrect).rationale;
+
+                    message += `\n*Questão ${index + 1}:* ${question.question}\n`;
+                    message += `_Sua resposta:_ ${isCorrect ? `😄` : `😢`} ${userAnswerText}\n`;
+                    message += `_Resposta correta:_ ${correctAnswer}\n`;
+                    message += `_Justificativa:_ ${rationale}\n`;
+                });
+                return message;
+            },
+
+            saveQuizState() {
+                const quizState = {
+                    questionIndex: this.currentQuestionIndex,
+                    userResponses: this.userAnswers,
+                    studentCode: this.validatedStudentCode,
+                    studentName: this.validatedStudentName,
+                    skippedQuestions: this.skippedQuestions,
+                    currentSkippedIndex: this.currentSkippedIndex,
+                    shuffledQuestions: this.shuffledQuestions // Salva a ordem embaralhada
+                };
+                localStorage.setItem(`quizState_${this.validatedStudentCode}`, JSON.stringify(quizState));
+            },
+
+            loadQuizState(studentCode) {
+                const savedState = localStorage.getItem(`quizState_${studentCode}`);
+                if (savedState) {
+                    const quizState = JSON.parse(savedState);
+                    if (quizState.studentCode === studentCode) {
+                        this.currentQuestionIndex = quizState.questionIndex;
+                        this.score = quizState.score || Object.values(quizState.userResponses).filter(a => a.isCorrect).length;
+                        this.userAnswers = quizState.userResponses || {};
+                        this.validatedStudentName = quizState.studentName;
+                        this.validatedStudentCode = quizState.studentCode;
+                        this.skippedQuestions = quizState.skippedQuestions || [];
+                        this.currentSkippedIndex = quizState.currentSkippedIndex || 0;
+                        this.shuffledQuestions = quizState.shuffledQuestions;
+                        return true;
+                    }
+                }
+                return false;
+            },
+
+            updateAttemptsDisplay(code) {
+                this.elements.attemptsLeftSpan.textContent = "Ilimitadas";
+                this.elements.introAttemptsLeftSpan.textContent = "ilimitadas";
+                this.elements.startActionsDiv.innerHTML = '';
+                
+                if (this.loadQuizState(code)) {
+                    const continueBtn = document.createElement('button');
+                    continueBtn.textContent = 'Continuar Quiz';
+                    continueBtn.className = 'start-btn continue-btn';
+                    continueBtn.onclick = () => this.startQuiz(true);
+                    this.elements.startActionsDiv.appendChild(continueBtn);
+
+                    const newBtn = document.createElement('button');
+                    newBtn.textContent = 'Iniciar Novo Quiz';
+                    newBtn.className = 'start-btn';
+                    newBtn.style.backgroundColor = '#dc3545';
+                    newBtn.onclick = () => {
+                        if (confirm("Você tem um progresso salvo. Deseja realmente começar um novo quiz e perder o progresso atual?")) {
+                            this.startQuiz(false);
+                        }
+                    };
+                    this.elements.startActionsDiv.appendChild(newBtn);
+                } else {
+                    const startBtn = document.createElement('button');
+                    startBtn.textContent = 'Start Quiz';
+                    startBtn.className = 'start-btn';
+                    startBtn.onclick = () => this.startQuiz(false);
+                    this.elements.startActionsDiv.appendChild(startBtn);
+                }
+            },
+
+            restartQuiz() {
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.userAnswers = {};
+                this.skippedQuestions = [];
+                this.currentSkippedIndex = 0;
+
+                const studentCode = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (studentCode) {
+                    localStorage.removeItem(`quizState_${studentCode}`);
+                }
+
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.quizCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                this.elements.studentCodeInput.style.display = 'block';
+                this.elements.personalizedWelcome.style.display = 'none';
+                this.elements.quizDescription.style.display = 'block';
+                this.elements.sendReportLink.textContent = 'Enviar Relatório ao Professor';
+                this.elements.sendReportLink.href = '#';
+                this.elements.sendReportLink.onclick = null;
+                this.elements.sendReportLink.style.cursor = 'pointer';
+                this.elements.sendReportLink.style.backgroundColor = '#6c757d';
+
+                this.elements.startActionsDiv.innerHTML = '<button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>';
+                this.elements.startActionsDiv.style.display = 'block';
+            },
+
+            saveReport() {
+                const scoreText = this.elements.scoreDisplay.textContent;
+                const percentage = Math.round((this.score / this.questions.length) * 100);
+                const classificationText = this.elements.classificationDisplay.textContent;
+
+                let reportContent = `Relatório Completo do Quiz de Inglês\n\n`;
+                reportContent += `Nome: ${this.validatedStudentName}\n`;
+                reportContent += `Código de Acesso: ${this.validatedStudentCode}\n`;
+                reportContent += `Pontuação: ${scoreText}\n`;
+                reportContent += `Percentual de Acerto: ${percentage}%\n`;
+                reportContent += `Classificação: ${classificationText}\n\n`;
+                reportContent += `--- Respostas ---\n`;
+
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer || 'Não respondida';
+                    const isCorrect = userAnswerObj.isCorrect;
+                    const correctAnswer = question.options.find(opt => opt.isCorrect).text;
+                    const rationale = userAnswerObj.rationale || question.options.find(opt => opt.isCorrect).rationale;
+
+                    reportContent += `\nQuestão ${index + 1}: ${question.question}\n`;
+                    reportContent += `Sua resposta: ${isCorrect ? `(CORRETA) ` : `(INCORRETA) `}${userAnswerText}\n`;
+                    reportContent += `Resposta correta: ${correctAnswer}\n`;
+                    reportContent += `Justificativa: ${rationale}\n`;
+                });
+
+                const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Relatorio-Quiz-${this.validatedStudentName.replace(/ /g, '-')}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+
+            printReport() {
+                window.print();
+            },
+
+            init() {
+                this.elements.studentCodeInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                    const code = e.target.value.trim().toUpperCase();
+                    if (this.studentData[code]) {
+                        this.updateAttemptsDisplay(code);
+                    } else {
+                        this.elements.startActionsDiv.innerHTML = '<button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>';
+                    }
+                });
+
+                this.elements.performanceButton.onclick = () => this.showPerformance();
+                this.elements.nextButton.onclick = () => this.nextQuestion();
+                this.elements.skipButton.onclick = () => this.skipQuestion(); 
+
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.updateAttemptsDisplay(code);
+                } else {
+                    this.restartQuiz();
+                }
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVISÃO GERAL - TO BE (4 TEMPOS)!!!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #dc3545;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #444;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #d1e7dd;
+        }
+
+        .option-item.correct {
+            background-color: #90EE90; /* Light Green */
+            color: #333;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(144, 238, 144, 0.4);
+            font-weight: bold;
+        }
+
+        .option-item.incorrect {
+            background-color: #FA8072; /* Salmon */
+            color: white;
+            animation: shake 0.5s ease-in-out;
+            box-shadow: 0 4px 8px rgba(250, 128, 114, 0.4);
+        }
+
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #007bff;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .next-btn, .skip-btn, .hint-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+            margin-left: 10px;
+        }
+
+        .skip-btn {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .hint-btn {
+            background-color: #6a0dad; 
+            display: inline-block;
+            float: none;
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 5px solid #6c757d;
+            border-radius: 5px;
+            font-style: italic;
+            display: none;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap; 
+        }
+        
+        /* Aplicação do tema Verde Claro e Salmão nos botões */
+        .start-btn, .send-report-btn, .print-btn, .share-btn, .save-report-btn, .continue-btn {
+            display: inline-block;
+            background-color: #90EE90; /* Light Green */
+            color: #333; /* Texto escuro para contrastar com o verde claro */
+            font-weight: bold;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            animation: pulse 2s infinite;
+        }
+
+        .restart-btn {
+            display: inline-block;
+            background-color: #FA8072; /* Salmon */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            animation: pulse 2s infinite;
+        }
+
+        .send-report-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .print-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .results-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            background-color: #25d366;
+            color: white;
+        }
+
+        .share-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        .save-report-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .incorrect-questions-list {
+            margin-top: 30px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .full-report-list {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ccc;
+        }
+
+        .incorrect-questions-list h3, .full-report-list h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .full-report-list h3 {
+            color: #007bff;
+        }
+
+        .incorrect-question-item, .report-question-item {
+            background-color: #fff3f3;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .report-question-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+
+        .incorrect-question-item p, .report-question-item p {
+            margin: 5px 0;
+        }
+
+        .incorrect-question-item p strong, .report-question-item p strong {
+            color: #333;
+        }
+
+        .incorrect-question-item .justification, .report-question-item .justification {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+
+        .report-question-item .option-item-report {
+            background-color: #e9ecef;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+
+        .report-question-item .option-item-report.correct {
+            background-color: #d4edda;
+        }
+
+        .report-question-item .option-item-report.incorrect {
+            background-color: #f8d7da;
+        }
+
+        .classification-red {
+            color: red;
+        }
+
+        .classification-blue {
+            color: #007bff;
+        }
+
+        .classification-orange {
+            color: #FFA500;
+            font-weight: bold;
+            animation: blink-text 1s linear infinite;
+        }
+
+        .performance-btn {
+            background-color: #FFA500; 
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            margin-left: 0; 
+            margin-right: auto; 
+        }
+
+        .performance-display {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #856404;
+            text-align: left;
+        }
+
+        @keyframes blink-text {
+            50% { opacity: 0; }
+        }
+
+        @media print {
+            body { background-color: #fff; padding-top: 0; display: block; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: none; min-height: auto; }
+            #intro-card, #quiz-card, .results-actions, .print-btn, .attempts-counter, .question-counter { display: none !important; }
+            #results-card { display: block !important; }
+            .incorrect-questions-list, .full-report-list { display: block !important; border-top: 1px solid #ccc; padding-top: 10px; }
+            .incorrect-question-item, .report-question-item { margin-bottom: 10px; border: 1px solid #ddd; background-color: #f9f9f9; }
+            .report-question-item .justification { display: block !important; padding: 10px; margin-top: 5px; border-left: 3px solid #eee; background-color: #eee; font-size: 0.9em; }
+            .report-question-item .option-item-report { margin: 3px 0; padding: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>English Grammar Quiz</h1>
+            <h2>REVISÃO GERAL - VERBO TO BE (4 TEMPOS)</h2>
+            <p id="personalized-welcome" style="font-size: 1.2rem; font-weight: bold; margin-top: 10px; display: none;">Seja bem-vindo(a) e boa sorte!</p>
+            <p id="quiz-description">Insira seu código de acesso para iniciar o teste misto de Presente, Passado, Futuro e Condicional. O teste tem <strong>60 questões</strong>. Você tem tentativas <span id="intro-attempts-left">ilimitadas</span>.</p>
+            <input type="text" id="student-code" placeholder="Your Access Code!">
+            <div id="start-actions">
+                <button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>
+            </div>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div class="attempts-counter">Tentativas restantes: <span id="attempts-left">Ilimitadas</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 60</div>
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <div id="hint-container">
+                <button id="hint-button" class="hint-btn" onclick="quizApp.showHint()">Dica</button>
+                <div id="hint-text" class="hint-text"></div>
+                <div id="summary-text" class="hint-text" style="border-left-color: #90EE90;"></div>
+            </div>
+            <div class="question-actions">
+                <button id="performance-btn" class="performance-btn">DESEMPENHO</button>
+                <button id="summary-button" class="start-btn" onclick="quizApp.showSummary()" style="display: none;">Resumo</button>
+                <button id="skip-button" class="skip-btn" onclick="quizApp.skipQuestion()">Pular Questão</button>
+                <button id="next-button" class="next-btn" onclick="quizApp.nextQuestion()">Próxima Questão</button>
+                <div id="performance-display" class="performance-display" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório Final</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Código de Acesso:</strong> <span id="report-student-code"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display"></span></p>
+            <p><strong>Percentual de Acerto:</strong> <span id="percentage-display"></span></p>
+            <p><strong>Classificação:</strong> <span id="classification-display"></span></p>
+            <div class="results-actions">
+                <a id="send-report-link" class="send-report-btn" href="#" target="_blank">Enviar Relatório ao Professor</a>
+                <button class="restart-btn" onclick="quizApp.restartQuiz()">Reiniciar Teste</button>
+                <a id="share-whatsapp" class="start-btn share-btn" href="#" target="_blank">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"> Compartilhar
+                </a>
+                <button class="start-btn save-report-btn" onclick="quizApp.saveReport()">Salvar Relatório</button>
+                <button class="start-btn print-btn" onclick="quizApp.printReport()">Imprimir Relatório</button>
+            </div>
+            <div id="incorrect-questions-container" class="incorrect-questions-list"></div>
+            <div id="full-report-container" class="full-report-list" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        const quizApp = {
+            APP_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwtDAlCCBcc3cN3pHX5YTvCZBsYTH--UJbeaczv64av_vIkybVIaEs-nTLKM2ssHND2/exec',
+            
+            currentQuestionIndex: 0,
+            score: 0,
+            userAnswers: {},
+            validatedStudentName: '',
+            validatedStudentCode: '',
+            totalAttempts: "Ilimitadas",
+            skippedQuestions: [], 
+            currentSkippedIndex: 0, 
+            
+            elements: {
+                studentCodeInput: document.getElementById('student-code'),
+                introCard: document.getElementById('intro-card'),
+                quizCard: document.getElementById('quiz-card'),
+                resultsCard: document.getElementById('results-card'),
+                questionText: document.getElementById('question-text'),
+                optionsList: document.getElementById('options-list'),
+                nextButton: document.getElementById('next-button'),
+                skipButton: document.getElementById('skip-button'), 
+                hintButton: document.getElementById('hint-button'),
+                hintText: document.getElementById('hint-text'),
+                attemptsLeftSpan: document.getElementById('attempts-left'),
+                currentQuestionNumSpan: document.getElementById('current-question-num'),
+                scoreDisplay: document.getElementById('score-display'),
+                percentageDisplay: document.getElementById('percentage-display'),
+                classificationDisplay: document.getElementById('classification-display'),
+                reportStudentName: document.getElementById('report-student-name'),
+                reportStudentCode: document.getElementById('report-student-code'),
+                sendReportLink: document.getElementById('send-report-link'),
+                introAttemptsLeftSpan: document.getElementById('intro-attempts-left'),
+                incorrectQuestionsContainer: document.getElementById('incorrect-questions-container'),
+                fullReportContainer: document.getElementById('full-report-container'),
+                shareWhatsappLink: document.getElementById('share-whatsapp'),
+                personalizedWelcome: document.getElementById('personalized-welcome'),
+                startActionsDiv: document.getElementById('start-actions'),
+                quizDescription: document.getElementById('quiz-description'),
+                summaryButton: document.getElementById('summary-button'),
+                summaryText: document.getElementById('summary-text'),
+                performanceButton: document.getElementById('performance-btn'),
+                performanceDisplay: document.getElementById('performance-display')
+            },
+
+            studentData: {
+                "001AB": "ELMA", "002CD": "VALDINEI", "003EF": "RENATA", "004GH": "GEOVANNA", "005IJ": "LEOZINHO",
+                "006KL": "MARIANA", "007MN": "NICOLAS", "008OP": "YAGO", "009QR": "CAIO", "010ST": "GIH",
+                "011UV": "LUCAS RESENDE", "012WX": "BRUNA", "013YZ": "DIMI", "014AB": "FABRÍCIO", "015CD": "MIGUEL",
+                "016EF": "YAGO", "017GH": "ANDRÉIA", "018IJ": "KAUÃ", "019KL": "PABLO", "020MN": "SURY",
+                "021SP": "SOPHIA", "022QR": "YASMIN", "023ST": "MÁRCIA", "024UV": "RICK", "025WX": "ROSA",
+                "026MA": "MARA", "026YZ": "BRUNA", "027AB": "FERNANDO", "028CD": "ALEX", "029EF": "DÉBORA", 
+                "030GH": "GIOVANNA", "031IJ": "PÂMELA", "032KL": "YASMIN", "033MN": "ADRIANO", "034OP": "ARTHUR", 
+                "035QR": "YASMIN", "036ST": "DAVI", "037UV": "DEREK", "038WX": "PEDRINHO", "039YZ": "DENILSON", 
+                "040AB": "EDSON", "041CD": "ALÍCIA", "042EF": "CAROLINA", "043GH": "ELSON", "044IJ": "LETÍCIA", 
+                "045KL": "DIEGO", "046MN": "GABI", "047OP": "KIM", "048QR": "LANA", "049ST": "MANU", "050UV": "SABRINA",
+                "051WX": "BRUNA", "052YZ": "DIMI", "053AB": "FABRÍCIO", "054CD": "MIGUEL", "055EF": "YAGO",
+                "056GH": "ANDRÉIA", "057IJ": "KAUÃ", "058KL": "PABLO", "059MN": "SURY", "060OP": "TAINÁ",
+                "061QR": "YASMIN", "062ST": "MÁRCIA", "063UV": "RICK", "064WX": "ROSA", "065YZ": "FÁTIMA",
+                "066AB": "LUCA", "067CD": "ALEX", "JR123": "JÚNIOR", "068EF": "DÉBORA", "069GH": "GIOVANNA", "070IJ": "PÂMELA",
+                "071KL": "YASMIN", "072MN": "ADRIANO", "073OP": "ARTHUR", "074QR": "YASMIN", "075ST": "DAVI",
+                "076UV": "DEREK", "077WX": "PEDRINHO", "078YZ": "DENILSON", "079AB": "EDSON", "080CD": "ALÍCIA",
+                "081EF": "CAROLINA", "082GH": "ELSON", "083IJ": "LETÍCIA", "084KL": "DIEGO", "085MN": "GABI",
+                "086OP": "KIM", "087QR": "LANA", "088ST": "MANU", "089UV": "SABRINA", "090WX": "DIMI", "101QR": "ANA CLARA", "102ST": "JOAQUIM",
+                "091YZ": "FABRÍCIO", "092AB": "MIGUEL", "093CD": "YAGO", "094EF": "ANDRÉIA", "095GH": "KAUÃ",
+                "096IJ": "PABLO", "097KL": "SURY", "098MN": "LEILA", "099OP": "YASMIN", "100QR": "MÁRCIA", "101ST": "MONIQUE", "102UV": "AURELIO"
+            },
+            
+            summaries: {
+                "Present Simple (To Be)": "No PRESENTE, usamos 'am' (I), 'is' (He, She, It) e 'are' (You, We, They). Expressa estados atuais, idade, origem e emoções do momento.",
+                "Past Simple (To Be)": "No PASSADO, usamos 'was' (I, He, She, It) e 'were' (You, We, They). Expressa onde você estava ou como se sentia no passado (yesterday, last year).",
+                "Future Simple (To Be)": "No FUTURO, usamos 'will be' para TODOS os sujeitos. A negativa é 'won't be'. Usado para previsões e eventos futuros (tomorrow, next week).",
+                "Conditional Simple (To Be)": "No CONDICIONAL, usamos 'would be' para TODOS os sujeitos. A negativa é 'wouldn't be'. Expressa situações hipotéticas, imaginárias ('seria', 'estaria')."
+            },
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            },
+
+            balanceCorrectAnswers() {
+                const totalQuestions = this.questions.length;
+                if (totalQuestions === 0) return;
+                const numPositions = 4;
+                let desiredPositions = [];
+                for (let i = 0; i < totalQuestions; i++) {
+                    desiredPositions.push(i % numPositions);
+                }
+                this.shuffleArray(desiredPositions);
+                this.questions.forEach((q, index) => {
+                    this.shuffleArray(q.options);
+                    const correctOption = q.options.find(opt => opt.isCorrect);
+                    if (!correctOption) return; 
+                    const targetIndex = desiredPositions[index];
+                    if (q.options[targetIndex] === correctOption) return;
+                    const currentIndex = q.options.indexOf(correctOption);
+                    q.options.splice(currentIndex, 1);
+                    q.options.splice(targetIndex, 0, correctOption);
+                });
+                console.log("Alternativas corretas rebalanceadas.");
+            },
+
+  "questions": [
+        /* --- PRESENTE (15 questões) --- */
+        {
+            "question": "1. I ______ ready for the challenge right now.",
+            "topic": "Present Simple (To Be)",
+            "hint": "Tempo presente para o pronome 'I'.",
+            "options": [
+                { "text": "am", "isCorrect": true, "rationale": "Correto! No presente, 'I' é sempre acompanhado de 'am'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Right now' indica presente, não passado." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. A frase descreve o momento atual (right now)." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Is' acompanha He, She, It." }
+            ]
+        },
+        {
+            "question": "2. She ______ my sister, she is my cousin.",
+            "topic": "Present Simple (To Be)",
+            "hint": "Negativa no presente para 'She'.",
+            "options": [
+                { "text": "isn't", "isCorrect": true, "rationale": "Correto! 'isn't' é a negativa do presente para 'She'." },
+                { "text": "aren't", "isCorrect": false, "rationale": "Incorreto. 'Aren't' é para You, We, They." },
+                { "text": "wasn't", "isCorrect": false, "rationale": "Incorreto. A segunda parte da frase ('is my cousin') está no presente." },
+                { "text": "won't be", "isCorrect": false, "rationale": "Incorreto. Identidade familiar é contínua, logo, presente." }
+            ]
+        },
+        {
+            "question": "3. ______ they from Brazil?",
+            "topic": "Present Simple (To Be)",
+            "hint": "Pergunta no presente sobre origem com 'they'.",
+            "options": [
+                { "text": "Are", "isCorrect": true, "rationale": "Correto! Em perguntas de presente com 'they', iniciamos com 'Are'." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. 'Is' é singular." },
+                { "text": "Do", "isCorrect": false, "rationale": "Incorreto. Não usamos 'Do' com o verbo ser/estar." },
+                { "text": "Were", "isCorrect": false, "rationale": "Incorreto. A origem geralmente é perguntada no presente." }
+            ]
+        },
+        {
+            "question": "4. We ______ at the office today.",
+            "topic": "Present Simple (To Be)",
+            "hint": "Afirmação no presente com 'We'.",
+            "options": [
+                { "text": "are", "isCorrect": true, "rationale": "Correto! Para 'We' no presente, usamos 'are'." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Incompatível com o plural." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. Apenas para 'I'." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. 'Today' sugere um fato real de hoje, não uma hipótese." }
+            ]
+        },
+        {
+            "question": "5. Why ______ you so quiet this morning?",
+            "topic": "Present Simple (To Be)",
+            "hint": "Pergunta no presente com 'You'.",
+            "options": [
+                { "text": "are", "isCorrect": true, "rationale": "Correto! Após o 'Why', usamos 'are' para concordar com 'you' no presente." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Is' não acompanha 'You'." },
+                { "text": "will", "isCorrect": false, "rationale": "Incorreto. 'This morning' descreve o estado presente." },
+                { "text": "do", "isCorrect": false, "rationale": "Incorreto. Estado (quieto) requer verbo To Be." }
+            ]
+        },
+        {
+            "question": "6. The sky ______ very blue today.",
+            "topic": "Present Simple (To Be)",
+            "hint": "'The sky' (o céu) = It.",
+            "options": [
+                { "text": "is", "isCorrect": true, "rationale": "Correto! 'The sky' é singular (it), logo usamos 'is'." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Não é plural." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Today' indica presente." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. É uma constatação real, não hipotética." }
+            ]
+        },
+        {
+            "question": "7. I ______ 30 years old.",
+            "topic": "Present Simple (To Be)",
+            "hint": "Idade em inglês leva o verbo To Be.",
+            "options": [
+                { "text": "am", "isCorrect": true, "rationale": "Correto! Em inglês usamos o verbo To Be para falar a idade." },
+                { "text": "have", "isCorrect": false, "rationale": "Incorreto. Não usamos o verbo 'have' (ter) para idade." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Is' não acompanha 'I'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. A idade atual usa o presente." }
+            ]
+        },
+        {
+            "question": "8. ______ it a good movie?",
+            "topic": "Present Simple (To Be)",
+            "hint": "Pergunta direta sobre o filme (it) no presente.",
+            "options": [
+                { "text": "Is", "isCorrect": true, "rationale": "Correto! Para 'It' no presente, a pergunta começa com 'Is'." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. Para plurais." },
+                { "text": "Does", "isCorrect": false, "rationale": "Incorreto. Não aplicável com adjetivos (good)." },
+                { "text": "Would", "isCorrect": false, "rationale": "Incorreto. Falta o 'be' se fosse condicional." }
+            ]
+        },
+        {
+            "question": "9. My dogs ______ very friendly.",
+            "topic": "Present Simple (To Be)",
+            "hint": "'Dogs' está no plural (they).",
+            "options": [
+                { "text": "are", "isCorrect": true, "rationale": "Correto! Sujeito no plural exige 'are'." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Usaríamos 'is' se fosse apenas um cachorro." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. Apenas para 'I'." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Passado singular." }
+            ]
+        },
+        {
+            "question": "10. He ______ a teacher, he is a doctor.",
+            "topic": "Present Simple (To Be)",
+            "hint": "A primeira parte precisa estar na negativa.",
+            "options": [
+                { "text": "isn't", "isCorrect": true, "rationale": "Correto! A contração negativa para 'He' no presente é 'isn't'." },
+                { "text": "aren't", "isCorrect": false, "rationale": "Incorreto. Plural/You." },
+                { "text": "doesn't", "isCorrect": false, "rationale": "Incorreto. Mistura de auxiliares." },
+                { "text": "wasn't", "isCorrect": false, "rationale": "Incorreto. A segunda parte da frase está no presente ('is')." }
+            ]
+        },
+        {
+            "question": "11. Where ______ you right now?",
+            "topic": "Present Simple (To Be)",
+            "hint": "Pergunta no presente com 'You'.",
+            "options": [
+                { "text": "are", "isCorrect": true, "rationale": "Correto! 'are' acompanha 'you' nas perguntas de presente." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 3ª pessoa do singular." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Right now' aponta para o presente." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. Tempo futuro, não condiz com 'right now'." }
+            ]
+        },
+        {
+            "question": "12. The books ______ on the table.",
+            "topic": "Present Simple (To Be)",
+            "hint": "'The books' (plural).",
+            "options": [
+                { "text": "are", "isCorrect": true, "rationale": "Correto! Plural leva 'are'." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Seria usado se fosse 'The book' (singular)." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Passado singular." },
+                { "text": "would", "isCorrect": false, "rationale": "Incorreto. Faltaria o 'be'." }
+            ]
+        },
+        {
+            "question": "13. I ______ (not) tired today.",
+            "topic": "Present Simple (To Be)",
+            "hint": "Negativa para 'I' no presente.",
+            "options": [
+                { "text": "am not", "isCorrect": true, "rationale": "Correto! A negativa para 'I' no presente é 'am not'." },
+                { "text": "amn't", "isCorrect": false, "rationale": "Incorreto. Não existe essa contração no inglês padrão." },
+                { "text": "don't", "isCorrect": false, "rationale": "Incorreto. 'Tired' requer verbo ser/estar." },
+                { "text": "isn't", "isCorrect": false, "rationale": "Incorreto. Para He, She, It." }
+            ]
+        },
+        {
+            "question": "14. ______ Mary at home?",
+            "topic": "Present Simple (To Be)",
+            "hint": "'Mary' = She.",
+            "options": [
+                { "text": "Is", "isCorrect": true, "rationale": "Correto! 'Mary' é singular (she), então a pergunta começa com 'Is'." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. Para plurais e You." },
+                { "text": "Does", "isCorrect": false, "rationale": "Incorreto. Uso indevido do auxiliar." },
+                { "text": "Will", "isCorrect": false, "rationale": "Incorreto. Faltaria o 'be' depois de Mary." }
+            ]
+        },
+        {
+            "question": "15. You and I ______ a great team.",
+            "topic": "Present Simple (To Be)",
+            "hint": "Você e eu = Nós (We).",
+            "options": [
+                { "text": "are", "isCorrect": true, "rationale": "Correto! O sujeito composto 'You and I' forma o plural (We), exigindo 'are'." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. O sujeito não é apenas 'I'." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Incompatível com o plural." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Tempo verbal do passado singular." }
+            ]
+        },
+
+        /* --- PASSADO (15 questões) --- */
+        {
+            "question": "16. I ______ at the mall yesterday.",
+            "topic": "Past Simple (To Be)",
+            "hint": "'Yesterday' indica passado. O sujeito é 'I'.",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! No passado, usamos 'was' com o pronome 'I'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' é para plural e You." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. Presente." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. Futuro." }
+            ]
+        },
+        {
+            "question": "17. They ______ very happy about the news last night.",
+            "topic": "Past Simple (To Be)",
+            "hint": "'last night' = passado plural.",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! 'They' exige 'were' no passado." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. 'Was' é singular." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. 'Last night' indica passado." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. Fato que ocorreu, não uma hipótese." }
+            ]
+        },
+        {
+            "question": "18. ______ you late for class this morning?",
+            "topic": "Past Simple (To Be)",
+            "hint": "Pergunta no passado com 'You'.",
+            "options": [
+                { "text": "Were", "isCorrect": true, "rationale": "Correto! Perguntas no passado para 'You' começam com 'Were'." },
+                { "text": "Was", "isCorrect": false, "rationale": "Incorreto. Incompatível com 'You'." },
+                { "text": "Did", "isCorrect": false, "rationale": "Incorreto. 'Late' requer verbo ser/estar." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. 'This morning' já passou (na perspectiva da frase)." }
+            ]
+        },
+        {
+            "question": "19. The movie ______ (not) very good.",
+            "topic": "Past Simple (To Be)",
+            "hint": "Negativa no passado para um filme (it).",
+            "options": [
+                { "text": "wasn't", "isCorrect": true, "rationale": "Correto! 'wasn't' é a negativa do passado para 'it'." },
+                { "text": "weren't", "isCorrect": false, "rationale": "Incorreto. Plural." },
+                { "text": "didn't", "isCorrect": false, "rationale": "Incorreto. Uso inadequado do auxiliar de ação." },
+                { "text": "isn't", "isCorrect": false, "rationale": "Incorreto. Presente." }
+            ]
+        },
+        {
+            "question": "20. Where ______ she last weekend?",
+            "topic": "Past Simple (To Be)",
+            "hint": "Pergunta no passado com Wh-word para 'She'.",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! Usamos 'was' após 'Where' concordando com 'she'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Plural/You." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Last weekend' é passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. Falta o verbo to be." }
+            ]
+        },
+        {
+            "question": "21. It ______ raining all day yesterday.",
+            "topic": "Past Simple (To Be)",
+            "hint": "Clima no passado (it).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! 'It' no passado leva 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Incompatível com singular." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Yesterday' pede passado." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. Futuro." }
+            ]
+        },
+        {
+            "question": "22. We ______ friends in high school.",
+            "topic": "Past Simple (To Be)",
+            "hint": "Estado passado plural ('We').",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! 'We' exige 'were' no passado." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Singular." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. O tempo verbal 'in high school' denota um período passado." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. Fato consumado." }
+            ]
+        },
+        {
+            "question": "23. Why ______ the door open?",
+            "topic": "Past Simple (To Be)",
+            "hint": "Pergunta sobre a porta (singular/it) num contexto passado.",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! 'The door' (it) pede 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Seria usado para 'the doors'." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Pode ser presente, mas em opções de teste misto e dependendo do contexto da prova, foca-se no estado passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto. Auxiliar errado." }
+            ]
+        },
+        {
+            "question": "24. I ______ born in 1990.",
+            "topic": "Past Simple (To Be)",
+            "hint": "A expressão 'nascer' sempre usa o verbo to be no passado.",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! 'I was born' é a estrutura exata para 'Eu nasci'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. 'Were' é para You/We/They." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. O nascimento é no passado." },
+                { "text": "have", "isCorrect": false, "rationale": "Incorreto. Tradução literal errada." }
+            ]
+        },
+        {
+            "question": "25. ______ it a difficult test?",
+            "topic": "Past Simple (To Be)",
+            "hint": "Pergunta sobre um teste já feito.",
+            "options": [
+                { "text": "Was", "isCorrect": true, "rationale": "Correto! Para perguntar se 'foi' difícil (It), usamos 'Was'." },
+                { "text": "Were", "isCorrect": false, "rationale": "Incorreto. Singular." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. Presente." },
+                { "text": "Did", "isCorrect": false, "rationale": "Incorreto. Adjetivos usam To Be." }
+            ]
+        },
+        {
+            "question": "26. They ______ (not) at the meeting.",
+            "topic": "Past Simple (To Be)",
+            "hint": "Negativa no passado para plural.",
+            "options": [
+                { "text": "weren't", "isCorrect": true, "rationale": "Correto! A contração negativa de 'were' é 'weren't'." },
+                { "text": "wasn't", "isCorrect": false, "rationale": "Incorreto. Singular." },
+                { "text": "didn't", "isCorrect": false, "rationale": "Incorreto. Auxiliar de ação." },
+                { "text": "aren't", "isCorrect": false, "rationale": "Incorreto. Presente." }
+            ]
+        },
+        {
+            "question": "27. Who ______ the winner of the race?",
+            "topic": "Past Simple (To Be)",
+            "hint": "Pergunta no passado (singular).",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! 'Who' buscando um sujeito singular no passado pede 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Plural." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Se a corrida já acabou, usamos o passado." },
+                { "text": "did", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "28. You and Sarah ______ a great match.",
+            "topic": "Past Simple (To Be)",
+            "hint": "Você e Sarah = Vocês (You - plural).",
+            "options": [
+                { "text": "were", "isCorrect": true, "rationale": "Correto! 'You and Sarah' forma plural, exigindo 'were' no passado." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Sujeito não é singular." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Depende do contexto, mas no bloco de passado a forma 'were' prevalece." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. Condicional hipotético." }
+            ]
+        },
+        {
+            "question": "29. The weather ______ terrible yesterday.",
+            "topic": "Past Simple (To Be)",
+            "hint": "'Yesterday' pede passado singular.",
+            "options": [
+                { "text": "was", "isCorrect": true, "rationale": "Correto! 'The weather' (it) usa 'was'." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Singular." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Yesterday' é passado." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. Futuro." }
+            ]
+        },
+        {
+            "question": "30. ______ he your boss last year?",
+            "topic": "Past Simple (To Be)",
+            "hint": "Pergunta para 'He' no passado.",
+            "options": [
+                { "text": "Was", "isCorrect": true, "rationale": "Correto! Começamos a pergunta com 'Was' para 'He'." },
+                { "text": "Were", "isCorrect": false, "rationale": "Incorreto. Apenas para plurais/You." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. 'Last year' exige passado." },
+                { "text": "Did", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+
+        /* --- FUTURO (15 questões) --- */
+        {
+            "question": "31. I ______ a lawyer in five years.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Previsão futura para si mesmo.",
+            "options": [
+                { "text": "will be", "isCorrect": true, "rationale": "Correto! 'will be' expressa o futuro para qualquer pronome." },
+                { "text": "will am", "isCorrect": false, "rationale": "Incorreto. Não flexionamos o verbo 'be' após 'will'." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. Condicional." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. Presente." }
+            ]
+        },
+        {
+            "question": "32. Tomorrow ______ a holiday, so we ______ (not) at work.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Negativa no futuro.",
+            "options": [
+                { "text": "won't be", "isCorrect": true, "rationale": "Correto! A contração negativa para o futuro é 'won't be'." },
+                { "text": "will not is", "isCorrect": false, "rationale": "Incorreto. O 'be' não varia para 'is'." },
+                { "text": "aren't", "isCorrect": false, "rationale": "Incorreto. A frase trata do futuro (tomorrow)." },
+                { "text": "wouldn't be", "isCorrect": false, "rationale": "Incorreto. Condicional." }
+            ]
+        },
+        {
+            "question": "33. ______ they be at the party next Saturday?",
+            "topic": "Future Simple (To Be)",
+            "hint": "Pergunta no futuro.",
+            "options": [
+                { "text": "Will", "isCorrect": true, "rationale": "Correto! Para perguntar sobre um evento futuro, iniciamos com 'Will'." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. Já existe o 'be' depois do sujeito." },
+                { "text": "Would", "isCorrect": false, "rationale": "Incorreto. 'Next Saturday' foca num futuro real, não hipotético polido." },
+                { "text": "Do", "isCorrect": false, "rationale": "Incorreto. Não se mistura 'Do' com 'be'." }
+            ]
+        },
+        {
+            "question": "34. She ______ 18 years old next month.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Idade no futuro usa verbo To Be.",
+            "options": [
+                { "text": "will be", "isCorrect": true, "rationale": "Correto! Para idade futura dizemos 'will be'." },
+                { "text": "will have", "isCorrect": false, "rationale": "Incorreto. Em inglês não se usa o verbo ter (have) para idade." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. O aniversário é um fato, não uma hipótese." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Next month' exige futuro." }
+            ]
+        },
+        {
+            "question": "35. Where ______ you be in 2035?",
+            "topic": "Future Simple (To Be)",
+            "hint": "Pergunta no futuro distante.",
+            "options": [
+                { "text": "will", "isCorrect": true, "rationale": "Correto! 'will' acompanha a Wh-word em perguntas de futuro." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Presente." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto. Passado." },
+                { "text": "would", "isCorrect": false, "rationale": "Incorreto. O futuro direto é 'will'." }
+            ]
+        },
+        {
+            "question": "36. The concert ______ over by 11 PM.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Previsão de término do show.",
+            "options": [
+                { "text": "will be", "isCorrect": true, "rationale": "Correto! 'will be' expressa a condição futura do show estar terminado." },
+                { "text": "will is", "isCorrect": false, "rationale": "Incorreto. O verbo não se conjuga como 'is' após auxiliar." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. Evento futuro." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Passado." }
+            ]
+        },
+        {
+            "question": "37. I promise I ______ late again.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Promessa (negativa) para o futuro.",
+            "options": [
+                { "text": "won't be", "isCorrect": true, "rationale": "Correto! 'won't be' (não me atrasarei) é usado para promessas futuras." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. A lógica é prometer não se atrasar." },
+                { "text": "am not", "isCorrect": false, "rationale": "Incorreto. Promessa foca no futuro." },
+                { "text": "don't be", "isCorrect": false, "rationale": "Incorreto. Imperativo." }
+            ]
+        },
+        {
+            "question": "38. ______ the weather be nice tomorrow?",
+            "topic": "Future Simple (To Be)",
+            "hint": "Pergunta sobre o clima futuro.",
+            "options": [
+                { "text": "Will", "isCorrect": true, "rationale": "Correto! A frase inicia com 'Will' para o futuro." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. O 'be' já está lá, exigindo o modal 'Will'." },
+                { "text": "Would", "isCorrect": false, "rationale": "Incorreto. 'Tomorrow' indica previsão real." },
+                { "text": "Does", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "39. We'll ______ there in five minutes.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Contração 'We'll' = We will.",
+            "options": [
+                { "text": "be", "isCorrect": true, "rationale": "Correto! O 'will' já está na contração 'We'll', basta adicionar o 'be'." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Após 'will', usamos a forma base." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. Duplicaria o auxiliar." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "40. They ______ rich one day, I'm sure.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Previsão ('I'm sure').",
+            "options": [
+                { "text": "will be", "isCorrect": true, "rationale": "Correto! Previsões certas levam 'will be'." },
+                { "text": "will are", "isCorrect": false, "rationale": "Incorreto. Nunca varia para 'are'." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. É futuro ('one day')." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. A expressão 'I'm sure' reforça um futuro real." }
+            ]
+        },
+        {
+            "question": "41. What time ______ the meeting be?",
+            "topic": "Future Simple (To Be)",
+            "hint": "Pergunta de horário no futuro.",
+            "options": [
+                { "text": "will", "isCorrect": true, "rationale": "Correto! 'will' atua como auxiliar da pergunta futura." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. A presença do 'be' indica necessidade de modal." },
+                { "text": "does", "isCorrect": false, "rationale": "Incorreto." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "42. The traffic ______ very bad later.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Previsão ('later' = mais tarde).",
+            "options": [
+                { "text": "will be", "isCorrect": true, "rationale": "Correto! 'will be' expressa a condição futura do trânsito." },
+                { "text": "will is", "isCorrect": false, "rationale": "Incorreto. 'Be' não flexiona." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. 'Later' exige futuro." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. Hipótese, enquanto 'later' soa como previsão certa." }
+            ]
+        },
+        {
+            "question": "43. ______ it be expensive?",
+            "topic": "Future Simple (To Be)",
+            "hint": "Pergunta sobre o custo futuro.",
+            "options": [
+                { "text": "Will", "isCorrect": true, "rationale": "Correto! 'Will' inicia perguntas de futuro simples." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. 'be' exige 'Will'." },
+                { "text": "Does", "isCorrect": false, "rationale": "Incorreto." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "44. You'll ______ amazed by the view.",
+            "topic": "Future Simple (To Be)",
+            "hint": "'You'll' já tem o will.",
+            "options": [
+                { "text": "be", "isCorrect": true, "rationale": "Correto! Basta completar com o verbo base 'be'." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Não se conjuga." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. Duplica o 'will'." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "45. I ______ (not) available until 3 PM.",
+            "topic": "Future Simple (To Be)",
+            "hint": "Negativa indicando disponibilidade futura.",
+            "options": [
+                { "text": "won't be", "isCorrect": true, "rationale": "Correto! 'won't be' indica que a pessoa não estará disponível até o horário." },
+                { "text": "willn't be", "isCorrect": false, "rationale": "Incorreto. Contração incorreta." },
+                { "text": "am not", "isCorrect": false, "rationale": "Incorreto. Presente." },
+                { "text": "wouldn't be", "isCorrect": false, "rationale": "Incorreto. Condicional." }
+            ]
+        },
+
+        /* --- CONDICIONAL (15 questões) --- */
+        {
+            "question": "46. I ______ happy if I got a promotion.",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Situação hipotética ('se eu ganhasse').",
+            "options": [
+                { "text": "would be", "isCorrect": true, "rationale": "Correto! 'would be' expressa o condicional 'ficaria'." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. A cláusula 'if I got' exige condicional, não futuro real." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto. Presente." },
+                { "text": "was", "isCorrect": false, "rationale": "Incorreto. Passado." }
+            ]
+        },
+        {
+            "question": "47. She ______ (not) angry if you apologized.",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Negativa hipotética (Ela não ficaria brava...).",
+            "options": [
+                { "text": "wouldn't be", "isCorrect": true, "rationale": "Correto! 'wouldn't be' traduz 'não estaria/ficaria'." },
+                { "text": "won't be", "isCorrect": false, "rationale": "Incorreto. 'if you apologized' está no passado imaginário, pedindo condicional." },
+                { "text": "isn't", "isCorrect": false, "rationale": "Incorreto. Presente." },
+                { "text": "wouldn't is", "isCorrect": false, "rationale": "Incorreto. 'be' não flexiona." }
+            ]
+        },
+        {
+            "question": "48. ______ you be interested in a new job?",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Pergunta polida/hipotética.",
+            "options": [
+                { "text": "Would", "isCorrect": true, "rationale": "Correto! 'Would' inicia perguntas para o condicional ('Você estaria...?')." },
+                { "text": "Will", "isCorrect": false, "rationale": "Incorreto. 'Would' é muito mais comum em abordagens hipotéticas ou educadas." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto. A presença do 'be' descarta o presente direto." },
+                { "text": "Do", "isCorrect": false, "rationale": "Incorreto. Auxiliar errado." }
+            ]
+        },
+        {
+            "question": "49. It ______ a mistake to sell the car now.",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "'Seria' um erro.",
+            "options": [
+                { "text": "would be", "isCorrect": true, "rationale": "Correto! 'would be' expressa a especulação de uma ação." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. Expressa certeza, mas a frase pesa uma decisão." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. O fato ainda não ocorreu." },
+                { "text": "would is", "isCorrect": false, "rationale": "Incorreto. 'is' não se usa após 'would'." }
+            ]
+        },
+        {
+            "question": "50. Where ______ we be without our friends?",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Onde nós 'estaríamos'?",
+            "options": [
+                { "text": "would", "isCorrect": true, "rationale": "Correto! 'would' acompanha a Wh-word para perguntas condicionais." },
+                { "text": "will", "isCorrect": false, "rationale": "Incorreto. É um cenário irreal, não um evento futuro." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Falta de gramática com o 'be' já presente." },
+                { "text": "do", "isCorrect": false, "rationale": "Incorreto. Auxiliar errado." }
+            ]
+        },
+        {
+            "question": "51. They'd ______ delighted to help.",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Eles 'ficariam' (They'd = They would).",
+            "options": [
+                { "text": "be", "isCorrect": true, "rationale": "Correto! Adicionamos a forma base 'be'." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. Não se conjuga." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. O 'would' já está na contração 'd'." },
+                { "text": "been", "isCorrect": false, "rationale": "Incorreto. Particípio passado." }
+            ]
+        },
+        {
+            "question": "52. That ______ so cool!",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Isso 'seria' tão legal!",
+            "options": [
+                { "text": "would be", "isCorrect": true, "rationale": "Correto! 'would be' descreve a imaginação de um evento legal." },
+                { "text": "would is", "isCorrect": false, "rationale": "Incorreto. O verbo base é sempre 'be'." },
+                { "text": "would are", "isCorrect": false, "rationale": "Incorreto." },
+                { "text": "will", "isCorrect": false, "rationale": "Incorreto. Faltaria o 'be'." }
+            ]
+        },
+        {
+            "question": "53. ______ it be possible to get a discount?",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Pedido educado ('seria possível?').",
+            "options": [
+                { "text": "Would", "isCorrect": true, "rationale": "Correto! 'Would' inicia perguntas educadas/condicionais." },
+                { "text": "Will", "isCorrect": false, "rationale": "Incorreto. Menos polido e foca mais num fato futuro concreto do que na possibilidade educada." },
+                { "text": "Is", "isCorrect": false, "rationale": "Incorreto. O 'be' já está lá." },
+                { "text": "Does", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "54. I ______ (not) so sure if I were you.",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Eu NÃO 'estaria' tão certo...",
+            "options": [
+                { "text": "wouldn't be", "isCorrect": true, "rationale": "Correto! Negativa do condicional é 'wouldn't be'." },
+                { "text": "won't be", "isCorrect": false, "rationale": "Incorreto. Expressão 'if I were you' pede condicional." },
+                { "text": "am not", "isCorrect": false, "rationale": "Incorreto. Presente." },
+                { "text": "didn't be", "isCorrect": false, "rationale": "Incorreto. Formação errada." }
+            ]
+        },
+        {
+            "question": "55. Why ______ she be sad? She won a prize!",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Por que ela 'estaria' triste?",
+            "options": [
+                { "text": "would", "isCorrect": true, "rationale": "Correto! 'would' expressa surpresa sobre a possibilidade de um estado." },
+                { "text": "will", "isCorrect": false, "rationale": "Incorreto. É sobre a suposição atual/passada, não o futuro." },
+                { "text": "is", "isCorrect": false, "rationale": "Incorreto. A oração já tem o verbo 'be'." },
+                { "text": "does", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "56. We ______ perfect for each other.",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Nós 'seríamos' perfeitos (em teoria).",
+            "options": [
+                { "text": "would be", "isCorrect": true, "rationale": "Correto! Condicional para a suposição romântica/amigável." },
+                { "text": "would are", "isCorrect": false, "rationale": "Incorreto. Verbo deve estar no infinitivo (be)." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. O tom soa mais como uma hipótese." },
+                { "text": "are", "isCorrect": false, "rationale": "Incorreto. 'Seríamos' traz a dúvida/hipótese que 'are' (somos) exclui." }
+            ]
+        },
+        {
+            "question": "57. I'd ______ careful with that dog.",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Eu 'ficaria' = I'd...",
+            "options": [
+                { "text": "be", "isCorrect": true, "rationale": "Correto! Falta a forma base 'be' para completar a contração." },
+                { "text": "am", "isCorrect": false, "rationale": "Incorreto." },
+                { "text": "were", "isCorrect": false, "rationale": "Incorreto." },
+                { "text": "would be", "isCorrect": false, "rationale": "Incorreto. Repetição." }
+            ]
+        },
+        {
+            "question": "58. What ______ the best choice in your opinion?",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Qual 'seria' a melhor escolha?",
+            "options": [
+                { "text": "would be", "isCorrect": true, "rationale": "Correto! 'would be' faz a pergunta baseada numa opinião hipotética." },
+                { "text": "will be", "isCorrect": false, "rationale": "Incorreto. É uma sondagem, não um evento programado." },
+                { "text": "would is", "isCorrect": false, "rationale": "Incorreto. Conjugação errada após modal." },
+                { "text": "is would", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "59. He ______ (not) a good actor, even with classes.",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Ele NÃO 'seria' um bom ator...",
+            "options": [
+                { "text": "wouldn't be", "isCorrect": true, "rationale": "Correto! Expressa uma negação de um fato imaginário/teórico." },
+                { "text": "won't be", "isCorrect": false, "rationale": "Incorreto. A cláusula 'even with classes' levanta o tom hipotético." },
+                { "text": "isn't", "isCorrect": false, "rationale": "Incorreto. Presente." },
+                { "text": "doesn't be", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        },
+        {
+            "question": "60. ______ you be my Valentine?",
+            "topic": "Conditional Simple (To Be)",
+            "hint": "Pedido romântico/condicional famoso.",
+            "options": [
+                { "text": "Would", "isCorrect": true, "rationale": "Correto! A expressão clássica e educada exige o 'Would'." },
+                { "text": "Will", "isCorrect": false, "rationale": "Incorreto. 'Will' soa menos gentil no pedido clássico ('Would you be...')." },
+                { "text": "Are", "isCorrect": false, "rationale": "Incorreto." },
+                { "text": "Do", "isCorrect": false, "rationale": "Incorreto." }
+            ]
+        }
+    ],
+
+            startQuiz(continueFromSavedState) {
+                const studentCode = this.elements.studentCodeInput.value.trim().toUpperCase();
+                const correctName = this.studentData[studentCode];
+
+                if (!correctName) {
+                    alert("Código de acesso inválido. Por favor, verifique e tente novamente.");
+                    return;
+                }
+
+                this.validatedStudentCode = studentCode;
+                this.validatedStudentName = correctName;
+
+                if (continueFromSavedState) {
+                    this.loadQuizState(this.validatedStudentCode);
+                } else {
+                    this.currentQuestionIndex = 0;
+                    this.score = 0;
+                    this.userAnswers = {};
+                    this.skippedQuestions = [];
+                    this.currentSkippedIndex = 0;
+                    this.balanceCorrectAnswers();
+                    localStorage.removeItem(`quizState_${this.validatedStudentCode}`);
+                    this.shuffledQuestions = this.shuffleArray([...this.questions]);
+                }
+
+                const storageKey = `quiz_attempts_${this.validatedStudentCode}`;
+                let attempts = parseInt(localStorage.getItem(storageKey) || 0);
+                localStorage.setItem(storageKey, attempts + 1);
+
+                this.elements.studentCodeInput.style.display = 'none';
+                this.elements.startActionsDiv.style.display = 'none';
+                this.elements.quizDescription.style.display = 'none';
+
+                if (this.validatedStudentName === "JÚNIOR") {
+                    this.elements.personalizedWelcome.textContent = "Oi, JÚNIOR - grato por sua visita!!!";
+                } else {
+                    this.elements.personalizedWelcome.textContent = `Bem-vindo(a), ${this.validatedStudentName}! Boa sorte!`;
+                }
+                
+                this.elements.personalizedWelcome.style.display = 'block';
+
+                setTimeout(() => {
+                    this.elements.introCard.style.display = 'none';
+                    this.elements.quizCard.style.display = 'flex';
+                    this.displayQuestion();
+                }, 3000);
+            },
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            },
+
+            displayQuestion() {
+                this.elements.performanceDisplay.style.display = 'none';
+                let questionToDisplay;
+                let currentQuestionNumber;
+                this.elements.hintText.style.display = 'none';
+                this.elements.summaryText.style.display = 'none';
+                this.elements.summaryButton.style.display = 'none';
+
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length && this.skippedQuestions.length > 0) {
+                    const skippedIndex = this.skippedQuestions[this.currentSkippedIndex];
+                    questionToDisplay = this.questions[skippedIndex]; 
+                    currentQuestionNumber = `(Pulada) ${this.currentSkippedIndex + 1} de ${this.skippedQuestions.length}`;
+                    this.elements.skipButton.style.display = 'none';
+                    this.elements.nextButton.textContent = 'Próxima Questão';
+                } else if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    questionToDisplay = this.shuffledQuestions[this.currentQuestionIndex];
+                    currentQuestionNumber = this.currentQuestionIndex + 1;
+                    this.elements.skipButton.style.display = 'inline-block';
+                    this.elements.nextButton.textContent = 'Próxima Questão';
+                } else {
+                    this.showResults();
+                    return;
+                }
+
+                this.elements.currentQuestionNumSpan.textContent = currentQuestionNumber;
+                this.elements.nextButton.style.display = 'none';
+                this.elements.optionsList.innerHTML = '';
+                this.elements.questionText.textContent = questionToDisplay.question;
+
+                questionToDisplay.options.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = option.text;
+                    li.onclick = () => this.selectOption(li, option);
+                    this.elements.optionsList.appendChild(li);
+                });
+            },
+
+            selectOption(selectedElement, selectedOption) {
+                const options = document.querySelectorAll('.option-item');
+
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+
+                const justificationElement = document.createElement('div');
+                justificationElement.className = 'justification';
+
+                let currentQuestion;
+                let originalQuestionIndex;
+
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    originalQuestionIndex = this.skippedQuestions[this.currentSkippedIndex];
+                    currentQuestion = this.questions[originalQuestionIndex];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                    originalQuestionIndex = this.questions.findIndex(q => q.question === currentQuestion.question);
+                }
+
+                const correctOptions = currentQuestion.options.filter(opt => opt.isCorrect);
+                const correctOptionTexts = correctOptions.map(opt => opt.text);
+                const isCorrect = correctOptionTexts.includes(selectedOption.text);
+
+                if (isCorrect) {
+                    this.score++;
+                    selectedElement.classList.add('correct');
+                    justificationElement.textContent = selectedOption.rationale;
+                    justificationElement.style.borderColor = '#90EE90'; /* Light Green borda na justificativa tbm */
+                    this.elements.summaryButton.style.display = 'none';
+                } else {
+                    selectedElement.classList.add('incorrect');
+                    const correctElements = Array.from(options).filter(el => correctOptionTexts.includes(el.textContent));
+                    correctElements.forEach(el => el.classList.add('correct'));
+                    justificationElement.textContent = selectedOption.rationale;
+                    justificationElement.style.borderColor = '#FA8072'; /* Salmon borda */
+                    this.elements.summaryButton.style.display = 'inline-block';
+                }
+
+                this.userAnswers[originalQuestionIndex] = {
+                    question: currentQuestion.question,
+                    userAnswer: selectedOption.text,
+                    isCorrect: isCorrect,
+                    correctAnswer: correctOptionTexts.join(' ou '),
+                    rationale: selectedOption.rationale
+                };
+
+                selectedElement.parentNode.insertBefore(justificationElement, selectedElement.nextSibling);
+                justificationElement.style.display = 'block';
+
+                this.elements.nextButton.style.display = 'block';
+                this.elements.skipButton.style.display = 'none'; 
+                this.saveQuizState();
+            },
+
+            showPerformance() {
+                const answeredCount = Object.keys(this.userAnswers).length;
+                const correctCount = this.score;
+                const incorrectCount = answeredCount - correctCount;
+
+                this.elements.performanceDisplay.innerHTML = `Até agora: <span style="color: #28a745;">${correctCount} acertos</span> e <span style="color: #dc3545;">${incorrectCount} erros</span>.`;
+                this.elements.performanceDisplay.style.display = 'block';
+            },
+            
+            showHint() {
+                let currentQuestion;
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    currentQuestion = this.questions[this.skippedQuestions[this.currentSkippedIndex]];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                }
+
+                if (currentQuestion && currentQuestion.hint) {
+                    this.elements.hintText.textContent = currentQuestion.hint;
+                    this.elements.hintText.style.display = 'block';
+                }
+            },
+
+            showSummary() {
+                let currentQuestion;
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length) {
+                    currentQuestion = this.questions[this.skippedQuestions[this.currentSkippedIndex]];
+                } else {
+                    currentQuestion = this.shuffledQuestions[this.currentQuestionIndex];
+                }
+                
+                const questionTopic = currentQuestion.topic;
+
+                if (questionTopic && this.summaries[questionTopic]) {
+                    this.elements.summaryText.textContent = this.summaries[questionTopic];
+                    this.elements.summaryText.style.display = 'block';
+                }
+            },
+
+            nextQuestion() {
+                if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    this.currentQuestionIndex++;
+                } else {
+                    this.currentSkippedIndex++;
+                }
+                
+                if (this.currentQuestionIndex >= this.shuffledQuestions.length && this.currentSkippedIndex >= this.skippedQuestions.length) {
+                    this.showResults();
+                } else {
+                    this.displayQuestion();
+                }
+            },
+
+            skipQuestion() {
+                if (this.currentQuestionIndex < this.shuffledQuestions.length) {
+                    const originalIndex = this.questions.findIndex(q => q.question === this.shuffledQuestions[this.currentQuestionIndex].question);
+                    this.skippedQuestions.push(originalIndex);
+                }
+                this.currentQuestionIndex++;
+                this.displayQuestion();
+            },
+
+            getClassification(percentage) {
+                if (percentage >= 86) return "Excelente!!!";
+                if (percentage >= 71) return "Muito Bom!!";
+                if (percentage >= 51) return "Bom!";
+                if (percentage >= 0) return "Insatisfatório!";
+                return "Classificação não disponível";
+            },
+
+            launchConfetti() {
+                confetti({ particleCount: 600, spread: 70, origin: { y: 0.6 } });
+                setTimeout(() => confetti({ particleCount: 450, spread: 90, origin: { x: 0, y: 0.8 } }), 500);
+                setTimeout(() => confetti({ particleCount: 450, spread: 90, origin: { x: 1, y: 0.8 } }), 800);
+                setTimeout(() => confetti({ particleCount: 300, spread: 120, origin: { y: 0.2 } }), 1000);
+            },
+
+            showResults() {
+                this.elements.quizCard.style.display = 'none';
+                this.elements.resultsCard.style.display = 'block';
+                this.elements.incorrectQuestionsContainer.innerHTML = '';
+                this.elements.fullReportContainer.innerHTML = '';
+                localStorage.removeItem(`quizState_${this.validatedStudentCode}`);
+
+                const percentage = Math.round((this.score / this.questions.length) * 100);
+                const classificationText = this.getClassification(percentage);
+
+                this.elements.reportStudentName.textContent = this.validatedStudentName;
+                this.elements.reportStudentCode.textContent = this.validatedStudentCode;
+                this.elements.scoreDisplay.textContent = `${this.score} de ${this.questions.length}`;
+                this.elements.percentageDisplay.textContent = `${percentage}%`;
+
+                this.elements.classificationDisplay.textContent = classificationText;
+                this.elements.classificationDisplay.classList.remove('classification-red', 'classification-blue', 'classification-orange');
+                if (classificationText === "Insatisfatório!") {
+                    this.elements.classificationDisplay.classList.add('classification-red');
+                } else if (classificationText === "Excelente!!!") {
+                    this.launchConfetti();
+                    this.elements.classificationDisplay.classList.add('classification-orange');
+                    setTimeout(() => {
+                        this.elements.classificationDisplay.classList.remove('classification-orange');
+                        this.elements.classificationDisplay.style.color = '#FFA500';
+                        this.elements.classificationDisplay.style.fontWeight = 'bold';
+                        this.elements.classificationDisplay.style.animation = 'none';
+                    }, 5000);
+                } else if (classificationText === "Muito Bom!!" || classificationText === "Bom!") {
+                    this.elements.classificationDisplay.classList.add('classification-blue');
+                }
+
+                this.elements.fullReportContainer.innerHTML = this.generateFullReportHtml();
+                this.elements.fullReportContainer.style.display = 'block';
+
+                const shareMessage = this.generateShareMessage(percentage, classificationText);
+                const encodedMessage = encodeURIComponent(shareMessage);
+                this.elements.shareWhatsappLink.href = `https://wa.me/?text=${encodedMessage}`;
+
+                const data = {
+                    nome: this.validatedStudentName,
+                    codigo: this.validatedStudentCode,
+                    pontuacao: `${this.score} de ${this.questions.length}`,
+                    percentual: `${percentage}%`,
+                    classificacao: classificationText,
+                };
+
+                fetch(this.APP_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'no-cors'
+                })
+                .then(() => console.log('Dados enviados com sucesso para a planilha!'))
+                .catch(error => console.error('Erro ao enviar dados:', error));
+
+                this.elements.sendReportLink.textContent = 'Relatório Enviado!';
+                this.elements.sendReportLink.href = '#';
+                this.elements.sendReportLink.onclick = (e) => e.preventDefault();
+                this.elements.sendReportLink.style.cursor = 'default';
+                this.elements.sendReportLink.style.backgroundColor = '#ccc';
+            },
+
+            generateFullReportHtml() {
+                let html = '<h3>Relatório Completo de Respostas:</h3>';
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer;
+                    const isCorrect = userAnswerObj.isCorrect;
+                    
+                    html += `<div class="report-question-item">`;
+                    html += `<p><strong>Questão ${index + 1}:</strong> ${question.question}</p>`;
+                    html += `<ul style="list-style-type: none; padding-left: 0;">`;
+
+                    question.options.forEach(option => {
+                        const isUserAnswer = (option.text === userAnswerText);
+                        const isCorrectOption = option.isCorrect;
+
+                        let optionClass = '';
+                        if (isCorrectOption) {
+                            optionClass = 'correct';
+                        } else if (isUserAnswer) {
+                            optionClass = 'incorrect';
+                        }
+
+                        let textPrefix = '';
+                        if (isUserAnswer && isCorrectOption) {
+                            textPrefix = 'Sua Resposta Correta: ';
+                        } else if (isCorrectOption) {
+                            textPrefix = 'Resposta Correta: ';
+                        } else if (isUserAnswer) {
+                            textPrefix = 'Sua Resposta: ';
+                        }
+
+                        html += `<li class="option-item-report ${optionClass}">`;
+                        html += `<p><strong>${textPrefix}</strong>${option.text}</p>`;
+                        html += `<div class="justification" style="display: block;">${option.rationale}</div>`;
+                        html += `</li>`;
+                    });
+
+                    html += '</ul></div>';
+                });
+                return html;
+            },
+
+            generateShareMessage(percentage, classificationText) {
+                let message = `*Relatório Completo do Quiz de Inglês*\n\n`;
+                message += `*Aluno(a):* ${this.validatedStudentName}\n`;
+                message += `*Código de Acesso:* ${this.validatedStudentCode}\n`;
+                message += `*Pontuação:* ${this.score} de ${this.questions.length}\n`;
+                message += `*Percentual de Acerto:* ${percentage}%\n`;
+                message += `*Classificação:* ${classificationText}\n\n`;
+                message += `*--- Respostas ---*\n`;
+
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer || 'Não respondida';
+                    const isCorrect = userAnswerObj.isCorrect;
+                    const correctAnswer = question.options.find(opt => opt.isCorrect).text;
+                    const rationale = userAnswerObj.rationale || question.options.find(opt => opt.isCorrect).rationale;
+
+                    message += `\n*Questão ${index + 1}:* ${question.question}\n`;
+                    message += `_Sua resposta:_ ${isCorrect ? `😄` : `😢`} ${userAnswerText}\n`;
+                    message += `_Resposta correta:_ ${correctAnswer}\n`;
+                    message += `_Justificativa:_ ${rationale}\n`;
+                });
+                return message;
+            },
+
+            saveQuizState() {
+                const quizState = {
+                    questionIndex: this.currentQuestionIndex,
+                    userResponses: this.userAnswers,
+                    studentCode: this.validatedStudentCode,
+                    studentName: this.validatedStudentName,
+                    skippedQuestions: this.skippedQuestions,
+                    currentSkippedIndex: this.currentSkippedIndex,
+                    shuffledQuestions: this.shuffledQuestions 
+                };
+                localStorage.setItem(`quizState_${this.validatedStudentCode}`, JSON.stringify(quizState));
+            },
+
+            loadQuizState(studentCode) {
+                const savedState = localStorage.getItem(`quizState_${studentCode}`);
+                if (savedState) {
+                    const quizState = JSON.parse(savedState);
+                    if (quizState.studentCode === studentCode) {
+                        this.currentQuestionIndex = quizState.questionIndex;
+                        this.score = quizState.score || Object.values(quizState.userResponses).filter(a => a.isCorrect).length;
+                        this.userAnswers = quizState.userResponses || {};
+                        this.validatedStudentName = quizState.studentName;
+                        this.validatedStudentCode = quizState.studentCode;
+                        this.skippedQuestions = quizState.skippedQuestions || [];
+                        this.currentSkippedIndex = quizState.currentSkippedIndex || 0;
+                        this.shuffledQuestions = quizState.shuffledQuestions;
+                        return true;
+                    }
+                }
+                return false;
+            },
+
+            updateAttemptsDisplay(code) {
+                this.elements.attemptsLeftSpan.textContent = "Ilimitadas";
+                this.elements.introAttemptsLeftSpan.textContent = "ilimitadas";
+                this.elements.startActionsDiv.innerHTML = '';
+                
+                if (this.loadQuizState(code)) {
+                    const continueBtn = document.createElement('button');
+                    continueBtn.textContent = 'Continuar Quiz';
+                    continueBtn.className = 'start-btn continue-btn';
+                    continueBtn.onclick = () => this.startQuiz(true);
+                    this.elements.startActionsDiv.appendChild(continueBtn);
+
+                    const newBtn = document.createElement('button');
+                    newBtn.textContent = 'Iniciar Novo Quiz';
+                    newBtn.className = 'restart-btn'; // Salmão
+                    newBtn.onclick = () => {
+                        if (confirm("Você tem um progresso salvo. Deseja realmente começar um novo quiz e perder o progresso atual?")) {
+                            this.startQuiz(false);
+                        }
+                    };
+                    this.elements.startActionsDiv.appendChild(newBtn);
+                } else {
+                    const startBtn = document.createElement('button');
+                    startBtn.textContent = 'Start Quiz';
+                    startBtn.className = 'start-btn';
+                    startBtn.onclick = () => this.startQuiz(false);
+                    this.elements.startActionsDiv.appendChild(startBtn);
+                }
+            },
+
+            restartQuiz() {
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.userAnswers = {};
+                this.skippedQuestions = [];
+                this.currentSkippedIndex = 0;
+
+                const studentCode = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (studentCode) {
+                    localStorage.removeItem(`quizState_${studentCode}`);
+                }
+
+                this.elements.resultsCard.style.display = 'none';
+                this.elements.quizCard.style.display = 'none';
+                this.elements.introCard.style.display = 'flex';
+                this.elements.studentCodeInput.value = '';
+                this.elements.studentCodeInput.style.display = 'block';
+                this.elements.personalizedWelcome.style.display = 'none';
+                this.elements.quizDescription.style.display = 'block';
+                this.elements.sendReportLink.textContent = 'Enviar Relatório ao Professor';
+                this.elements.sendReportLink.href = '#';
+                this.elements.sendReportLink.onclick = null;
+                this.elements.sendReportLink.style.cursor = 'pointer';
+                this.elements.sendReportLink.style.backgroundColor = '#6c757d';
+
+                this.elements.startActionsDiv.innerHTML = '<button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>';
+                this.elements.startActionsDiv.style.display = 'block';
+            },
+
+            saveReport() {
+                const scoreText = this.elements.scoreDisplay.textContent;
+                const percentage = Math.round((this.score / this.questions.length) * 100);
+                const classificationText = this.elements.classificationDisplay.textContent;
+
+                let reportContent = `Relatório Completo do Quiz de Inglês (To Be - 4 Tempos)\n\n`;
+                reportContent += `Nome: ${this.validatedStudentName}\n`;
+                reportContent += `Código de Acesso: ${this.validatedStudentCode}\n`;
+                reportContent += `Pontuação: ${scoreText}\n`;
+                reportContent += `Percentual de Acerto: ${percentage}%\n`;
+                reportContent += `Classificação: ${classificationText}\n\n`;
+                reportContent += `--- Respostas ---\n`;
+
+                this.questions.forEach((question, index) => {
+                    const userAnswerObj = this.userAnswers[index] || {};
+                    const userAnswerText = userAnswerObj.userAnswer || 'Não respondida';
+                    const isCorrect = userAnswerObj.isCorrect;
+                    const correctAnswer = question.options.find(opt => opt.isCorrect).text;
+                    const rationale = userAnswerObj.rationale || question.options.find(opt => opt.isCorrect).rationale;
+
+                    reportContent += `\nQuestão ${index + 1}: ${question.question}\n`;
+                    reportContent += `Sua resposta: ${isCorrect ? `(CORRETA) ` : `(INCORRETA) `}${userAnswerText}\n`;
+                    reportContent += `Resposta correta: ${correctAnswer}\n`;
+                    reportContent += `Justificativa: ${rationale}\n`;
+                });
+
+                const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Relatorio-Quiz-${this.validatedStudentName.replace(/ /g, '-')}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+
+            printReport() {
+                window.print();
+            },
+
+            init() {
+                this.elements.studentCodeInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                    const code = e.target.value.trim().toUpperCase();
+                    if (this.studentData[code]) {
+                        this.updateAttemptsDisplay(code);
+                    } else {
+                        this.elements.startActionsDiv.innerHTML = '<button class="start-btn" onclick="quizApp.startQuiz(false)">Start Quiz</button>';
+                    }
+                });
+
+                this.elements.performanceButton.onclick = () => this.showPerformance();
+                this.elements.nextButton.onclick = () => this.nextQuestion();
+                this.elements.skipButton.onclick = () => this.skipQuestion(); 
+
+                const code = this.elements.studentCodeInput.value.trim().toUpperCase();
+                if (this.studentData[code]) {
+                    this.updateAttemptsDisplay(code);
+                } else {
+                    this.restartQuiz();
+                }
+            }
+        };
+
+        window.onload = function() {
+            quizApp.init();
+        };
+
+    </script>
+</body>
+</html>
