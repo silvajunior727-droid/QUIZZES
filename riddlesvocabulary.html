@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIDDLES - VOCABULARY</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>   
+
+    <style>
+        /* ESTILOS GERAIS E FUNDO ELEGANTE */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 40px;
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 90%;
+            max-width: 850px;
+            min-height: 400px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        h1 { text-align: center; color: #2c3e50; font-size: 1.6rem; margin-bottom: 5px; }
+        h2 { text-align: center; color: #7f8c8d; font-size: 1.2rem; margin-top: 0; }
+
+        .card { display: none; flex-direction: column; }
+        .active-card { display: flex; animation: fadeIn 0.4s ease-in-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* INPUTS E FILTROS */
+        input[type="text"] {
+            padding: 12px; margin-top: 10px; border: 2px solid #e0e0e0;
+            border-radius: 8px; width: 100%; box-sizing: border-box;
+            font-size: 1.1rem; text-align: center; transition: border-color 0.3s;
+        }
+        input[type="text"]:focus { border-color: #90EE90; outline: none; }
+
+        /* --------------------------------------------------- */
+        /* BOTÕES 3D (Com Borda Baixa)                         */
+        /* --------------------------------------------------- */
+        .btn-3d {
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+            font-size: 1rem; padding: 12px 25px; transition: all 0.1s ease;
+            position: relative; text-align: center; display: inline-block; margin-top: 10px;
+        }
+        .btn-green {
+            background-color: #90EE90; color: #2c3e50;
+            box-shadow: 0 6px 0 #75c975;
+        }
+        .btn-green:active { transform: translateY(6px); box-shadow: 0 0 0 #75c975; }
+
+        .btn-salmon {
+            background-color: #FA8072; color: white;
+            box-shadow: 0 6px 0 #d9695d;
+        }
+        .btn-salmon:active { transform: translateY(6px); box-shadow: 0 0 0 #d9695d; }
+
+        .btn-blue {
+            background-color: #3498db; color: white;
+            box-shadow: 0 6px 0 #2980b9;
+        }
+        .btn-blue:active { transform: translateY(6px); box-shadow: 0 0 0 #2980b9; }
+
+        /* ESTILOS DOS BOTÕES DO RODAPÉ DA QUESTÃO (TAMANHOS UNIFORMES) */
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 25px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .left-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-quiz-action {
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+            font-size: 0.95rem; padding: 10px 18px; transition: all 0.1s ease;
+            position: relative; text-align: center; display: inline-block; margin-top: 0;
+        }
+        .btn-report-quiz {
+            background-color: #3498db; color: white; box-shadow: 0 5px 0 #2980b9;
+        }
+        .btn-report-quiz:active { transform: translateY(5px); box-shadow: 0 0 0 #2980b9; }
+
+        .btn-hint-quiz {
+            background-color: #6a0dad; color: white; box-shadow: 0 5px 0 #4c0880;
+        }
+        .btn-hint-quiz:active { transform: translateY(5px); box-shadow: 0 0 0 #4c0880; }
+
+        /* BARRA DE PROGRESSO */
+        .progress-container {
+            width: 100%; background-color: #e9ecef; border-radius: 10px;
+            height: 12px; margin-bottom: 20px; overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            height: 100%; background-color: #90EE90; width: 0%;
+            transition: width 0.4s ease-out; border-radius: 10px;
+        }
+
+        /* ÁREA DA QUESTÃO */
+        .question-text { font-size: 1.3rem; margin-bottom: 20px; font-weight: 600; line-height: 1.5; }
+        .question-counter { text-align: left; font-weight: bold; margin-bottom: 5px; color: #7f8c8d; }
+        
+        #hint-text {
+            margin-top: 15px; padding: 12px; background-color: #f8f9fa;
+            border-left: 5px solid #6a0dad; border-radius: 5px; font-style: italic; display: none;
+        }
+
+        /* 1. Múltipla Escolha */
+        .option-btn {
+            background-color: #f8f9fa; border: 2px solid #e0e0e0; padding: 15px;
+            margin-bottom: 12px; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; width: 100%; text-align: left; font-size: 1.1rem;
+        }
+        .option-btn:hover { background-color: #f1f3f5; border-color: #ccc; }
+        .option-btn.selected { background-color: #e8f5e9; border-color: #90EE90; font-weight: bold; transform: scale(1.01); box-shadow: 0 4px 10px rgba(144, 238, 144, 0.2);}
+
+        /* 2. Verdadeiro ou Falso */
+        .tf-container { display: flex; justify-content: center; gap: 20px; margin-top: 15px; }
+        .tf-btn { padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; background-color: #f8f9fa; transition: all 0.2s; width: 45%; }
+        .tf-btn.selected-true { background-color: #e8f5e9; border-color: #90EE90; color: #2c3e50; }
+        .tf-btn.selected-false { background-color: #ffeeee; border-color: #FA8072; color: #c0392b; }
+
+        /* 3. Digitação */
+        .typing-container { display: flex; flex-direction: column; align-items: center; margin-top: 15px; }
+        .typing-input {
+            padding: 15px; font-size: 1.3rem; border: 2px solid #ccc; border-radius: 8px;
+            width: 80%; text-align: center; text-transform: lowercase;
+        }
+        .typing-input:focus { border-color: #90EE90; outline: none; }
+
+        /* 4. Arrastar e Soltar */
+        .drag-container { background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #e0e0e0;}
+        .sentence-display { font-size: 1.3rem; margin-bottom: 25px; line-height: 2; }
+        .drop-zone { display: inline-block; min-width: 80px; min-height: 30px; border-bottom: 3px dashed #7f8c8d; margin: 0 10px; padding: 0 10px; color: #3498db; font-weight: bold; cursor: pointer; transition: all 0.3s;}
+        .drop-zone:hover { border-bottom-color: #3498db; }
+        .words-bank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .drag-word { background-color: #3498db; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; box-shadow: 0 4px 0 #2980b9; transition: transform 0.1s;}
+        .drag-word:active { transform: translateY(4px); box-shadow: 0 0 0 #2980b9;}
+        .drag-word.used { background-color: #bdc3c7; box-shadow: 0 4px 0 #95a5a6; cursor: not-allowed; }
+
+        /* DASHBOARD E TABELA */
+        .styled-table { border-collapse: collapse; margin: 20px 0; font-size: 0.95em; width: 100%; box-shadow: 0 0 15px rgba(0, 0, 0, 0.05); border-radius: 8px; overflow: hidden; }
+        .styled-table thead tr { background-color: #90EE90; color: #2c3e50; text-align: left; cursor: pointer; }
+        .styled-table th, .styled-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        .styled-table tbody tr:hover { background-color: #f9f9f9; }
+
+        /* RELATÓRIO FINAL */
+        .results-details { background-color: #fdfbfb; padding: 20px; border-left: 5px solid #90EE90; border-radius: 8px; margin-top: 20px; font-size: 1.2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        .report-item { margin-bottom: 15px; padding: 15px; border-radius: 8px; border: 1px solid #eee; background: #fff;}
+        .report-item.correct { border-left: 5px solid #90EE90; }
+        .report-item.incorrect { border-left: 5px solid #FA8072; }
+        .report-rationale { font-size: 0.95rem; color: #7f8c8d; margin-top: 8px; font-style: italic; }
+
+        /* IMPRESSÃO (PDF) */
+        @media print {
+            body { background: #fff; padding: 0; margin: 0; }
+            .container { box-shadow: none; width: 100%; max-width: 100%; }
+            .btn-3d, #intro-card, #quiz-card, #dashboard-card, .progress-container, .no-print { display: none !important; }
+            #results-card { display: block !important; }
+            .report-item { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- TELA DE LOGIN -->
+        <div id="intro-card" class="card active-card intro-card">
+            <h1>RIDDLES VOCABULARY</h1>
+            <h2></h2>
+            <p id="personalized-welcome" style="font-size: 1.2rem; font-weight: bold; margin-top: 15px; color: #FA8072; text-align: center; display: none;"></p>
+            <p id="quiz-description" style="text-align: center; color: #7f8c8d;">Insira seu código de acesso para iniciar a avaliação.</p>
+            <input type="text" id="student-code" placeholder="Código de Acesso">
+            <button class="btn-3d btn-green" id="start-btn" onclick="app.startQuiz()">Iniciar Avaliação</button>
+        </div>
+
+        <!-- DASHBOARD MASTER (JR1971) -->
+        <div id="dashboard-card" class="card">
+            <h1 style="color: #FA8072; margin-bottom: 0;">Painel do Professor</h1>
+            <p style="text-align: center; margin-top: 5px;">Acompanhamento em tempo real (Tentativas em linhas separadas).</p>
+            
+            <div style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;" class="no-print">
+                <input type="text" id="filter-input" placeholder="🔍 Filtrar por nome do aluno..." onkeyup="app.filterTable()" style="flex: 1; min-width: 200px; margin-top: 0;">
+                <button class="btn-3d btn-green" onclick="app.exportToCSV()">Salvar Excel</button>
+                <button class="btn-3d btn-salmon" onclick="app.exitMaster()">Sair</button>
+            </div>
+            
+            <div style="overflow-x:auto;">
+                <table class="styled-table" id="dashboard-table">
+<thead>
+                        <tr>
+                            <th onclick="app.sortTable(0)">Aluno ↕</th>
+                            <th onclick="app.sortTable(1)">Código ↕</th>
+                            <th onclick="app.sortTable(2)">Série ↕</th> <!-- NOVA COLUNA AQUI -->
+                            <th onclick="app.sortTable(3)">Nota Final ↕</th>
+                            <th onclick="app.sortTable(4)">Data/Hora Tentativa ↕</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TELA DA AVALIAÇÃO -->
+        <div id="quiz-card" class="card">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="question-counter">Questão <span id="current-q-num">1</span> de <span id="total-q-num">50</span></div>
+            </div>
+            
+            <div id="question-text" class="question-text"></div>
+            <div id="answer-area"></div>
+
+            <div id="hint-container">
+                <div id="hint-text"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <div class="left-actions">
+                    <button class="btn-quiz-action btn-report-quiz" onclick="app.openReportsModal()">📋 Relatório</button>
+                    <button class="btn-quiz-action btn-hint-quiz" onclick="app.showHint()">💡 Dica</button>
+                </div>
+                <div>
+                    <button class="btn-3d btn-green" id="confirm-btn" onclick="app.confirmAnswer()">✔️ Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA DE RESULTADOS / RELATÓRIO INDIVIDUAL -->
+        <div id="results-card" class="card">
+            <h1 style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">Relatório de Desempenho</h1>
+            <div class="results-details">
+                <p><strong>Aluno(a):</strong> <span id="res-name"></span></p>
+                <p><strong>Acertos:</strong> <span id="res-score"></span> de <span id="res-total">50</span></p>
+                <p><strong>Aproveitamento:</strong> <span id="res-perc"></span>%</p>
+            </div>
+            
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;" class="no-print">
+                <button class="btn-3d btn-green" onclick="window.print()">Salvar PDF (Relatório)</button>
+                <button class="btn-3d btn-blue" onclick="app.backToQuizOrIntro()">Voltar</button>
+            </div>
+
+            <h3 style="margin-top: 30px; color: #7f8c8d;">Revisão das Questões desta Rodada:</h3>
+            <div id="detailed-report"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. CONFIGURAÇÃO FIREBASE E DADOS
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBt9b_YXS9koqsQhyyduaVizPUtDc22KCs",
+            authDomain: "quizzes-dos-colegios.firebaseapp.com",
+            projectId: "quizzes-dos-colegios",
+            storageBucket: "quizzes-dos-colegios.firebasestorage.app",
+            messagingSenderId: "143672230264",
+            appId: "1:143672230264:web:b40c17e2a39e574057888d"
+        };
+        
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);     
+        const db = firebase.firestore();
+
+const studentData = {
+             "033AD": "ADRIANO",
+  "101AC": "ANA CLARA",
+  "034AR": "ARTHUR",
+  "012BR": "BRUNA",
+  "009CA": "CAIO",
+  "036DA": "DAVI",
+  "039DE": "DENILSON",
+  "038DE": "DEREK",
+  "045DI": "DIEGO",
+  "034DI": "DIMI",
+  "030EL": "ELIANA",
+  "001EL": "ELMA",
+  "004EN": "ENZO",
+  "014FA": "FABRÍCIO",
+  "472FE": "FERNANDO",
+  "584FE": "FERNANDO (QUINTA)",
+  "046GA": "GABI",
+  "102JO": "JOAQUIM",
+  "JR123": "JÚNIOR",
+  "018LU": "LUCAS",
+  "011LU": "LUCAS RESENDE",
+  "047KI": "KIM",
+  "048LA": "LANA",
+  "098LE": "LEILA",
+  "044LE": "LETÍCIA",
+  "049MA": "MANU",
+  "026MA": "MARA",
+  "023MA": "MÁRCIA",
+  "006MA": "MARIANA",
+  "010MI": "MIGUEL",
+  "019PA": "PABLO",
+  "038PE": "PEDRINHO",
+  "028RI": "RICK",
+  "025RO": "ROSA",
+  "021SO": "SOPHIA",
+  "020SU": "SURY",
+  "015TH": "THEO",
+  "015VE": "VERA",
+  "007YA": "YAGO",
+  "022YA": "YASMIN"
+};
+
+
+       // ==========================================
+// 2. BANCO DE QUESTÕES COMPLETO (60 QUESTÕES)
+// ==========================================
+const questionsDb = [
+   {
+        type: "multiple_choice",
+        q: "In the context of the chronological outcast riddle, what specific structural anomaly characterizes the month described?",
+        hint: "Consider its numerical deficiency compared to its peers[cite: 1].",
+        opts: [
+            "It possesses 31 days every alternative year",
+            "It suffers from a chronic numerical deficiency of having only 28 days",
+            "It completely vanishes during intercalary leap cycles",
+            "It shares its exact duration with November"
+        ],
+        ans: 1,
+        rat: "The month is February, which possesses only 28 days, rendering it perpetually short-changed compared to its eleven peers[cite: 1]."
+    },
+    {
+        type: "typing",
+        q: "Complete with the exact vocabulary word from the text meaning 'constantly; without interruption': She is _______ late for her morning meetings.",
+        hint: "Starts with 'p' and matches the definition of constant occurrence[cite: 1].",
+        ans: "perpetually",
+        rat: "'Perpetually' denotes a state of being continuous or constant without interruption[cite: 1]."
+    },
+    {
+        type: "true_false",
+        q: "According to the riddle, the chronological outcast is granted its fleeting day of reprieve every three revolutions the planet makes around its star.",
+        hint: "Verify the exact number of orbital revolutions required for a leap year[cite: 1].",
+        ans: false,
+        rat: "False. The planet makes its revolutions over four years to create a leap year, not three[cite: 1]."
+    },
+    {
+        type: "drag",
+        q: "Complete the sentence from the text using drag-and-drop mechanics:",
+        txtPre: "Among my eleven peers, I am perpetually short-changed, suffering from a chronic numerical _______.",
+        txtPost: "",
+        opts: ["deficiency", "abundance", "rebellion", "reprieve"],
+        ans: "deficiency",
+        rat: "'Deficiency' refers to the lack or shortage of necessary days compared to the other eleven months[cite: 1]."
+    },
+    {
+        type: "multiple_choice",
+        q: "What does the term 'reprieve' signify in the description of February during a leap year?",
+        hint: "Think of a temporary cancellation or relief from an unpleasant condition[cite: 1].",
+        opts: [
+            "A permanent lengthening of the calendar year",
+            "A fleeting, singular day of temporary relief/extra time",
+            "An absolute punishment imposed by the solar system",
+            "The total elimination of the shortest month"
+        ],
+        ans: 1,
+        rat: "A reprieve represents a temporary relief or delay—in this case, getting one extra day (the 29th) during a leap year[cite: 1]."
+    },
+
+    // --- SECTION 2: THE SOLEMN DISMISSAL (6-10) ---
+    {
+        type: "multiple_choice",
+        q: "What was the original historical form and purpose of the modern farewell 'Goodbye' centuries ago?",
+        hint: "Look into its origin as a religious invocation and prayer[cite: 2].",
+        opts: [
+            "A casual street greeting wishing good weather",
+            "A solemn invocation and lengthy prayer wishing for the Almighty's presence upon departure",
+            "A military command used exclusively during medieval combat",
+            "An ancient merchant greeting used during bartering"
+        ],
+        ans: 1,
+        rat: "Centuries ago, people parted ways by saying 'God be with ye' as a solemn prayer for safety and protection[cite: 2]."
+    },
+    {
+        type: "typing",
+        q: "Complete the vocabulary term from the text defined as 'formal and dignified; serious': The judge maintained a _______ expression throughout the trial.",
+        hint: "Starts with 's' and describes a serious, formal demeanor[cite: 2].",
+        ans: "solemn",
+        rat: "'Solemn' means formal, dignified, and serious[cite: 2]."
+    },
+    {
+        type: "true_false",
+        q: "The modern farewell 'Goodbye' has been expanded and enriched over centuries due to the slow pace of modern society.",
+        hint: "Check whether society's haste expanded or reduced the phrase[cite: 2].",
+        ans: false,
+        rat: "False. It has been eroded by the haste of modern society and reduced to a mere two-syllable dismissal[cite: 2]."
+    },
+    {
+        type: "drag",
+        q: "Complete the sentence regarding linguistic contraction:",
+        txtPre: "Today, eroded by the haste of modern society, I have been reduced to a mere two-syllable dismissal tossed at the _______.",
+        txtPost: "",
+        opts: ["threshold", "window", "balcony", "roof"],
+        ans: "threshold",
+        rat: "A threshold is the bottom strip of a doorway where parting words are typically exchanged[cite: 2]."
+    },
+    {
+        type: "multiple_choice",
+        q: "Which word in the text best describes the gradual wearing away or destruction of the original phrase over time?",
+        hint: "Look for a verb relating to natural erosion or gradual diminishing[cite: 2].",
+        opts: ["Invoked", "Eroded", "Propelled", "Decapitated"],
+        ans: 1,
+        rat: "'Eroded' means gradually worn away, destroyed, or diminished[cite: 2]."
+    },
+
+    // --- SECTION 3: THE GRAPHITE BLEEDER (11-15) ---
+    {
+        type: "multiple_choice",
+        q: "In the riddle 'The Graphite Bleeder', what two symbiotic objects are being described?",
+        hint: "One creates marks, while the other destroys them[cite: 3].",
+        opts: [
+            "A fountain pen and blotting paper",
+            "A pencil and an eraser",
+            "A chalkboard and a damp sponge",
+            "A stylus and a digital tablet"
+        ],
+        ans: 1,
+        rat: "The writing tool is a pencil (which bleeds grey graphite essence) paired with an eraser (the rubbery executioner)[cite: 3]."
+    },
+    {
+        type: "typing",
+        q: "Complete the vocabulary word meaning 'to destroy utterly or wipe out': The massive explosion threatened to _______ the entire building.",
+        hint: "Starts with 'o' and means total eradication[cite: 3].",
+        ans: "obliterate",
+        rat: "'Obliterate' means to destroy completely or wipe out[cite: 3]."
+    },
+    {
+        type: "true_false",
+        q: "The rubbery executioner mounted on the writer's head exists solely to preserve and immortalize the legacy through friction.",
+        hint: "Check the exact function of the eraser in the text[cite: 3].",
+        ans: false,
+        rat: "False. It exists solely to obliterate the legacy through friction[cite: 3]."
+    },
+    {
+        type: "drag",
+        q: "Complete the sentence regarding the origin of thoughts:",
+        txtPre: "I bleed a grey essence to give _______ to your greatest thoughts and drafts.",
+        txtPost: "",
+        opts: ["genesis", "friction", "essence", "execution"],
+        ans: "genesis",
+        rat: "'Genesis' refers to the origin or mode of formation of something[cite: 3]."
+    },
+    {
+        type: "multiple_choice",
+        q: "What physical force is explicitly cited as the mechanism used by the eraser to destroy markings?",
+        hint: "Resistance encountered when surfaces move over each other[cite: 3].",
+        opts: ["Gravity", "Friction", "Centrifugal force", "Barometric pressure"],
+        ans: 1,
+        rat: "Friction is the resistance that one surface encounters when moving over another, used here to rub away marks[cite: 3]."
+    },
+
+    // --- SECTION 4: THE GEOMETRICAL ETERNITY (16-20) ---
+    {
+        type: "multiple_choice",
+        q: "What two-dimensional shape is defined as devoid of any vertices or edges, forming an infinite continuous loop?",
+        hint: "It has no corners and forms a closed round curve.",
+        opts: ["Triangle", "Rectangle", "Circle", "Pentagon"],
+        ans: 2,
+        rat: "A circle is an unbroken geometric figure devoid of vertices or straight edges."
+    },
+    {
+        type: "typing",
+        q: "Complete the vocabulary term defined as 'a person new to or inexperienced in a field or situation': As a _______ in the kitchen, he struggled to bake a cake.",
+        hint: "Starts with 'n' and describes a beginner.",
+        ans: "novice",
+        rat: "'Novice' refers to someone who is inexperienced or new to a field."
+    },
+    {
+        type: "true_false",
+        q: "According to the text, the color green symbolizes both deep environmental consciousness and an experienced expert.",
+        hint: "Check the dual symbolism of the color green in the riddle.",
+        ans: false,
+        rat: "False. It symbolizes environmental consciousness and a *novice* lacking experience, not an expert."
+    },
+    {
+        type: "drag",
+        q: "Complete the descriptive sentence:",
+        txtPre: "Devoid of any vertices or edges, I am the absolute geometric representation of a continuous, infinite _______.",
+        txtPost: "",
+        opts: ["loop", "line", "prism", "angle"],
+        ans: "loop",
+        rat: "It forms a continuous, infinite loop."
+    },
+    {
+        type: "multiple_choice",
+        q: "What is the correct plural form of 'vertex' as referenced in the geometry of shapes?",
+        hint: "Look at the vocabulary section on vertices.",
+        opts: ["Vertexes", "Vertices", "Verticei", "Vertix"],
+        ans: 1,
+        rat: "'Vertices' is the correct plural form of vertex, denoting meeting points of lines forming angles."
+    },
+
+    // --- SECTION 5: THE PARADOXICAL BLOODLINE (21-25) ---
+    {
+        type: "multiple_choice",
+        q: "In the riddle of 'The Paradoxical Bloodline', who is the person actually standing in the mirror's reflection?",
+        hint: "Analyze the misdirection between self-reflection and another individual.",
+        opts: [
+            "The speaker's own reflection",
+            "Another person standing behind or next to the speaker",
+            "The speaker's biological father",
+            "The speaker's uncle"
+        ],
+        ans: 1,
+        rat: "The mirror reflection is a classic trick making you assume it's a self-reflection, when it is actually another person standing behind or next to him."
+    },
+    {
+        type: "typing",
+        q: "Complete the vocabulary term meaning 'seemingly absurd or self-contradictory': It is _______ that drinking too much coffee can make you tired.",
+        hint: "Starts with 'p' and describes contradictory logic.",
+        ans: "paradoxical",
+        rat: "'Paradoxical' describes something seemingly self-contradictory or absurd."
+    },
+    {
+        type: "true_false",
+        q: "For a male speaker, the phrase 'my biological mother's only son' refers to his own brother.",
+        hint: "If he is an only son or speaking of himself, evaluate who that son is.",
+        ans: false,
+        rat: "False. Assuming the speaker is male, 'my biological mother's only son' is the speaker himself."
+    },
+    {
+        type: "drag",
+        q: "Complete the opening riddle phrase:",
+        txtPre: "Listen carefully to this lineage _______: The only sister-in-law of my biological mother's only son...",
+        txtPost: "",
+        opts: ["paradox", "conundrum", "sequence", "hierarchy"],
+        ans: "paradox",
+        rat: "It is introduced as a lineage paradox."
+    },
+    {
+        type: "multiple_choice",
+        q: "What exact familial relationship does the speaker have with the woman whose reflection he is looking at?",
+        hint: "She is the sister-in-law of himself.",
+        opts: [
+            "His mother",
+            "His sister-in-law",
+            "His mother-in-law",
+            "His paternal aunt"
+        ],
+        ans: 1,
+        rat: "The puzzle simplifies to 'The only sister-in-law of myself', meaning she is his sister-in-law."
+    },
+
+    // --- SECTION 6: THE MATHEMATICAL CONUNDRUM (26-30) ---
+    {
+        type: "multiple_choice",
+        q: "What numerical value does the English idiomatic phrase 'a baker's dozen' represent in the math conundrum?",
+        hint: "Think of how many items a baker traditionally includes beyond twelve.",
+        opts: ["10", "12", "13", "15"],
+        ans: 2,
+        rat: "A baker's dozen is a well-known English phrase meaning 13."
+    },
+    {
+        type: "typing",
+        q: "Spell out the final calculated number resulting from the equation (13 multiplied by 8, minus 64):",
+        hint: "It is written as a ten-letter or single word number: 40.",
+        ans: "forty",
+        rat: "13 multiplied by 8 equals 104, and 104 minus 64 (the squares on a chessboard) leaves 40 (forty)."
+    },
+    {
+        type: "true_false",
+        q: "A standard stop sign used in the multiplication step has six sides.",
+        hint: "Recall the geometry of a stop sign (octagon).",
+        ans: false,
+        rat: "False. A stop sign is an octagon with 8 sides, not 6."
+    },
+    {
+        type: "drag",
+        q: "Complete the mathematical instruction:",
+        txtPre: "Take a baker's dozen. Multiply it by the amount of sides found on a standard stop sign. Now, subtract the exact number of squares on a traditional _______.",
+        txtPost: "",
+        opts: ["chessboard", "chessboard grid", "checkerboard", "board"],
+        ans: "chessboard",
+        rat: "The text subtracts the exact number of squares on a traditional chessboard (64)."
+    },
+    {
+        type: "multiple_choice",
+        q: "What branch of mathematics deals with the properties and manipulation of numbers as tested in this conundrum?",
+        hint: "Basic numerical calculations and operations.",
+        opts: ["Geometry", "Arithmetic", "Trigonometry", "Calculus"],
+        ans: 1,
+        rat: "Arithmetic is the branch of mathematics dealing with numerical properties and basic calculations."
+    },
+
+    // --- SECTION 7: THE FAMINE TUBER (31-35) ---
+    {
+        type: "multiple_choice",
+        q: "What humble, subterranean starchy tuber caused a devastating 19th-century famine?",
+        hint: "A root vegetable grown underground that failed in Ireland.",
+        opts: ["Sweet potato", "Potato", "Cassava", "Turnip"],
+        ans: 1,
+        rat: "The riddle describes a potato, whose crop failure caused the Great Famine."
+    },
+    {
+        type: "typing",
+        q: "Complete the nationality/demonym of the people who primarily suffered the wrath of the mid-19th-century famine: The _______ Potato Famine.",
+        hint: "Refers to people from the emerald island of Ireland.",
+        ans: "Irish",
+        rat: "The Irish population suffered the devastating effects of the potato blight and subsequent famine."
+    },
+    {
+        type: "true_false",
+        q: "The pathogenic blight that destroyed the harvest occurred in the mid-18th century.",
+        hint: "Verify the specific century mentioned in the text.",
+        ans: false,
+        rat: "False. It occurred in the mid-19th century."
+    },
+    {
+        type: "drag",
+        q: "Complete the descriptive sentence:",
+        txtPre: "I am a humble, subterranean starchy _______. Despite my mundane appearance...",
+        txtPost: "",
+        opts: ["tuber", "root", "bulb", "stem"],
+        ans: "tuber",
+        rat: "A potato is classified as a subterranean starchy tuber."
+    },
+    {
+        type: "multiple_choice",
+        q: "What does the word 'subterranean' mean in the description of the potato?",
+        hint: "Existing or occurring beneath a certain surface.",
+        opts: [
+            "Floating on water surfaces",
+            "Existing or occurring under the earth's surface",
+            "Exposed to intense direct sunlight",
+            "Growing exclusively in mountainous altitudes"
+        ],
+        ans: 1,
+        rat: "Subterranean means existing, occurring, or done under the earth's surface, where potatoes grow."
+    },
+
+    // --- SECTION 8: THE SILENT SEQUENCE (36-40) ---
+    {
+        type: "multiple_choice",
+        q: "What five-letter British word heavily used to describe a line of waiting people is the subject of the silent sequence riddle?",
+        hint: "A word starting with Q that sounds like just its first letter when truncated.",
+        opts: ["QUILT", "QUARK", "QUEUE", "QUALM"],
+        ans: 2,
+        rat: "'Queue' is the five-letter British word for a line of waiting people."
+    },
+    {
+        type: "typing",
+        q: "In the creative variation presented in the text, if you remove the first letter and the last three letters of 'QUEUE', what single letter remains, sounding like a pronoun?",
+        hint: "The second letter of the word, phonetically equivalent to 'You'.",
+        ans: "u",
+        rat: "Removing the first letter 'Q' and the last three 'eue' leaves only 'U', which sounds like the pronoun 'You'."
+    },
+    {
+        type: "true_false",
+        q: "The first letter of the five-letter word 'QUEUE' is also phonetically identical to a shape or stick called a 'cue' and a question in Spanish ('que').",
+        hint: "Examine the homophones of the letter Q.",
+        ans: true,
+        rat: "True. The first letter 'Q' sounds like 'Cue' and 'Que'."
+    },
+    {
+        type: "drag",
+        q: "Complete the playful phonetic action:",
+        txtPre: "If you mercilessly _______ my first letter, and then remove my last three letters...",
+        txtPost: "",
+        opts: ["decapitate", "obliterate", "erode", "expel"],
+        ans: "decapitate",
+        rat: "'Decapitate' means to cut off the head/first part of something."
+    },
+    {
+        type: "multiple_choice",
+        q: "Which transition word is used in the text to introduce a fresh consideration in an argument?",
+        hint: "Starts with 'f' and means in addition or besides.",
+        opts: ["Furthermore", "Concurrently", "Simultaneously", "Paradoxically"],
+        ans: 0,
+        rat: "'Furthermore' is used to introduce a fresh consideration or additional point."
+    },
+
+    // --- SECTION 9: THE MYTHOLOGICAL CALENDAR (41-45) ---
+    {
+        type: "multiple_choice",
+        q: "Which day of the week, serving as the starting point in the riddle, is named in honor of the Roman god of agriculture?",
+        hint: "Named after Saturn.",
+        opts: ["Monday", "Wednesday", "Saturday", "Sunday"],
+        ans: 2,
+        rat: "Saturday is named in honor of Saturn, the Roman god of agriculture."
+    },
+    {
+        type: "typing",
+        q: "How many vowels (A, E, I, O, U) are present in the standard English alphabet, representing the exact number of days you must propel forward?",
+        hint: "The fundamental count of English vowels.",
+        ans: "5",
+        rat: "There are 5 vowels in the standard English alphabet (A, E, I, O, U)."
+    },
+    {
+        type: "true_false",
+        q: "Propelling forward by 5 days starting from Saturday brings you directly to Thursday.",
+        hint: "Count five days past Saturday: Sunday(1), Monday(2), Tuesday(3), Wednesday(4), Thursday(5).",
+        ans: true,
+        rat: "True. Counting five days past Saturday brings you to Thursday."
+    },
+    {
+        type: "drag",
+        q: "Complete the destination description:",
+        txtPre: "You have now arrived at a day ruled by a hammer-wielding Norse _______.",
+        txtPost: "",
+        opts: ["deity", "monarch", "executioner", "aristocrat"],
+        ans: "deity",
+        rat: "Thursday is named after Thor, a hammer-wielding Norse deity."
+    },
+    {
+        type: "multiple_choice",
+        q: "What does the verb 'propel' mean in the context of advancing through the calendar days?",
+        hint: "To drive or cause to move forward.",
+        opts: [
+            "To pull backward into the past",
+            "To drive, push, or cause to move in a particular direction",
+            "To erase or obliterate completely",
+            "To rotate in a circular axis"
+        ],
+        ans: 1,
+        rat: "'Propel' means to drive, push, or cause to move forward in a particular direction."
+    },
+
+    // --- SECTION 10: THE MERCHANT'S VOYAGE (46-50) ---
+    {
+        type: "multiple_choice",
+        q: "From what prominent boot-shaped European peninsula does the 16th-century merchant set sail?",
+        hint: "A country shaped like a boot in Southern Europe.",
+        opts: ["Spain", "Greece", "Italy", "Portugal"],
+        ans: 2,
+        rat: "Italy is the famous boot-shaped European peninsula."
+    },
+    {
+        type: "typing",
+        q: "Name the Far East archipelago destination known historically as 'The Land of the Rising Sun':",
+        hint: "An East Asian island nation.",
+        ans: "Japan",
+        rat: "Japan is historically known as 'The Land of the Rising Sun'."
+    },
+    {
+        type: "true_false",
+        q: "The merchant's cargo hold in the text overflows with fresh digital equipment and raw minerals.",
+        hint: "Check what food and agricultural items he carried.",
+        ans: false,
+        rat: "False. His cargo hold overflows with fermented dairy wheels (cheese) and crushed, sun-dried grapes (wine/raisins)."
+    },
+    {
+        type: "drag",
+        q: "Complete the trade objective from the text:",
+        txtPre: "Desperately seeking to barter his goods for fermented rice water and meticulously sliced, raw _______ life.",
+        txtPost: "",
+        opts: ["aquatic", "marine", "oceanic", "river"],
+        ans: "aquatic",
+        rat: "He seeks fermented rice water (sake) and meticulously sliced, raw aquatic life (sashimi/sushi)."
+    },
+    {
+        type: "multiple_choice",
+        q: "What does the adjective 'treacherous' mean when describing the oceans the merchant navigates?",
+        hint: "Hazardous due to hidden or unpredictable dangers.",
+        opts: [
+            "Calm and predictable",
+            "Hazardous because of presenting hidden or unpredictable dangers",
+            "Completely frozen throughout the year",
+            "Shallow and devoid of marine life"
+        ],
+        ans: 1,
+        rat: "'Treacherous' means hazardous due to presenting hidden or unpredictable dangers."
+    },
+
+    // --- SECTION 11: THE CHROMATIC HIERARCHY (51-53) ---
+    {
+        type: "multiple_choice",
+        q: "In the dystopian chromatic hierarchy, which specific colors represent the ruling aristocracy (the primary monarchs)?",
+        hint: "The primary colors in color theory.",
+        opts: [
+            "Orange, Green, and Purple",
+            "Crimson, Azure, and Canary",
+            "Brown, Black, and Gray",
+            "White, Silver, and Gold"
+        ],
+        ans: 1,
+        rat: "'Crimson', 'Azure', and Canary represent the primary colors acting as the ruling primary monarchs."
+    },
+    {
+        type: "typing",
+        q: "According to the scientific and artistic color theory justification in the text, what color represents the most oppressed, overworked peasant class at the bottom when all pigments are mixed?",
+        hint: "A muddy, earthy tone resulting from mixing all primaries and secondaries.",
+        ans: "brown",
+        rat: "Brown (or dark gray/black) represents the lowest class because mixing all pigments together absorbs light and results in a muddy earth tone."
+    },
+    {
+        type: "true_false",
+        q: "In this societal model, the secondary color blends serve as the middle-class merchants.",
+        hint: "Check what role secondary blends play in the hierarchy.",
+        ans: true,
+        rat: "True. The secondary blends serve as the middle-class merchants between the primary aristocracy and bottom peasants."
+    },
+
+    // --- SECTION 12: THE EDUCATIONAL ARTIFACT (54-56) ---
+    {
+        type: "multiple_choice",
+        q: "What exact zero-electricity, mechanically engineered classroom object relies on an internal helical ridge (screw) mechanism?",
+        hint: "A desktop tool used to sharpen wooden writing utensils.",
+        opts: [
+            "A manual desk pencil sharpener",
+            "A mechanical stapler",
+            "A hole puncher",
+            "A rotary paper trimmer"
+        ],
+        ans: 0,
+        rat: "A manual desk pencil sharpener operates on a manual screw/helical ridge mechanism to grind wood."
+    },
+    {
+        type: "typing",
+        q: "Complete the vocabulary term defined as 'designed and built using scientific principles': The new bridge was _______ to withstand powerful earthquakes.",
+        hint: "Starts with 'e' and relates to technical creation.",
+        ans: "engineered",
+        rat: "'Engineered' means designed and built using scientific principles."
+    },
+    {
+        type: "true_false",
+        q: "In a wild survival scenario, you can creatively repurpose the pencil sharpener by harvesting its internal steel blade or using wood shavings as tinder.",
+        hint: "Review the survival repurposing suggestions in the text.",
+        ans: true,
+        rat: "True. Its steel blade can be harvested for cutting, and wood shavings can be used as flammable tinder for a campfire."
+    },
+
+    // --- SECTION 13: THE CONSANGUINEOUS PORTRAIT (57-60) ---
+    {
+        type: "multiple_choice",
+        q: "In the billionaire's portrait riddle, whose face is painted on the canvas?",
+        hint: "Solve 'my father's son' given that he has no brothers.",
+        opts: [
+            "The billionaire's father",
+            "The billionaire's own son",
+            "The billionaire's grandfather",
+            "The detective questioning him"
+        ],
+        ans: 1,
+        rat: "Since he has no brothers, 'my father's son' is himself, making 'that man's father' equal to himself, so it is his own son."
+    },
+    {
+        type: "typing",
+        q: "Complete the advanced vocabulary term meaning 'of the same blood or origin': The historian studied the _______ marriages within the royal family.",
+        hint: "Starts with 'c' and relates to shared bloodline.",
+        ans: "consanguineous",
+        rat: "'Consanguineous' means of the same blood or origin."
+    },
+    {
+        type: "true_false",
+        q: "The eccentric billionaire establishes that he has several brothers and sisters to assist with his expansive manor.",
+        hint: "Check the opening premise of the riddle statement.",
+        ans: false,
+        rat: "False. The riddle explicitly states 'Brothers and sisters I have none', establishing he is an only child."
+    },
+    {
+        type: "multiple_choice",
+        q: "How did the eccentric billionaire reply to the detective when asked about the artwork?",
+        hint: "Look at the exact cryptically phrased quote in the text.",
+        opts: [
+            "He refused to speak and threw the detective out.",
+            "He cryptically replied: 'Brothers and sisters I have none, but that man's father is my father's son.'",
+            "He stated that the painting was purchased in Japan.",
+            "He admitted he painted the canvas himself during his youth."
+        ],
+        ans: 1,
+        rat: "The billionaire cryptically replies with the classic riddle phrase about his father's son."
+    }
+];
+
+        // ==========================================
+        // 3. LÓGICA PRINCIPAL DO APLICATIVO
+        // ==========================================
+const app = {
+            serieAtual: "PRONOME", // ADICIONE ESTA LINHA
+            currentQ: 0, score: 0, selectedAnswer: null, studentCode: "", studentName: "",
+            questions: [], history: [], sortDirection: false,
+        
+
+            init() {
+                this.questions = this.shuffle([...questionsDb]);
+                document.getElementById('total-q-num').innerText = this.questions.length;
+            },
+
+            shuffle(array) {
+                let currentIndex = array.length, randomIndex;
+                while (currentIndex !== 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                }
+                return array;
+            },
+
+            startQuiz() {
+                const code = document.getElementById('student-code').value.trim().toUpperCase();
+                
+                if (code === "JR1971") {
+                    document.getElementById('intro-card').classList.remove('active-card');
+                    document.getElementById('dashboard-card').classList.add('active-card');
+                    this.loadDashboard();
+                    return;
+                }
+
+                if (!studentData[code]) {
+                    alert("Código inválido! Tente novamente.");
+                    return;
+                }
+
+                this.studentCode = code;
+                this.studentName = studentData[code];
+                
+                try {
+                    const savedState = localStorage.getItem('quiz_progress_' + this.studentCode);
+                    if (savedState) {
+                        if (confirm(`Olá, ${this.studentName}! Encontramos uma avaliação em andamento. Deseja continuar de onde parou?`)) {
+                            const data = JSON.parse(savedState);
+                            this.currentQ = data.currentQ;
+                            this.score = data.score;
+                            this.history = data.history;
+                            this.questions = data.questions;
+                        } else {
+                            localStorage.removeItem('quiz_progress_' + this.studentCode);
+                            this.init(); 
+                        }
+                    } else {
+                        this.init();
+                    }
+                } catch (e) {
+                    this.init();
+                }
+
+                document.getElementById('start-btn').style.display = 'none';
+                document.getElementById('student-code').style.display = 'none';
+                document.getElementById('quiz-description').style.display = 'none';
+                
+                const welcomeMsg = document.getElementById('personalized-welcome');
+                if(this.studentName === "JÚNIOR") {
+                    welcomeMsg.innerText = "Oi, JÚNIOR - grato por sua visita!!!";
+                } else {
+                    welcomeMsg.innerText = `Bem-vindo(a), ${this.studentName}! Boa Prova!`;
+                }
+                welcomeMsg.style.display = 'block';
+
+                setTimeout(() => {
+                    document.getElementById('intro-card').classList.remove('active-card');
+                    document.getElementById('quiz-card').classList.add('active-card');
+                    this.renderQuestion();
+                }, 2000);
+            },
+
+            renderQuestion() {
+                this.selectedAnswer = null;
+                document.getElementById('hint-text').style.display = 'none';
+                document.getElementById('current-q-num').innerText = this.currentQ + 1;
+                
+                const progress = (this.currentQ / this.questions.length) * 100;
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+
+                const q = this.questions[this.currentQ];
+                document.getElementById('question-text').innerText = `${this.currentQ + 1}. ${q.q}`;
+                document.getElementById('hint-text').innerText = q.hint || "Pense com cuidado e analise o contexto da frase!";
+                
+                const area = document.getElementById('answer-area');
+                area.innerHTML = ''; 
+
+                if (q.type === "multiple_choice") {
+                    q.opts.forEach((opt, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'option-btn';
+                        btn.innerText = opt;
+                        btn.onclick = () => this.selectMC(btn, idx, opt);
+                        area.appendChild(btn);
+                    });
+                } 
+                else if (q.type === "true_false") {
+                    const cont = document.createElement('div');
+                    cont.className = 'tf-container';
+                    
+                    const bTrue = document.createElement('button');
+                    bTrue.className = 'tf-btn'; bTrue.innerText = 'Verdadeiro';
+                    bTrue.onclick = () => this.selectTF(bTrue, true, cont);
+                    
+                    const bFalse = document.createElement('button');
+                    bFalse.className = 'tf-btn'; bFalse.innerText = 'Falso';
+                    bFalse.onclick = () => this.selectTF(bFalse, false, cont);
+                    
+                    cont.appendChild(bTrue); cont.appendChild(bFalse);
+                    area.appendChild(cont);
+                }
+                else if (q.type === "typing") {
+                    const cont = document.createElement('div');
+                    cont.className = 'typing-container';
+                    const inp = document.createElement('input');
+                    inp.type = 'text'; inp.className = 'typing-input';
+                    inp.placeholder = 'Digite aqui...';
+                    inp.oninput = (e) => this.selectedAnswer = e.target.value.trim().toLowerCase();
+                    cont.appendChild(inp);
+                    area.appendChild(cont);
+                }
+                else if (q.type === "drag") {
+                    const cont = document.createElement('div');
+                    cont.className = 'drag-container';
+                    
+                    const sent = document.createElement('div');
+                    sent.className = 'sentence-display';
+                    sent.innerHTML = `${q.txtPre} <span class="drop-zone" id="drop-target" onclick="app.clearDrop()">...</span> ${q.txtPost}`;
+                    
+                    const bank = document.createElement('div');
+                    bank.className = 'words-bank';
+                    
+                    let words = this.shuffle([...q.opts]);
+                    words.forEach(w => {
+                        const wBtn = document.createElement('button');
+                        wBtn.className = 'drag-word';
+                        wBtn.innerText = w;
+                        wBtn.onclick = () => this.fillDrop(w, wBtn);
+                        bank.appendChild(wBtn);
+                    });
+
+                    cont.appendChild(sent);
+                    cont.appendChild(bank);
+                    area.appendChild(cont);
+                }
+            },
+
+            selectMC(btn, index, textVal) {
+                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                this.selectedAnswer = { index: index, text: textVal }; 
+            },
+
+            selectTF(btn, val, container) {
+                container.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected-true', 'selected-false'));
+                btn.classList.add(val ? 'selected-true' : 'selected-false');
+                this.selectedAnswer = val;
+            },
+
+            fillDrop(word, btnElement) {
+                if(btnElement.classList.contains('used')) return;
+                if(this.selectedAnswer) {
+                    document.querySelectorAll('.drag-word').forEach(b => {
+                        if(b.innerText === this.selectedAnswer) b.classList.remove('used');
+                    });
+                }
+                document.getElementById('drop-target').innerText = word;
+                document.getElementById('drop-target').style.color = '#2c3e50';
+                btnElement.classList.add('used');
+                this.selectedAnswer = word;
+            },
+
+            clearDrop() {
+                if(!this.selectedAnswer) return;
+                document.querySelectorAll('.drag-word').forEach(b => {
+                    if(b.innerText === this.selectedAnswer) b.classList.remove('used');
+                });
+                document.getElementById('drop-target').innerText = '...';
+                document.getElementById('drop-target').style.color = '#3498db';
+                this.selectedAnswer = null;
+            },
+
+            showHint() {
+                document.getElementById('hint-text').style.display = 'block';
+            },
+
+            confirmAnswer() {
+                if (this.selectedAnswer === null || this.selectedAnswer === "") {
+                    alert("Responda a questão antes de avançar.");
+                    return;
+                }
+
+                const currentAnswer = this.selectedAnswer;
+                this.selectedAnswer = null; 
+
+                const q = this.questions[this.currentQ];
+                let isCorrect = false;
+                let userAnswerText = currentAnswer;
+                let correctAnswerText = q.ans;
+
+                if (q.type === "typing" || q.type === "drag") {
+                    isCorrect = (currentAnswer.toLowerCase() === q.ans.toLowerCase());
+                } else if (q.type === "multiple_choice") {
+                    isCorrect = (currentAnswer.index === q.ans);
+                    userAnswerText = currentAnswer.text;
+                    correctAnswerText = q.opts[q.ans];
+                } else if (q.type === "true_false") {
+                    isCorrect = (currentAnswer === q.ans);
+                    userAnswerText = currentAnswer ? "Verdadeiro" : "Falso";
+                    correctAnswerText = q.ans ? "Verdadeiro" : "Falso";
+                }
+
+                if (isCorrect) this.score++;
+
+                this.history.push({
+                    question: q.q,
+                    userAns: userAnswerText,
+                    correctAns: correctAnswerText,
+                    isRight: isCorrect,
+                    rationale: q.rat || "Estude este tópico no Roteiro para aprofundar."
+                });
+
+                this.currentQ++;
+
+                try {
+                    if (this.currentQ < this.questions.length) {
+                        const currentState = {
+                            currentQ: this.currentQ,
+                            score: this.score,
+                            history: this.history,
+                            questions: this.questions
+                        };
+                        localStorage.setItem('quiz_progress_' + this.studentCode, JSON.stringify(currentState));
+                    }
+                } catch (e) {
+                    console.warn("Erro ao salvar progresso:", e);
+                }
+
+                if (this.currentQ < this.questions.length) {
+                    this.renderQuestion();
+                } else {
+                    document.getElementById('progress-bar').style.width = `100%`;
+                    setTimeout(() => this.finishQuiz(), 500);
+                }
+            },
+
+            finishQuiz() {
+                document.getElementById('quiz-card').classList.remove('active-card');
+                document.getElementById('results-card').classList.add('active-card');
+                
+                localStorage.removeItem('quiz_progress_' + this.studentCode);
+
+                const total = this.questions.length;
+                const perc = Math.round((this.score / total) * 100);
+                document.getElementById('res-name').innerText = this.studentName;
+                document.getElementById('res-score').innerText = this.score;
+                document.getElementById('res-total').innerText = total;
+                document.getElementById('res-perc').innerText = perc;
+
+                if (perc >= 60) confetti({ particleCount: 400, spread: 90, origin: { y: 0.6 } });
+
+                const reportData = {
+                    date: new Date().toLocaleString('pt-BR'),
+                    score: this.score,
+                    total: total,
+                    perc: perc,
+                    history: [...this.history]
+                };
+
+                try {
+                    let existingReports = JSON.parse(localStorage.getItem('student_reports_' + this.studentCode) || '[]');
+                    existingReports.push(reportData);
+                    localStorage.setItem('student_reports_' + this.studentCode, JSON.stringify(existingReports));
+                } catch(e) {}
+
+                this.generateReportHtml(reportData.history);
+                this.logAttemptToFirebase(perc, total, reportData);
+            },
+
+            generateReportHtml(historyArray) {
+                const repDiv = document.getElementById('detailed-report');
+                repDiv.innerHTML = '';
+                historyArray.forEach((h, i) => {
+                    const statusClass = h.isRight ? 'correct' : 'incorrect';
+                    const icon = h.isRight ? '✔️ Acertou' : '❌ Errou';
+                    repDiv.innerHTML += `
+                        <div class="report-item ${statusClass}">
+                            <p><strong>${i+1}.</strong> ${h.question}</p>
+                            <p>Sua resposta: <strong>${h.userAns}</strong> (${icon})</p>
+                            ${!h.isRight ? `<p>Resposta Correta: <strong>${h.correctAns}</strong></p>` : ''}
+                            <p class="report-rationale">📖 Explicação: ${h.rationale}</p>
+                        </div>
+                    `;
+                });
+            },
+
+            openReportsModal() {
+                const savedReports = localStorage.getItem('student_reports_' + this.studentCode);
+                if (!savedReports) {
+                    alert("Você ainda não concluiu nenhuma rodada desta avaliação!");
+                    return;
+                }
+                const reports = JSON.parse(savedReports);
+                let choice = prompt(`Você possui ${reports.length} rodada(s) concluída(s). Digite o número da rodada que deseja visualizar (1 a ${reports.length}):`);
+                let index = parseInt(choice) - 1;
+                
+                if (!isNaN(index) && index >= 0 && index < reports.length) {
+                    const selected = reports[index];
+                    document.getElementById('intro-card').classList.remove('active-card');
+                    document.getElementById('quiz-card').classList.remove('active-card');
+                    document.getElementById('results-card').classList.add('active-card');
+                    
+                    document.getElementById('res-name').innerText = this.studentName;
+                    document.getElementById('res-score').innerText = selected.score;
+                    document.getElementById('res-total').innerText = selected.total;
+                    document.getElementById('res-perc').innerText = selected.perc;
+                    this.generateReportHtml(selected.history);
+                } else if (choice !== null) {
+                    alert("Rodada inválida.");
+                }
+            },
+
+            backToQuizOrIntro() {
+                document.getElementById('results-card').classList.remove('active-card');
+                if (this.currentQ > 0 && this.currentQ < this.questions.length) {
+                    document.getElementById('quiz-card').classList.add('active-card');
+                } else {
+                    document.getElementById('intro-card').classList.add('active-card');
+                }
+            },
+
+            // ---------------- FIREBASE FUNCTIONS ----------------
+logAttemptToFirebase(perc, total, reportData) {
+                db.collection("avaliacao_ingles").add({
+                    nome: this.studentName,
+                    codigo: this.studentCode,
+                    serie: this.serieAtual, // ADICIONE ESTA LINHA
+                    notaFinal: `${this.score}/${total} (${perc}%)`,
+                    dataTentativa: reportData.date,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    detalhesRodada: reportData
+                }).catch(e => console.error("Erro ao registrar tentativa no Firebase:", e));
+            },
+
+            // ---------------- DASHBOARD MASTER ----------------
+            loadDashboard() {
+                const tbody = document.getElementById('dashboard-tbody');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>';
+                
+                db.collection("avaliacao_ingles").orderBy("timestamp", "desc").get().then(snap => {
+                    tbody.innerHTML = '';
+                    if(snap.empty) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhuma tentativa encontrada.</td></tr>';
+                        return;
+                    }
+                    snap.forEach(doc => {
+                        const d = doc.data();
+tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${d.nome}</strong></td>
+                                <td>${d.codigo}</td>
+                                <td>${d.serie || 'Antigo'}</td> <!-- ADICIONE ESTA LINHA -->
+                                <td>${d.notaFinal}</td>
+                                <td>${d.dataTentativa || 'N/A'}</td>
+                                <td>
+                                    <button class="btn-3d btn-blue" style="padding: 5px 10px; font-size: 0.8rem; margin-top:0;" onclick="app.teacherViewReport('${doc.id}')" title="Ver Relatório desta tentativa">👁️</button>
+                                    <button class="btn-3d btn-salmon" style="padding: 5px 10px; font-size: 0.8rem; margin-top:0; margin-left: 5px;" onclick="app.deleteAttempt('${doc.id}', '${d.nome}')" title="Excluir tentativa">🗑️</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }).catch(e => {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Erro de permissão! Verifique as Rules no Firebase.</td></tr>';
+                });
+            },
+
+            teacherViewReport(docId) {
+                db.collection("avaliacao_ingles").doc(docId).get().then(doc => {
+                    if (doc.exists) {
+                        const d = doc.data();
+                        if (d.detalhesRodada) {
+                            document.getElementById('dashboard-card').classList.remove('active-card');
+                            document.getElementById('results-card').classList.add('active-card');
+                            
+                            document.getElementById('res-name').innerText = d.nome + ` (Tentativa em: ${d.dataTentativa})`;
+                            document.getElementById('res-score').innerText = d.detalhesRodada.score;
+                            document.getElementById('res-total').innerText = d.detalhesRodada.total;
+                            document.getElementById('res-perc').innerText = d.detalhesRodada.perc;
+                            this.generateReportHtml(d.detalhesRodada.history);
+                        } else {
+                            alert("Detalhes detalhados indisponíveis para este registro antigo.");
+                        }
+                    }
+                });
+            },
+
+            deleteAttempt(docId, studentName) {
+                if (confirm(`Tem certeza que deseja apagar esta tentativa específica do aluno(a) ${studentName}?`)) {
+                    db.collection("avaliacao_ingles").doc(docId).delete().then(() => {
+                        alert("Tentativa excluída com sucesso!");
+                        this.loadDashboard(); 
+                    }).catch(error => {
+                        console.error("Erro ao deletar tentativa: ", error);
+                        alert("Erro ao tentar excluir.");
+                    });
+                }
+            },
+
+            filterTable() {
+                let input = document.getElementById("filter-input");
+                let filter = input.value.toUpperCase();
+                let table = document.getElementById("dashboard-table");
+                let tr = table.getElementsByTagName("tr");
+
+                for (let i = 1; i < tr.length; i++) {
+                    let td = tr[i].getElementsByTagName("td")[0];
+                    if (td) {
+                        let txtValue = td.textContent || td.innerText;
+                        tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+                    }
+                }
+            },
+
+            sortTable(n) {
+                let table = document.getElementById("dashboard-table");
+                let rows, switching, i, x, y, shouldSwitch;
+                switching = true;
+                this.sortDirection = !this.sortDirection;
+                
+                while (switching) {
+                    switching = false;
+                    rows = table.rows;
+                    for (i = 1; i < (rows.length - 1); i++) {
+                        shouldSwitch = false;
+                        x = rows[i].getElementsByTagName("TD")[n];
+                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        
+                        if (!x || !y) continue;
+
+                        let valX = x.innerHTML.toLowerCase();
+                        let valY = y.innerHTML.toLowerCase();
+                        
+                        if (this.sortDirection) {
+                            if (valX > valY) { shouldSwitch = true; break; }
+                        } else {
+                            if (valX < valY) { shouldSwitch = true; break; }
+                        }
+                    }
+                    if (shouldSwitch) {
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                    }
+                }
+            },
+
+            exportToCSV() {
+                let table = document.getElementById("dashboard-table");
+                let csv = [];
+                for (let i = 0; i < table.rows.length; i++) {
+                    let row = [], cols = table.rows[i].querySelectorAll("td, th");
+                    for (let j = 0; j < cols.length - 1; j++) 
+                        row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
+                    csv.push(row.join(","));
+                }
+                let csvFile = new Blob([csv.join("\n")], {type: "text/csv;charset=utf-8;"});
+                let downloadLink = document.createElement("a");
+                downloadLink.download = "relatorio_tentativas_ingles.csv";
+                downloadLink.href = window.URL.createObjectURL(csvFile);
+                downloadLink.style.display = "none";
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+            },
+
+            exitMaster() {
+                document.getElementById('dashboard-card').classList.remove('active-card');
+                document.getElementById('student-code').value = '';
+                document.getElementById('intro-card').classList.add('active-card');
+            }
+        };
+
+        app.init();
+    </script>
+</body>
+</html>
