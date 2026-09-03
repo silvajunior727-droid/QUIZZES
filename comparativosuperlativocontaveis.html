@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONTÁVEIS - COMPARATIVO - SUPERLATIVO</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>   
+
+    <style>
+        /* ESTILOS GERAIS E FUNDO ELEGANTE */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 40px;
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 90%;
+            max-width: 850px;
+            min-height: 400px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        h1 { text-align: center; color: #2c3e50; font-size: 1.6rem; margin-bottom: 5px; }
+        h2 { text-align: center; color: #7f8c8d; font-size: 1.2rem; margin-top: 0; }
+
+        .card { display: none; flex-direction: column; }
+        .active-card { display: flex; animation: fadeIn 0.4s ease-in-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* INPUTS E FILTROS */
+        input[type="text"] {
+            padding: 12px; margin-top: 10px; border: 2px solid #e0e0e0;
+            border-radius: 8px; width: 100%; box-sizing: border-box;
+            font-size: 1.1rem; text-align: center; transition: border-color 0.3s;
+        }
+        input[type="text"]:focus { border-color: #90EE90; outline: none; }
+
+        /* --------------------------------------------------- */
+        /* BOTÕES 3D (Com Borda Baixa)                         */
+        /* --------------------------------------------------- */
+        .btn-3d {
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+            font-size: 1rem; padding: 12px 25px; transition: all 0.1s ease;
+            position: relative; text-align: center; display: inline-block; margin-top: 10px;
+        }
+        .btn-green {
+            background-color: #90EE90; color: #2c3e50;
+            box-shadow: 0 6px 0 #75c975;
+        }
+        .btn-green:active { transform: translateY(6px); box-shadow: 0 0 0 #75c975; }
+
+        .btn-salmon {
+            background-color: #FA8072; color: white;
+            box-shadow: 0 6px 0 #d9695d;
+        }
+        .btn-salmon:active { transform: translateY(6px); box-shadow: 0 0 0 #d9695d; }
+
+        .btn-blue {
+            background-color: #3498db; color: white;
+            box-shadow: 0 6px 0 #2980b9;
+        }
+        .btn-blue:active { transform: translateY(6px); box-shadow: 0 0 0 #2980b9; }
+
+        /* ESTILOS DOS BOTÕES DO RODAPÉ DA QUESTÃO (TAMANHOS UNIFORMES) */
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 25px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .left-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-quiz-action {
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+            font-size: 0.95rem; padding: 10px 18px; transition: all 0.1s ease;
+            position: relative; text-align: center; display: inline-block; margin-top: 0;
+        }
+        .btn-report-quiz {
+            background-color: #3498db; color: white; box-shadow: 0 5px 0 #2980b9;
+        }
+        .btn-report-quiz:active { transform: translateY(5px); box-shadow: 0 0 0 #2980b9; }
+
+        .btn-hint-quiz {
+            background-color: #6a0dad; color: white; box-shadow: 0 5px 0 #4c0880;
+        }
+        .btn-hint-quiz:active { transform: translateY(5px); box-shadow: 0 0 0 #4c0880; }
+
+        /* BARRA DE PROGRESSO */
+        .progress-container {
+            width: 100%; background-color: #e9ecef; border-radius: 10px;
+            height: 12px; margin-bottom: 20px; overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            height: 100%; background-color: #90EE90; width: 0%;
+            transition: width 0.4s ease-out; border-radius: 10px;
+        }
+
+        /* ÁREA DA QUESTÃO */
+        .question-text { font-size: 1.3rem; margin-bottom: 20px; font-weight: 600; line-height: 1.5; }
+        .question-counter { text-align: left; font-weight: bold; margin-bottom: 5px; color: #7f8c8d; }
+        
+        #hint-text {
+            margin-top: 15px; padding: 12px; background-color: #f8f9fa;
+            border-left: 5px solid #6a0dad; border-radius: 5px; font-style: italic; display: none;
+        }
+
+        /* 1. Múltipla Escolha */
+        .option-btn {
+            background-color: #f8f9fa; border: 2px solid #e0e0e0; padding: 15px;
+            margin-bottom: 12px; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; width: 100%; text-align: left; font-size: 1.1rem;
+        }
+        .option-btn:hover { background-color: #f1f3f5; border-color: #ccc; }
+        .option-btn.selected { background-color: #e8f5e9; border-color: #90EE90; font-weight: bold; transform: scale(1.01); box-shadow: 0 4px 10px rgba(144, 238, 144, 0.2);}
+
+        /* 2. Verdadeiro ou Falso */
+        .tf-container { display: flex; justify-content: center; gap: 20px; margin-top: 15px; }
+        .tf-btn { padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; background-color: #f8f9fa; transition: all 0.2s; width: 45%; }
+        .tf-btn.selected-true { background-color: #e8f5e9; border-color: #90EE90; color: #2c3e50; }
+        .tf-btn.selected-false { background-color: #ffeeee; border-color: #FA8072; color: #c0392b; }
+
+        /* 3. Digitação */
+        .typing-container { display: flex; flex-direction: column; align-items: center; margin-top: 15px; }
+        .typing-input {
+            padding: 15px; font-size: 1.3rem; border: 2px solid #ccc; border-radius: 8px;
+            width: 80%; text-align: center; text-transform: lowercase;
+        }
+        .typing-input:focus { border-color: #90EE90; outline: none; }
+
+        /* 4. Arrastar e Soltar */
+        .drag-container { background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #e0e0e0;}
+        .sentence-display { font-size: 1.3rem; margin-bottom: 25px; line-height: 2; }
+        .drop-zone { display: inline-block; min-width: 80px; min-height: 30px; border-bottom: 3px dashed #7f8c8d; margin: 0 10px; padding: 0 10px; color: #3498db; font-weight: bold; cursor: pointer; transition: all 0.3s;}
+        .drop-zone:hover { border-bottom-color: #3498db; }
+        .words-bank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .drag-word { background-color: #3498db; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; box-shadow: 0 4px 0 #2980b9; transition: transform 0.1s;}
+        .drag-word:active { transform: translateY(4px); box-shadow: 0 0 0 #2980b9;}
+        .drag-word.used { background-color: #bdc3c7; box-shadow: 0 4px 0 #95a5a6; cursor: not-allowed; }
+
+        /* DASHBOARD E TABELA */
+        .styled-table { border-collapse: collapse; margin: 20px 0; font-size: 0.95em; width: 100%; box-shadow: 0 0 15px rgba(0, 0, 0, 0.05); border-radius: 8px; overflow: hidden; }
+        .styled-table thead tr { background-color: #90EE90; color: #2c3e50; text-align: left; cursor: pointer; }
+        .styled-table th, .styled-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        .styled-table tbody tr:hover { background-color: #f9f9f9; }
+
+        /* RELATÓRIO FINAL */
+        .results-details { background-color: #fdfbfb; padding: 20px; border-left: 5px solid #90EE90; border-radius: 8px; margin-top: 20px; font-size: 1.2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        .report-item { margin-bottom: 15px; padding: 15px; border-radius: 8px; border: 1px solid #eee; background: #fff;}
+        .report-item.correct { border-left: 5px solid #90EE90; }
+        .report-item.incorrect { border-left: 5px solid #FA8072; }
+        .report-rationale { font-size: 0.95rem; color: #7f8c8d; margin-top: 8px; font-style: italic; }
+
+        /* IMPRESSÃO (PDF) */
+        @media print {
+            body { background: #fff; padding: 0; margin: 0; }
+            .container { box-shadow: none; width: 100%; max-width: 100%; }
+            .btn-3d, #intro-card, #quiz-card, #dashboard-card, .progress-container, .no-print { display: none !important; }
+            #results-card { display: block !important; }
+            .report-item { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- TELA DE LOGIN -->
+        <div id="intro-card" class="card active-card intro-card">
+            <h1>CONTÁVEIS - COMPARATIVO - SUPERLATIVO</h1>
+            <h2></h2>
+            <p id="personalized-welcome" style="font-size: 1.2rem; font-weight: bold; margin-top: 15px; color: #FA8072; text-align: center; display: none;"></p>
+            <p id="quiz-description" style="text-align: center; color: #7f8c8d;">Insira seu código de acesso para iniciar a avaliação.</p>
+            <input type="text" id="student-code" placeholder="Código de Acesso">
+            <button class="btn-3d btn-green" id="start-btn" onclick="app.startQuiz()">Iniciar Avaliação</button>
+        </div>
+
+        <!-- DASHBOARD MASTER (JR1971) -->
+        <div id="dashboard-card" class="card">
+            <h1 style="color: #FA8072; margin-bottom: 0;">Painel do Professor</h1>
+            <p style="text-align: center; margin-top: 5px;">Acompanhamento em tempo real (Tentativas em linhas separadas).</p>
+            
+            <div style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;" class="no-print">
+                <input type="text" id="filter-input" placeholder="🔍 Filtrar por nome do aluno..." onkeyup="app.filterTable()" style="flex: 1; min-width: 200px; margin-top: 0;">
+                <button class="btn-3d btn-green" onclick="app.exportToCSV()">Salvar Excel</button>
+                <button class="btn-3d btn-salmon" onclick="app.exitMaster()">Sair</button>
+            </div>
+            
+            <div style="overflow-x:auto;">
+                <table class="styled-table" id="dashboard-table">
+<thead>
+                        <tr>
+                            <th onclick="app.sortTable(0)">Aluno ↕</th>
+                            <th onclick="app.sortTable(1)">Código ↕</th>
+                            <th onclick="app.sortTable(2)">Série ↕</th> <!-- NOVA COLUNA AQUI -->
+                            <th onclick="app.sortTable(3)">Nota Final ↕</th>
+                            <th onclick="app.sortTable(4)">Data/Hora Tentativa ↕</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TELA DA AVALIAÇÃO -->
+        <div id="quiz-card" class="card">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="question-counter">Questão <span id="current-q-num">1</span> de <span id="total-q-num">50</span></div>
+            </div>
+            
+            <div id="question-text" class="question-text"></div>
+            <div id="answer-area"></div>
+
+            <div id="hint-container">
+                <div id="hint-text"></div>
+            </div>
+
+            <div class="quiz-footer">
+                <div class="left-actions">
+                    <button class="btn-quiz-action btn-report-quiz" onclick="app.openReportsModal()">📋 Relatório</button>
+                    <button class="btn-quiz-action btn-hint-quiz" onclick="app.showHint()">💡 Dica</button>
+                </div>
+                <div>
+                    <button class="btn-3d btn-green" id="confirm-btn" onclick="app.confirmAnswer()">✔️ Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA DE RESULTADOS / RELATÓRIO INDIVIDUAL -->
+        <div id="results-card" class="card">
+            <h1 style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">Relatório de Desempenho</h1>
+            <div class="results-details">
+                <p><strong>Aluno(a):</strong> <span id="res-name"></span></p>
+                <p><strong>Acertos:</strong> <span id="res-score"></span> de <span id="res-total">50</span></p>
+                <p><strong>Aproveitamento:</strong> <span id="res-perc"></span>%</p>
+            </div>
+            
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;" class="no-print">
+                <button class="btn-3d btn-green" onclick="window.print()">Salvar PDF (Relatório)</button>
+                <button class="btn-3d btn-blue" onclick="app.backToQuizOrIntro()">Voltar</button>
+            </div>
+
+            <h3 style="margin-top: 30px; color: #7f8c8d;">Revisão das Questões desta Rodada:</h3>
+            <div id="detailed-report"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. CONFIGURAÇÃO FIREBASE E DADOS
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBt9b_YXS9koqsQhyyduaVizPUtDc22KCs",
+            authDomain: "quizzes-dos-colegios.firebaseapp.com",
+            projectId: "quizzes-dos-colegios",
+            storageBucket: "quizzes-dos-colegios.firebasestorage.app",
+            messagingSenderId: "143672230264",
+            appId: "1:143672230264:web:b40c17e2a39e574057888d"
+        };
+        
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);     
+        const db = firebase.firestore();
+
+const studentData = {
+             "033AD": "ADRIANO",
+  "101AC": "ANA CLARA",
+  "034AR": "ARTHUR",
+  "012BR": "BRUNA",
+  "009CA": "CAIO",
+  "036DA": "DAVI",
+  "039DE": "DENILSON",
+  "038DE": "DEREK",
+  "045DI": "DIEGO",
+  "034DI": "DIMI",
+  "030EL": "ELIANA",
+  "001EL": "ELMA",
+  "004EN": "ENZO",
+  "014FA": "FABRÍCIO",
+  "472FE": "FERNANDO",
+  "584FE": "FERNANDO (QUINTA)",
+  "046GA": "GABI",
+  "102JO": "JOAQUIM",
+  "JR123": "JÚNIOR",
+  "018LU": "LUCAS",
+  "011LU": "LUCAS RESENDE",
+  "047KI": "KIM",
+  "048LA": "LANA",
+  "098LE": "LEILA",
+  "044LE": "LETÍCIA",
+  "049MA": "MANU",
+  "026MA": "MARA",
+  "023MA": "MÁRCIA",
+  "006MA": "MARIANA",
+  "010MI": "MIGUEL",
+  "019PA": "PABLO",
+  "038PE": "PEDRINHO",
+  "028RI": "RICK",
+  "025RO": "ROSA",
+  "021SO": "SOPHIA",
+  "020SU": "SURY",
+  "015TH": "THEO",
+  "015VE": "VERA",
+  "007YA": "YAGO",
+  "022YA": "YASMIN"
+};
+
+
+       // ==========================================
+// 2. BANCO DE QUESTÕES COMPLETO (50 QUESTÕES)
+// ==========================================
+const questionsDb = [
+    // --- 8 DIGITAÇÃO (TYPING) ---
+    { type: "typing", q: "Complete com o comparativo de superioridade do adjetivo 'fast': 'My car is _______ than yours.'", hint: "Adjetivos curtos recebem -er no final.", ans: "faster", rat: "Para adjetivos curtos (1 ou 2 sílabas) como 'fast', adiciona-se -er: faster." },
+    { type: "typing", q: "Complete com a palavra que falta no comparativo de igualdade: 'She is _______ tall as her brother.'", hint: "Estrutura: AS + Adjetivo + AS.", ans: "as", rat: "O comparativo de igualdade usa a estrutura 'as + adjetivo + as'." },
+    { type: "typing", q: "Complete com a exceção irregular do comparativo de 'good': 'Today the weather is _______ than yesterday.'", hint: "Forma comparativa de 'bom' (melhor).", ans: "better", rat: "'Good' é uma exceção e seu comparativo de superioridade é 'better'." },
+    { type: "typing", q: "Complete com o quantificador correto para substantivos incontáveis (muito/muita): 'We don't have _______ time.'", hint: "Usado para incontáveis no singular.", ans: "much", rat: "'Much' é usado exclusivamente para substantivos incontáveis (como time, water, money)." },
+    { type: "typing", q: "Complete com o quantificador correto para substantivos contáveis (muitos/muitas): 'She has _______ friends in Osasco.'", hint: "Usado para contáveis no plural.", ans: "many", rat: "'Many' é usado exclusivamente para substantivos contáveis no plural." },
+    { type: "typing", q: "Complete com o falso incontável correto: 'I need to buy three loaves of _______.'", hint: "Em inglês, 'pão' não vai para o plural.", ans: "bread", rat: "'Bread' é incontável em inglês. Para contar, usamos medidas como 'loaves of bread'." },
+    { type: "typing", q: "Complete com o superlativo de 'high': 'Mount Everest is the _______ mountain in the world.'", hint: "Adjetivo curto + est.", ans: "highest", rat: "No superlativo, adjetivos curtos recebem -est no final: 'highest'." },
+    { type: "typing", q: "Complete com o superlativo irregular de 'bad' (pior): 'That was the _______ experience of my life.'", hint: "Começa com w e termina com t.", ans: "worst", rat: "O superlativo do adjetivo irregular 'bad' é 'the worst' (o pior)." },
+
+    // --- 14 VERDADEIRO OU FALSO (TRUE_FALSE) ---
+    { type: "true_false", q: "Para formar o comparativo de superioridade de 'big', basta adicionar '-er', ficando 'biger'.", hint: "Lembre-se da regra do CVC (Consoante-Vogal-Consoante).", ans: false, rat: "Falso. 'Big' é CVC, então dobramos a última consoante antes de adicionar -er: 'bigger'." },
+    { type: "true_false", q: "Para adjetivos longos (3 ou mais sílabas) no comparativo de superioridade, usamos a estrutura 'MORE + adjetivo + THAN'.", hint: "Exemplo: more important than.", ans: true, rat: "Verdadeiro. Adjetivos longos não recebem -er, usamos 'more' antes deles." },
+    { type: "true_false", q: "A estrutura do comparativo de igualdade negativa é 'not as + adjetivo + as'.", hint: "Verifique a regra de igualdade.", ans: true, rat: "Verdadeiro. Exemplo: 'not as fast as' (não tão rápido quanto)." },
+    { type: "true_false", q: "O comparativo de inferioridade em inglês usa a palavra 'least' (ex: he is least tall than you).", hint: "Reveja a diferença entre less e least.", ans: false, rat: "Falso. O comparativo de inferioridade usa 'less' (less tall than). 'Least' é para o superlativo." },
+    { type: "true_false", q: "O comparativo de superioridade de 'far' (longe) pode ser escrito como 'farther' ou 'further'.", hint: "Lembre-se da tabela de exceções absolutas.", ans: true, rat: "Verdadeiro. 'Far' é irregular e aceita ambas as formas." },
+    { type: "true_false", q: "'Water', 'coffee' e 'time' são exemplos clássicos de substantivos contáveis em inglês.", hint: "Pense se você pode falar 'one water, two waters' diretamente.", ans: false, rat: "Falso. São substantivos incontáveis, representando líquidos e ideias abstratas." },
+    { type: "true_false", q: "Em inglês, as palavras 'information' e 'advice' nunca vão para o plural com 's', pois são incontáveis.", hint: "Essas são as famosas armadilhas de falsos incontáveis.", ans: true, rat: "Verdadeiro. Diferente do português, informações e conselhos são incontáveis em inglês." },
+    { type: "true_false", q: "A frase 'I have a good news' está gramaticalmente correta em inglês.", hint: "Lembre-se da regra do artigo 'a/an' com incontáveis.", ans: false, rat: "Falso. 'News' é incontável e singular, logo NUNCA usamos 'a/an' com ele. O certo é 'I have good news'." },
+    { type: "true_false", q: "Usamos 'a few' para indicar 'alguns/poucos' com substantivos contáveis.", hint: "Qual a diferença entre a few e a little?", ans: true, rat: "Verdadeiro. 'A few' acompanha contáveis, enquanto 'a little' acompanha incontáveis." },
+    { type: "true_false", q: "A palavra 'furniture' (móveis) é um substantivo contável em inglês, então podemos dizer 'two furnitures'.", hint: "Cuidado com a tradução direta do português.", ans: false, rat: "Falso. 'Furniture' é sempre incontável e não possui forma no plural em inglês." },
+    { type: "true_false", q: "O superlativo de superioridade para adjetivos curtos é formado adicionando o sufixo -est e usando 'the' (ex: the tallest).", hint: "Regra principal dos superlativos curtos.", ans: true, rat: "Verdadeiro. O artigo 'the' é obrigatório junto com o sufixo -est." },
+    { type: "true_false", q: "O superlativo absoluto do adjetivo 'good' é 'the goodest'.", hint: "Lembre-se que good é um adjetivo irregular.", ans: false, rat: "Falso. 'Good' é irregular e seu superlativo é 'the best'." },
+    { type: "true_false", q: "O superlativo de inferioridade é formado unicamente pela estrutura 'THE LEAST + Adjetivo', independentemente do tamanho do adjetivo.", hint: "Existe regra de tamanho para 'least'?", ans: true, rat: "Verdadeiro. Para inferioridade extrema, usamos 'the least' para curtos e longos." },
+    { type: "true_false", q: "Para adjetivos terminados em 'y' precedidos de consoante, trocamos o 'y' por 'iest' no superlativo (ex: the happiest).", hint: "Regra ortográfica do y.", ans: true, rat: "Verdadeiro. A regra dita a remoção do 'y' antes de adicionar -iest." },
+
+    // --- 14 MÚLTIPLA ESCOLHA (MULTIPLE_CHOICE) ---
+    { type: "multiple_choice", q: "Qual é o comparativo de superioridade correto de 'happy'?", hint: "Adjetivo terminado em consoante + y.", opts: ["happier", "more happy", "happyer", "most happy"], ans: 0, rat: "Removemos o 'y' e adicionamos '-ier': happier." },
+    { type: "multiple_choice", q: "Complete com a estrutura de inferioridade: 'This book is ______ interesting than the movie.'", hint: "Inferioridade usa 'less' ou 'least'?", opts: ["less", "least", "as", "more"], ans: 0, rat: "Para comparar inferioridade entre dois elementos, usamos 'less + adjetivo + than'." },
+    { type: "multiple_choice", q: "Complete com o comparativo de igualdade: 'The blue shirt is _____ the red one.'", hint: "Estrutura as + adj + as.", opts: ["as expensive as", "more expensive", "expensive as", "as expensive"], ans: 0, rat: "A igualdade exige a estrutura completa: as + adjetivo + as." },
+    { type: "multiple_choice", q: "Qual é a forma correta do comparativo de superioridade de 'bad' (ruim)?", hint: "É uma exceção irregular.", opts: ["badder", "worse", "worst", "more bad"], ans: 1, rat: "'Worse' é a forma comparativa irregular de 'bad'." },
+    { type: "multiple_choice", q: "Complete: 'Python is ______ than C++.'", hint: "Fácil é 'easy'. Como fica no comparativo?", opts: ["easyer", "more easy", "easier", "as easy"], ans: 2, rat: "Substituímos o 'y' de easy por '-ier': easier." },
+    { type: "multiple_choice", q: "Complete a frase: 'How _____ friends do you have?'", hint: "Amigos são contáveis.", opts: ["much", "many", "little", "lot"], ans: 1, rat: "Usamos 'many' com substantivos contáveis no plural." },
+    { type: "multiple_choice", q: "Qual das opções abaixo é um substantivo INCONTÁVEL (uncountable)?", hint: "Substâncias e massas.", opts: ["car", "apple", "sugar", "computer"], ans: 2, rat: "'Sugar' (açúcar) é um grão/pó e não pode ser contado diretamente sem uma medida." },
+    { type: "multiple_choice", q: "Complete corretamente: 'I need some _____ to finish this project.'", hint: "Informação é um falso incontável.", opts: ["informations", "information", "an information", "two informations"], ans: 1, rat: "Information NUNCA vai para o plural com 's' em inglês." },
+    { type: "multiple_choice", q: "Para transformar 'pão' em algo contável em inglês, qual unidade de medida usamos?", hint: "Traduza 'fatias/bisnagas de pão'.", opts: ["loaves of bread", "breads", "a bread", "pieces of breads"], ans: 0, rat: "Como bread é incontável, usamos 'loaves of bread' (filões de pão) para contar." },
+    { type: "multiple_choice", q: "Complete: 'She has _____ patience with children.' (muita)", hint: "Paciência é um conceito abstrato incontável.", opts: ["many", "much", "a few", "few"], ans: 1, rat: "Usamos 'much' porque patience é um substantivo incontável." },
+    { type: "multiple_choice", q: "Qual é o superlativo de superioridade de 'expensive' (caro)?", hint: "Adjetivo longo (3 ou mais sílabas).", opts: ["the expensivest", "the most expensive", "more expensive", "most expensive"], ans: 1, rat: "Para adjetivos longos, o superlativo exige 'the most + adjetivo'." },
+    { type: "multiple_choice", q: "Complete: 'This is the ______ day of my life.' (frio)", hint: "Cold é um adjetivo curto.", opts: ["cold", "colder", "coldest", "most cold"], ans: 2, rat: "No superlativo, adjetivos curtos recebem -est. A frase já possui o 'the', então fica 'coldest'." },
+    { type: "multiple_choice", q: "Complete com o superlativo de inferioridade: 'This option requires the ______ effort of all.'", hint: "O menor esforço possível.", opts: ["less", "least", "few", "little"], ans: 1, rat: "O superlativo de inferioridade é sempre 'the least' independente do adjetivo." },
+    { type: "multiple_choice", q: "Qual é o superlativo de superioridade correto de 'far' (longe)?", hint: "Exceção absoluta.", opts: ["the farest", "the further", "the farthest", "the far"], ans: 2, rat: "'Far' é irregular. Seu superlativo pode ser 'the farthest' ou 'the furthest'." },
+
+    // --- 14 ARRASTAR E SOLTAR (DRAG) ---
+    { type: "drag", q: "Preencha com o comparativo de superioridade de 'smart':", txtPre: "She is", txtPost: "than her brother.", opts: ["smarter", "more smart", "smartest", "smart"], ans: "smarter", rat: "Como 'smart' é curto, adicionamos -er: smarter." },
+    { type: "drag", q: "Preencha com a palavra que falta no comparativo de igualdade:", txtPre: "The test was", txtPost: "difficult as the homework.", opts: ["more", "less", "as", "than"], ans: "as", rat: "A estrutura de igualdade requer 'as + adjetivo + as'." },
+    { type: "drag", q: "Preencha com o comparativo de 'good':", txtPre: "A holiday by the sea is", txtPost: "than a holiday in the mountains.", opts: ["gooder", "better", "best", "more good"], ans: "better", rat: "'Good' é exceção e muda para 'better' no comparativo." },
+    { type: "drag", q: "Preencha com o comparativo de inferioridade:", txtPre: "Silver is", txtPost: "valuable than gold.", opts: ["less", "least", "as", "more"], ans: "less", rat: "Usamos 'less' para comparativo de inferioridade." },
+    { type: "drag", q: "Preencha com o quantificador correto para 'money':", txtPre: "I don't have", txtPost: "money left.", opts: ["many", "much", "a few", "few"], ans: "much", rat: "'Money' é incontável, portanto usamos 'much'." },
+    { type: "drag", q: "Preencha com o quantificador correto para 'minutes' (alguns):", txtPre: "Let's wait a", txtPost: "minutes before starting.", opts: ["few", "little", "much", "lot"], ans: "few", rat: "Usamos 'a few' para contáveis (minutes)." },
+    { type: "drag", q: "Preencha com a unidade de medida correta para tornar a água contável:", txtPre: "Can I have a", txtPost: "of water, please?", opts: ["slice", "glass", "loaf", "piece"], ans: "glass", rat: "Usamos 'a glass of water' (um copo de água)." },
+    { type: "drag", q: "Preencha com a forma correta do substantivo 'conselho':", txtPre: "He gave me a good piece of", txtPost: ".", opts: ["advice", "advices", "information", "informations"], ans: "advice", rat: "'Advice' não tem plural. Usamos 'a piece of advice' (um conselho)." },
+    { type: "drag", q: "Preencha com o quantificador para incontáveis (um pouco):", txtPre: "I just need a", txtPost: "sugar in my tea.", opts: ["few", "little", "many", "lot"], ans: "little", rat: "'A little' é usado para dar ideia de pequena quantidade a incontáveis (sugar)." },
+    { type: "drag", q: "Preencha com o superlativo de 'big':", txtPre: "Russia is the", txtPost: "country in the world.", opts: ["bigger", "biggest", "most big", "bigest"], ans: "biggest", rat: "'Big' obedece CVC, dobra-se o 'g' e adiciona -est." },
+    { type: "drag", q: "Preencha com o superlativo de 'important':", txtPre: "This is the", txtPost: "task of the quarter.", opts: ["more important", "importantest", "most important", "least important"], ans: "most important", rat: "Adjetivo longo no superlativo exige 'the most'." },
+    { type: "drag", q: "Preencha com o superlativo irregular de 'bad':", txtPre: "That was the", txtPost: "movie I have ever seen.", opts: ["worse", "worst", "baddest", "most bad"], ans: "worst", rat: "O superlativo de 'bad' é 'the worst'." },
+    { type: "drag", q: "Preencha com o superlativo de inferioridade:", txtPre: "This book is the", txtPost: "interesting option.", opts: ["less", "least", "most", "more"], ans: "least", rat: "O superlativo de inferioridade é sempre 'the least' (o menos)." },
+    { type: "drag", q: "Preencha com o artigo obrigatório no superlativo:", txtPre: "July is", txtPost: "hottest month of the year.", opts: ["a", "an", "the", "some"], ans: "the", rat: "O superlativo sempre requer o artigo 'the' antes dele." }
+];
+
+        // ==========================================
+        // 3. LÓGICA PRINCIPAL DO APLICATIVO
+        // ==========================================
+const app = {
+            serieAtual: "PRONOME", // ADICIONE ESTA LINHA
+            currentQ: 0, score: 0, selectedAnswer: null, studentCode: "", studentName: "",
+            questions: [], history: [], sortDirection: false,
+        
+
+            init() {
+                this.questions = this.shuffle([...questionsDb]);
+                document.getElementById('total-q-num').innerText = this.questions.length;
+            },
+
+            shuffle(array) {
+                let currentIndex = array.length, randomIndex;
+                while (currentIndex !== 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                }
+                return array;
+            },
+
+            startQuiz() {
+                const code = document.getElementById('student-code').value.trim().toUpperCase();
+                
+                if (code === "JR1971") {
+                    document.getElementById('intro-card').classList.remove('active-card');
+                    document.getElementById('dashboard-card').classList.add('active-card');
+                    this.loadDashboard();
+                    return;
+                }
+
+                if (!studentData[code]) {
+                    alert("Código inválido! Tente novamente.");
+                    return;
+                }
+
+                this.studentCode = code;
+                this.studentName = studentData[code];
+                
+                try {
+                    const savedState = localStorage.getItem('quiz_progress_' + this.studentCode);
+                    if (savedState) {
+                        if (confirm(`Olá, ${this.studentName}! Encontramos uma avaliação em andamento. Deseja continuar de onde parou?`)) {
+                            const data = JSON.parse(savedState);
+                            this.currentQ = data.currentQ;
+                            this.score = data.score;
+                            this.history = data.history;
+                            this.questions = data.questions;
+                        } else {
+                            localStorage.removeItem('quiz_progress_' + this.studentCode);
+                            this.init(); 
+                        }
+                    } else {
+                        this.init();
+                    }
+                } catch (e) {
+                    this.init();
+                }
+
+                document.getElementById('start-btn').style.display = 'none';
+                document.getElementById('student-code').style.display = 'none';
+                document.getElementById('quiz-description').style.display = 'none';
+                
+                const welcomeMsg = document.getElementById('personalized-welcome');
+                if(this.studentName === "JÚNIOR") {
+                    welcomeMsg.innerText = "Oi, JÚNIOR - grato por sua visita!!!";
+                } else {
+                    welcomeMsg.innerText = `Bem-vindo(a), ${this.studentName}! Boa Prova!`;
+                }
+                welcomeMsg.style.display = 'block';
+
+                setTimeout(() => {
+                    document.getElementById('intro-card').classList.remove('active-card');
+                    document.getElementById('quiz-card').classList.add('active-card');
+                    this.renderQuestion();
+                }, 2000);
+            },
+
+            renderQuestion() {
+                this.selectedAnswer = null;
+                document.getElementById('hint-text').style.display = 'none';
+                document.getElementById('current-q-num').innerText = this.currentQ + 1;
+                
+                const progress = (this.currentQ / this.questions.length) * 100;
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+
+                const q = this.questions[this.currentQ];
+                document.getElementById('question-text').innerText = `${this.currentQ + 1}. ${q.q}`;
+                document.getElementById('hint-text').innerText = q.hint || "Pense com cuidado e analise o contexto da frase!";
+                
+                const area = document.getElementById('answer-area');
+                area.innerHTML = ''; 
+
+                if (q.type === "multiple_choice") {
+                    q.opts.forEach((opt, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'option-btn';
+                        btn.innerText = opt;
+                        btn.onclick = () => this.selectMC(btn, idx, opt);
+                        area.appendChild(btn);
+                    });
+                } 
+                else if (q.type === "true_false") {
+                    const cont = document.createElement('div');
+                    cont.className = 'tf-container';
+                    
+                    const bTrue = document.createElement('button');
+                    bTrue.className = 'tf-btn'; bTrue.innerText = 'Verdadeiro';
+                    bTrue.onclick = () => this.selectTF(bTrue, true, cont);
+                    
+                    const bFalse = document.createElement('button');
+                    bFalse.className = 'tf-btn'; bFalse.innerText = 'Falso';
+                    bFalse.onclick = () => this.selectTF(bFalse, false, cont);
+                    
+                    cont.appendChild(bTrue); cont.appendChild(bFalse);
+                    area.appendChild(cont);
+                }
+                else if (q.type === "typing") {
+                    const cont = document.createElement('div');
+                    cont.className = 'typing-container';
+                    const inp = document.createElement('input');
+                    inp.type = 'text'; inp.className = 'typing-input';
+                    inp.placeholder = 'Digite aqui...';
+                    inp.oninput = (e) => this.selectedAnswer = e.target.value.trim().toLowerCase();
+                    cont.appendChild(inp);
+                    area.appendChild(cont);
+                }
+                else if (q.type === "drag") {
+                    const cont = document.createElement('div');
+                    cont.className = 'drag-container';
+                    
+                    const sent = document.createElement('div');
+                    sent.className = 'sentence-display';
+                    sent.innerHTML = `${q.txtPre} <span class="drop-zone" id="drop-target" onclick="app.clearDrop()">...</span> ${q.txtPost}`;
+                    
+                    const bank = document.createElement('div');
+                    bank.className = 'words-bank';
+                    
+                    let words = this.shuffle([...q.opts]);
+                    words.forEach(w => {
+                        const wBtn = document.createElement('button');
+                        wBtn.className = 'drag-word';
+                        wBtn.innerText = w;
+                        wBtn.onclick = () => this.fillDrop(w, wBtn);
+                        bank.appendChild(wBtn);
+                    });
+
+                    cont.appendChild(sent);
+                    cont.appendChild(bank);
+                    area.appendChild(cont);
+                }
+            },
+
+            selectMC(btn, index, textVal) {
+                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                this.selectedAnswer = { index: index, text: textVal }; 
+            },
+
+            selectTF(btn, val, container) {
+                container.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected-true', 'selected-false'));
+                btn.classList.add(val ? 'selected-true' : 'selected-false');
+                this.selectedAnswer = val;
+            },
+
+            fillDrop(word, btnElement) {
+                if(btnElement.classList.contains('used')) return;
+                if(this.selectedAnswer) {
+                    document.querySelectorAll('.drag-word').forEach(b => {
+                        if(b.innerText === this.selectedAnswer) b.classList.remove('used');
+                    });
+                }
+                document.getElementById('drop-target').innerText = word;
+                document.getElementById('drop-target').style.color = '#2c3e50';
+                btnElement.classList.add('used');
+                this.selectedAnswer = word;
+            },
+
+            clearDrop() {
+                if(!this.selectedAnswer) return;
+                document.querySelectorAll('.drag-word').forEach(b => {
+                    if(b.innerText === this.selectedAnswer) b.classList.remove('used');
+                });
+                document.getElementById('drop-target').innerText = '...';
+                document.getElementById('drop-target').style.color = '#3498db';
+                this.selectedAnswer = null;
+            },
+
+            showHint() {
+                document.getElementById('hint-text').style.display = 'block';
+            },
+
+            confirmAnswer() {
+                if (this.selectedAnswer === null || this.selectedAnswer === "") {
+                    alert("Responda a questão antes de avançar.");
+                    return;
+                }
+
+                const currentAnswer = this.selectedAnswer;
+                this.selectedAnswer = null; 
+
+                const q = this.questions[this.currentQ];
+                let isCorrect = false;
+                let userAnswerText = currentAnswer;
+                let correctAnswerText = q.ans;
+
+                if (q.type === "typing" || q.type === "drag") {
+                    isCorrect = (currentAnswer.toLowerCase() === q.ans.toLowerCase());
+                } else if (q.type === "multiple_choice") {
+                    isCorrect = (currentAnswer.index === q.ans);
+                    userAnswerText = currentAnswer.text;
+                    correctAnswerText = q.opts[q.ans];
+                } else if (q.type === "true_false") {
+                    isCorrect = (currentAnswer === q.ans);
+                    userAnswerText = currentAnswer ? "Verdadeiro" : "Falso";
+                    correctAnswerText = q.ans ? "Verdadeiro" : "Falso";
+                }
+
+                if (isCorrect) this.score++;
+
+                this.history.push({
+                    question: q.q,
+                    userAns: userAnswerText,
+                    correctAns: correctAnswerText,
+                    isRight: isCorrect,
+                    rationale: q.rat || "Estude este tópico no Roteiro para aprofundar."
+                });
+
+                this.currentQ++;
+
+                try {
+                    if (this.currentQ < this.questions.length) {
+                        const currentState = {
+                            currentQ: this.currentQ,
+                            score: this.score,
+                            history: this.history,
+                            questions: this.questions
+                        };
+                        localStorage.setItem('quiz_progress_' + this.studentCode, JSON.stringify(currentState));
+                    }
+                } catch (e) {
+                    console.warn("Erro ao salvar progresso:", e);
+                }
+
+                if (this.currentQ < this.questions.length) {
+                    this.renderQuestion();
+                } else {
+                    document.getElementById('progress-bar').style.width = `100%`;
+                    setTimeout(() => this.finishQuiz(), 500);
+                }
+            },
+
+            finishQuiz() {
+                document.getElementById('quiz-card').classList.remove('active-card');
+                document.getElementById('results-card').classList.add('active-card');
+                
+                localStorage.removeItem('quiz_progress_' + this.studentCode);
+
+                const total = this.questions.length;
+                const perc = Math.round((this.score / total) * 100);
+                document.getElementById('res-name').innerText = this.studentName;
+                document.getElementById('res-score').innerText = this.score;
+                document.getElementById('res-total').innerText = total;
+                document.getElementById('res-perc').innerText = perc;
+
+                if (perc >= 60) confetti({ particleCount: 400, spread: 90, origin: { y: 0.6 } });
+
+                const reportData = {
+                    date: new Date().toLocaleString('pt-BR'),
+                    score: this.score,
+                    total: total,
+                    perc: perc,
+                    history: [...this.history]
+                };
+
+                try {
+                    let existingReports = JSON.parse(localStorage.getItem('student_reports_' + this.studentCode) || '[]');
+                    existingReports.push(reportData);
+                    localStorage.setItem('student_reports_' + this.studentCode, JSON.stringify(existingReports));
+                } catch(e) {}
+
+                this.generateReportHtml(reportData.history);
+                this.logAttemptToFirebase(perc, total, reportData);
+            },
+
+            generateReportHtml(historyArray) {
+                const repDiv = document.getElementById('detailed-report');
+                repDiv.innerHTML = '';
+                historyArray.forEach((h, i) => {
+                    const statusClass = h.isRight ? 'correct' : 'incorrect';
+                    const icon = h.isRight ? '✔️ Acertou' : '❌ Errou';
+                    repDiv.innerHTML += `
+                        <div class="report-item ${statusClass}">
+                            <p><strong>${i+1}.</strong> ${h.question}</p>
+                            <p>Sua resposta: <strong>${h.userAns}</strong> (${icon})</p>
+                            ${!h.isRight ? `<p>Resposta Correta: <strong>${h.correctAns}</strong></p>` : ''}
+                            <p class="report-rationale">📖 Explicação: ${h.rationale}</p>
+                        </div>
+                    `;
+                });
+            },
+
+            openReportsModal() {
+                const savedReports = localStorage.getItem('student_reports_' + this.studentCode);
+                if (!savedReports) {
+                    alert("Você ainda não concluiu nenhuma rodada desta avaliação!");
+                    return;
+                }
+                const reports = JSON.parse(savedReports);
+                let choice = prompt(`Você possui ${reports.length} rodada(s) concluída(s). Digite o número da rodada que deseja visualizar (1 a ${reports.length}):`);
+                let index = parseInt(choice) - 1;
+                
+                if (!isNaN(index) && index >= 0 && index < reports.length) {
+                    const selected = reports[index];
+                    document.getElementById('intro-card').classList.remove('active-card');
+                    document.getElementById('quiz-card').classList.remove('active-card');
+                    document.getElementById('results-card').classList.add('active-card');
+                    
+                    document.getElementById('res-name').innerText = this.studentName;
+                    document.getElementById('res-score').innerText = selected.score;
+                    document.getElementById('res-total').innerText = selected.total;
+                    document.getElementById('res-perc').innerText = selected.perc;
+                    this.generateReportHtml(selected.history);
+                } else if (choice !== null) {
+                    alert("Rodada inválida.");
+                }
+            },
+
+            backToQuizOrIntro() {
+                document.getElementById('results-card').classList.remove('active-card');
+                if (this.currentQ > 0 && this.currentQ < this.questions.length) {
+                    document.getElementById('quiz-card').classList.add('active-card');
+                } else {
+                    document.getElementById('intro-card').classList.add('active-card');
+                }
+            },
+
+            // ---------------- FIREBASE FUNCTIONS ----------------
+logAttemptToFirebase(perc, total, reportData) {
+                db.collection("avaliacao_ingles").add({
+                    nome: this.studentName,
+                    codigo: this.studentCode,
+                    serie: this.serieAtual, // ADICIONE ESTA LINHA
+                    notaFinal: `${this.score}/${total} (${perc}%)`,
+                    dataTentativa: reportData.date,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    detalhesRodada: reportData
+                }).catch(e => console.error("Erro ao registrar tentativa no Firebase:", e));
+            },
+
+            // ---------------- DASHBOARD MASTER ----------------
+            loadDashboard() {
+                const tbody = document.getElementById('dashboard-tbody');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>';
+                
+                db.collection("avaliacao_ingles").orderBy("timestamp", "desc").get().then(snap => {
+                    tbody.innerHTML = '';
+                    if(snap.empty) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhuma tentativa encontrada.</td></tr>';
+                        return;
+                    }
+                    snap.forEach(doc => {
+                        const d = doc.data();
+tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${d.nome}</strong></td>
+                                <td>${d.codigo}</td>
+                                <td>${d.serie || 'Antigo'}</td> <!-- ADICIONE ESTA LINHA -->
+                                <td>${d.notaFinal}</td>
+                                <td>${d.dataTentativa || 'N/A'}</td>
+                                <td>
+                                    <button class="btn-3d btn-blue" style="padding: 5px 10px; font-size: 0.8rem; margin-top:0;" onclick="app.teacherViewReport('${doc.id}')" title="Ver Relatório desta tentativa">👁️</button>
+                                    <button class="btn-3d btn-salmon" style="padding: 5px 10px; font-size: 0.8rem; margin-top:0; margin-left: 5px;" onclick="app.deleteAttempt('${doc.id}', '${d.nome}')" title="Excluir tentativa">🗑️</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }).catch(e => {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Erro de permissão! Verifique as Rules no Firebase.</td></tr>';
+                });
+            },
+
+            teacherViewReport(docId) {
+                db.collection("avaliacao_ingles").doc(docId).get().then(doc => {
+                    if (doc.exists) {
+                        const d = doc.data();
+                        if (d.detalhesRodada) {
+                            document.getElementById('dashboard-card').classList.remove('active-card');
+                            document.getElementById('results-card').classList.add('active-card');
+                            
+                            document.getElementById('res-name').innerText = d.nome + ` (Tentativa em: ${d.dataTentativa})`;
+                            document.getElementById('res-score').innerText = d.detalhesRodada.score;
+                            document.getElementById('res-total').innerText = d.detalhesRodada.total;
+                            document.getElementById('res-perc').innerText = d.detalhesRodada.perc;
+                            this.generateReportHtml(d.detalhesRodada.history);
+                        } else {
+                            alert("Detalhes detalhados indisponíveis para este registro antigo.");
+                        }
+                    }
+                });
+            },
+
+            deleteAttempt(docId, studentName) {
+                if (confirm(`Tem certeza que deseja apagar esta tentativa específica do aluno(a) ${studentName}?`)) {
+                    db.collection("avaliacao_ingles").doc(docId).delete().then(() => {
+                        alert("Tentativa excluída com sucesso!");
+                        this.loadDashboard(); 
+                    }).catch(error => {
+                        console.error("Erro ao deletar tentativa: ", error);
+                        alert("Erro ao tentar excluir.");
+                    });
+                }
+            },
+
+            filterTable() {
+                let input = document.getElementById("filter-input");
+                let filter = input.value.toUpperCase();
+                let table = document.getElementById("dashboard-table");
+                let tr = table.getElementsByTagName("tr");
+
+                for (let i = 1; i < tr.length; i++) {
+                    let td = tr[i].getElementsByTagName("td")[0];
+                    if (td) {
+                        let txtValue = td.textContent || td.innerText;
+                        tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+                    }
+                }
+            },
+
+            sortTable(n) {
+                let table = document.getElementById("dashboard-table");
+                let rows, switching, i, x, y, shouldSwitch;
+                switching = true;
+                this.sortDirection = !this.sortDirection;
+                
+                while (switching) {
+                    switching = false;
+                    rows = table.rows;
+                    for (i = 1; i < (rows.length - 1); i++) {
+                        shouldSwitch = false;
+                        x = rows[i].getElementsByTagName("TD")[n];
+                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        
+                        if (!x || !y) continue;
+
+                        let valX = x.innerHTML.toLowerCase();
+                        let valY = y.innerHTML.toLowerCase();
+                        
+                        if (this.sortDirection) {
+                            if (valX > valY) { shouldSwitch = true; break; }
+                        } else {
+                            if (valX < valY) { shouldSwitch = true; break; }
+                        }
+                    }
+                    if (shouldSwitch) {
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                    }
+                }
+            },
+
+            exportToCSV() {
+                let table = document.getElementById("dashboard-table");
+                let csv = [];
+                for (let i = 0; i < table.rows.length; i++) {
+                    let row = [], cols = table.rows[i].querySelectorAll("td, th");
+                    for (let j = 0; j < cols.length - 1; j++) 
+                        row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
+                    csv.push(row.join(","));
+                }
+                let csvFile = new Blob([csv.join("\n")], {type: "text/csv;charset=utf-8;"});
+                let downloadLink = document.createElement("a");
+                downloadLink.download = "relatorio_tentativas_ingles.csv";
+                downloadLink.href = window.URL.createObjectURL(csvFile);
+                downloadLink.style.display = "none";
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+            },
+
+            exitMaster() {
+                document.getElementById('dashboard-card').classList.remove('active-card');
+                document.getElementById('student-code').value = '';
+                document.getElementById('intro-card').classList.add('active-card');
+            }
+        };
+
+        app.init();
+    </script>
+</body>
+</html>
