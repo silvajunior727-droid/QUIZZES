@@ -925,82 +925,119 @@ const app = {
 
 
  async startQuiz() {
-                const code = document.getElementById('student-code').value.trim().toUpperCase();
+                const codeInput = document.getElementById('student-code');
                 const classSelector = document.getElementById('class-selector');
-                const selectedClass = classSelector.value;
+                const startBtn = document.getElementById('start-btn');
 
+                const code = codeInput.value.trim().toUpperCase();
+                const selectedClass = classSelector.value.trim().toUpperCase();
+
+                // Acesso Master do Professor
                 if (code === "JR1971") {
                     this.safeSwitchCard('dashboard-card');
                     this.switchDashboardTab('management');
                     return;
                 }
 
-                const numerosSalvos = localStorage.getItem('whatsapp_numeros_destino');
-                const relatoriosSalvos = localStorage.getItem('student_reports_' + code); 
+                if (!selectedClass) { 
+                    alert("⚠️ Por favor, selecione sua série antes de continuar."); 
+                    return; 
+                }
+                if (!code) { 
+                    alert("⚠️ Por favor, insira seu código de acesso."); 
+                    return; 
+                }
 
-                localStorage.clear();
-                sessionStorage.clear();
-                
-                if (numerosSalvos) localStorage.setItem('whatsapp_numeros_destino', numerosSalvos);
-                if (relatoriosSalvos) localStorage.setItem('student_reports_' + code, relatoriosSalvos);
-
-                if (!selectedClass) { alert("Por favor, selecione sua série antes de continuar."); return; }
-                if (!code) { alert("Por favor, insira seu código de acesso."); return; }
+                // 🔒 TRAVA DE SEGURANÇA: Bloqueia imediatamente qualquer edição nos campos
+                codeInput.disabled = true;
+                classSelector.disabled = true;
+                startBtn.disabled = true;
+                startBtn.innerText = "⏳ Validando acesso...";
 
                 try {
                     const docRef = await db.collection("alunos").doc(code).get();
-                    if (!docRef.exists) { alert("Código inválido! Tente novamente."); return; }
+                    
+                    // 1. Verifica se o código sequer existe no banco
+                    if (!docRef.exists) { 
+                        alert(`🚫 ACESSO BLOQUEADO!\n\nO código "${code}" não existe no sistema.\nREINICIE E TENTE NOVAMENTE!`); 
+                        startBtn.innerText = "🔒 Acesso Bloqueado";
+                        return; // Sai da função mantendo os campos travados (sem permitir alteração no código)
+                    }
 
                     const alunoData = docRef.data();
-                    if (alunoData.serie !== selectedClass && code !== "JR123") {
-                        alert(`O código inserido não pertence à turma ${selectedClass}. Verifique sua seleção.`);
-                        return;
+                    const serieCadastrada = (alunoData.serie || "").trim().toUpperCase();
+
+                    // 2. Verifica se o código pertence exatamente à série escolhida (exceto código de teste JR123)
+                    if (serieCadastrada !== selectedClass && code !== "JR123") {
+                        alert(`🚫 SÉRIE INCORRETA!\n\nO código "${code}" NÃO PERTENCE À TURMA ${classSelector.value}.\nREINICIE E TENTE NOVAMENTE!`);
+                        startBtn.innerText = "🔒 Acesso Bloqueado";
+                        return; // Sai da função mantendo o código travado sem permitir alteração
                     }
+
+                    // ✅ SE PASSOU NA TRAVA: Prossegue normalmente com o login
+                    const numerosSalvos = localStorage.getItem('whatsapp_numeros_destino');
+                    const relatoriosSalvos = localStorage.getItem('student_reports_' + code); 
+
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    
+                    if (numerosSalvos) localStorage.setItem('whatsapp_numeros_destino', numerosSalvos);
+                    if (relatoriosSalvos) localStorage.setItem('student_reports_' + code, relatoriosSalvos);
 
                     this.studentCode = code;
                     this.studentName = alunoData.nome;
-                    this.serieAtual = selectedClass;
+                    this.serieAtual = classSelector.value; // Mantém a formatação original do select
 
                     await db.collection("alunos").doc(this.studentCode).set({
                         nome: this.studentName, serie: this.serieAtual
                     }, { merge: true });
 
                     const provaRef = await db.collection("escola").doc(this.serieAtual).collection("quiz").doc("conteudo_atual").get();
-                    if (provaRef.exists) { quizQuestions = provaRef.data().questions; } 
-                    else { alert("⚠️ Nenhuma avaliação encontrada para esta série na nuvem!"); quizQuestions = []; }
+                    if (provaRef.exists) { 
+                        quizQuestions = provaRef.data().questions; 
+                    } else { 
+                        alert("⚠️ Nenhuma avaliação encontrada para esta série na nuvem!"); 
+                        quizQuestions = []; 
+                    }
 
                     const savedState = localStorage.getItem('quiz_progress_' + this.studentCode);
                     if (savedState) {
                         if (confirm(`Olá, ${this.studentName}! Encontramos uma avaliação em andamento. Deseja continuar de onde parou?`)) {
                             const data = JSON.parse(savedState);
-                            this.currentQ = data.currentQ; this.score = data.score;
-                            this.history = data.history; this.questions = data.questions;
+                            this.currentQ = data.currentQ; 
+                            this.score = data.score;
+                            this.history = data.history; 
+                            this.questions = data.questions;
                         } else {
                             localStorage.removeItem('quiz_progress_' + this.studentCode);
                             this.init(); 
                         }
-                    } else { this.init(); }
+                    } else { 
+                        this.init(); 
+                    }
 
-                    document.getElementById('start-btn').style.display = 'none';
-                    document.getElementById('student-code').style.display = 'none';
-                    document.getElementById('class-selector').style.display = 'none';
+                    startBtn.style.display = 'none';
+                    codeInput.style.display = 'none';
+                    classSelector.style.display = 'none';
                     document.getElementById('quiz-description').style.display = 'none';
                     
                     const welcomeMsg = document.getElementById('personalized-welcome');
-                    if(this.studentName === "JÚNIOR" || this.studentName === "JUNIOR" || code === "JR123") {
+                    if (this.studentName === "JÚNIOR" || this.studentName === "JUNIOR" || code === "JR123") {
                         welcomeMsg.innerText = "OI, JÚNIOR - GRATO POR SUA VISITA!!!";
                     } else {
                         welcomeMsg.innerText = `BEM-VINDO(A), ${this.studentName}! BOM TESTE!`;
                     }
-                    if(welcomeMsg) welcomeMsg.style.display = 'block';
+                    if (welcomeMsg) welcomeMsg.style.display = 'block';
 
                     setTimeout(() => { this.verificarPrazoEExibirMenu(); }, 2000);
 
                 } catch (error) {
                     console.error("Erro ao validar aluno:", error);
-                    alert("Erro de conexão. Tente novamente.");
+                    alert("Erro de conexão ao verificar o código. Recarregue a página e tente novamente.");
+                    startBtn.innerText = "Erro de Conexão";
                 }
             },
+
 
 
             async verificarPrazoEExibirMenu() {
