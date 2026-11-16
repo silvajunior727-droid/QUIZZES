@@ -1166,14 +1166,25 @@ const app = {
 
             exitToLogin() {
                 this.safeSwitchCard('intro-card');
-                document.getElementById('start-btn').style.display = 'inline-block';
-                document.getElementById('student-code').style.display = 'block';
-                document.getElementById('class-selector').style.display = 'block';
+                const startBtn = document.getElementById('start-btn');
+                const codeInput = document.getElementById('student-code');
+                const classSelector = document.getElementById('class-selector');
+
+                startBtn.style.display = 'inline-block';
+                startBtn.disabled = false;
+                startBtn.innerText = 'Iniciar Avaliação';
+
+                codeInput.style.display = 'block';
+                codeInput.disabled = false;
+                codeInput.value = '';
+
+                classSelector.style.display = 'block';
+                classSelector.disabled = false;
+                classSelector.value = '';
+
                 document.getElementById('quiz-description').style.display = 'block';
                 const pw = document.getElementById('personalized-welcome');
                 if(pw) pw.style.display = 'none';
-                document.getElementById('student-code').value = '';
-                document.getElementById('class-selector').value = '';
             },
 
             fcQueue: [], fcTotalMastered: 0, allFlashcardsLoaded: [], 
