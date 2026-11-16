@@ -1834,13 +1834,17 @@ async openReportsModal() {
                     let alunosArray = Object.values(alunosGroup);
                     const getSerieWeight = (s) => { if (!s) return 99; let n = parseInt(s)||0; let t = s.toUpperCase(); if (t.includes("MÉDIO")||t.includes("MEDIO")) return n+20; if(t.includes("ANO")) return n; return 50; };
                     
-                    alunosArray.sort((a, b) => {
-                        if (a.nome.toUpperCase() === "JÚNIOR" && b.nome.toUpperCase() !== "JÚNIOR") return -1;
-                        if (b.nome.toUpperCase() === "JÚNIOR" && a.nome.toUpperCase() !== "JÚNIOR") return 1;
-                        const pA = getSerieWeight(a.serie), pB = getSerieWeight(b.serie);
-                        if (pA !== pB) return pA - pB;
-                        return a.nome.localeCompare(b.nome);
-                    });
+let alunosArray = Object.values(alunosGroup);
+                    const getSerieWeight = (s) => { 
+                        if (!s) return 99; 
+                        let t = s.toUpperCase().trim(); 
+                        if (t === "5º ANO A") return 5.1;
+                        if (t === "5º ANO B") return 5.2;
+                        let n = parseInt(t) || 0; 
+                        if (t.includes("MÉDIO") || t.includes("MEDIO")) return n + 20; 
+                        if (t.includes("ANO")) return n; 
+                        return 50; 
+                    };
 
                     // 3. APLICA A MATRIZ DE 7 CORES
                     alunosArray.forEach(aluno => {
