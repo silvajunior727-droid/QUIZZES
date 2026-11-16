@@ -967,7 +967,7 @@ async startQuiz() {
                     
                     // 1. Verifica se o código sequer existe no banco
                     if (!docRef.exists) { 
-                        alert(`🚫 ACESSO BLOQUEADO!\n\nO código "${code}" não existe no sistema.\nO campo foi travado por segurança para evitar tentativas incorretas.`); 
+                        alert(`🚫 ACESSO BLOQUEADO!\n\nO código "${code}" não existe no sistema.\nREINICIE E TENTE NOVAMENTE!`); 
                         startBtn.innerText = "🔒 Acesso Bloqueado";
                         return; // Sai da função mantendo os campos travados (sem permitir alteração no código)
                     }
@@ -977,7 +977,7 @@ async startQuiz() {
 
                     // 2. Verifica se o código pertence exatamente à série escolhida (exceto código de teste JR123)
                     if (serieCadastrada !== selectedClass && code !== "JR123") {
-                        alert(`🚫 SÉRIE INCORRETA!\n\nO código "${code}" NÃO pertence à turma ${classSelector.value}.\nO código foi travado e não pode ser alterado.`);
+                        alert(`🚫 SÉRIE INCORRETA!\n\nO código "${code}" NÃO pertence à turma ${classSelector.value}.\nREINICIE E TENTE NOVAMENTE!`);
                         startBtn.innerText = "🔒 Acesso Bloqueado";
                         return; // Sai da função mantendo o código travado sem permitir alteração
                     }
