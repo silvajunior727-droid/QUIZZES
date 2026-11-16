@@ -977,7 +977,7 @@ async startQuiz() {
 
                     // 2. Verifica se o código pertence exatamente à série escolhida (exceto código de teste JR123)
                     if (serieCadastrada !== selectedClass && code !== "JR123") {
-                        alert(`🚫 SÉRIE INCORRETA!\n\nO código "${code}" NÃO pertence à turma ${classSelector.value}.\nREINICIE E TENTE NOVAMENTE!`);
+                        alert(`🚫 SÉRIE INCORRETA!\n\nO código "${code}" NÃO PERTENCE À TURMA ${classSelector.value}.\nREINICIE E TENTE NOVAMENTE!`);
                         startBtn.innerText = "🔒 Acesso Bloqueado";
                         return; // Sai da função mantendo o código travado sem permitir alteração
                     }
@@ -1831,9 +1831,8 @@ async openReportsModal() {
                         }
                     });
 
-                    let alunosArray = Object.values(alunosGroup);
-                    const getSerieWeight = (s) => { if (!s) return 99; let n = parseInt(s)||0; let t = s.toUpperCase(); if (t.includes("MÉDIO")||t.includes("MEDIO")) return n+20; if(t.includes("ANO")) return n; return 50; };
-                    
+
+
 let alunosArray = Object.values(alunosGroup);
                     const getSerieWeight = (s) => { 
                         if (!s) return 99; 
@@ -1845,6 +1844,16 @@ let alunosArray = Object.values(alunosGroup);
                         if (t.includes("ANO")) return n; 
                         return 50; 
                     };
+                    
+                    alunosArray.sort((a, b) => {
+                        if (a.nome.toUpperCase() === "JÚNIOR" && b.nome.toUpperCase() !== "JÚNIOR") return -1;
+                        if (b.nome.toUpperCase() === "JÚNIOR" && a.nome.toUpperCase() !== "JÚNIOR") return 1;
+                        const pA = getSerieWeight(a.serie), pB = getSerieWeight(b.serie);
+                        if (pA !== pB) return pA - pB;
+                        return a.nome.localeCompare(b.nome);
+                    });
+
+
 
                     // 3. APLICA A MATRIZ DE 7 CORES
                     alunosArray.forEach(aluno => {
